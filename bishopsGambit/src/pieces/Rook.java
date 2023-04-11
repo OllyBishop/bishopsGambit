@@ -4,8 +4,13 @@ import players.Colour;
 
 public class Rook extends Piece {
 
-	public Rook(Colour colour, char startingFile, int startingRank) {
-		super(ROOK_VALUE, colour, startingFile, startingRank);
+	@Override
+	public int getValue() {
+		return 5;
+	}
+
+	public Rook(Colour colour, char startFile, int startRank) {
+		super(colour, startFile, startRank);
 	}
 
 }

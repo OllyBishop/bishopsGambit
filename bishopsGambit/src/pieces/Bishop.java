@@ -4,8 +4,13 @@ import players.Colour;
 
 public class Bishop extends Piece {
 
-	public Bishop(Colour colour, char startingFile, int startingRank) {
-		super(BISHOP_VALUE, colour, startingFile, startingRank);
+	@Override
+	public int getValue() {
+		return 3;
+	}
+
+	public Bishop(Colour colour, char startFile, int startRank) {
+		super(colour, startFile, startRank);
 	}
 
 }

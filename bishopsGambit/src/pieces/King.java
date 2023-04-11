@@ -4,8 +4,13 @@ import players.Colour;
 
 public class King extends Piece {
 
-	public King(Colour colour, char startingFile, int startingRank) {
-		super(KING_VALUE, colour, startingFile, startingRank);
+	@Override
+	public int getValue() {
+		return 0;
+	}
+
+	public King(Colour colour, char startFile, int startRank) {
+		super(colour, startFile, startRank);
 	}
 
 }

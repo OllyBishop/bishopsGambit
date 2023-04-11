@@ -4,8 +4,13 @@ import players.Colour;
 
 public class Pawn extends Piece {
 
-	public Pawn(Colour colour, char startingFile, int startingRank) {
-		super(PAWN_VALUE, colour, startingFile, startingRank);
+	@Override
+	public int getValue() {
+		return 1;
+	}
+
+	public Pawn(Colour colour, char startFile, int startRank) {
+		super(colour, startFile, startRank);
 	}
 
 }

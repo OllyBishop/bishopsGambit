@@ -8,20 +8,11 @@ import javax.swing.ImageIcon;
 
 import players.Colour;
 
-public class Piece {
+public abstract class Piece {
 
-	public static final int PAWN_VALUE = 1;
-	public static final int KNIGHT_VALUE = 3;
-	public static final int BISHOP_VALUE = 3;
-	public static final int ROOK_VALUE = 5;
-	public static final int QUEEN_VALUE = 9;
-	public static final int KING_VALUE = 0;
-
-	private int value;
 	private Colour colour;
-
-	private char startingFile;
-	private int startingRank;
+	private char startFile;
+	private int startRank;
 
 	private boolean hasMoved;
 	private boolean isCaptured;
@@ -29,13 +20,7 @@ public class Piece {
 	private Image image;
 	private ImageIcon icon;
 
-	private void setValue(int value) {
-		this.value = value;
-	}
-
-	public int getValue() {
-		return this.value;
-	}
+	public abstract int getValue();
 
 	private void setColour(Colour colour) {
 		this.colour = colour;
@@ -45,20 +30,20 @@ public class Piece {
 		return this.colour;
 	}
 
-	private void setStartingFile(char file) {
-		this.startingFile = file;
+	private void setStartFile(char file) {
+		this.startFile = file;
 	}
 
-	public char getStartingFile() {
-		return this.startingFile;
+	public char getStartFile() {
+		return this.startFile;
 	}
 
-	private void setStartingRank(int rank) {
-		this.startingRank = rank;
+	private void setStartRank(int rank) {
+		this.startRank = rank;
 	}
 
-	public int getStartingRank() {
-		return this.startingRank;
+	public int getStartRank() {
+		return this.startRank;
 	}
 
 	private void setMoved(boolean hasMoved) {
@@ -93,12 +78,10 @@ public class Piece {
 		return this.icon;
 	}
 
-	public Piece(int value, Colour colour, char file, int rank) {
-		setValue(value);
+	public Piece(Colour colour, char startFile, int startRank) {
 		setColour(colour);
-
-		setStartingFile(file);
-		setStartingRank(rank);
+		setStartFile(startFile);
+		setStartRank(startRank);
 
 		setMoved(false);
 		setCaptured(false);
@@ -112,7 +95,9 @@ public class Piece {
 	}
 
 	public String getImageURL() {
-		return String.format("/img/%s_%s.png", getColour().toString(), getClass().getSimpleName());
+		String colourStr = getColour().toString();
+		String pieceStr = getClass().getSimpleName();
+		return String.format("/img/%s_%s.png", colourStr, pieceStr);
 	}
 
 }
