@@ -4,7 +4,6 @@ import java.awt.Image;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 import players.Colour;
 
@@ -18,7 +17,6 @@ public abstract class Piece {
 	private boolean isCaptured;
 
 	private Image image;
-	private ImageIcon icon;
 
 	public abstract int getValue();
 
@@ -46,7 +44,7 @@ public abstract class Piece {
 		return this.startRank;
 	}
 
-	private void setMoved(boolean hasMoved) {
+	public void setMoved(boolean hasMoved) {
 		this.hasMoved = hasMoved;
 	}
 
@@ -54,7 +52,7 @@ public abstract class Piece {
 		return this.hasMoved;
 	}
 
-	private void setCaptured(boolean isCaptured) {
+	public void setCaptured(boolean isCaptured) {
 		this.isCaptured = isCaptured;
 	}
 
@@ -70,14 +68,6 @@ public abstract class Piece {
 		return this.image;
 	}
 
-	private void setIcon(ImageIcon icon) {
-		this.icon = icon;
-	}
-
-	public ImageIcon getIcon() {
-		return this.icon;
-	}
-
 	public Piece(Colour colour, char startFile, int startRank) {
 		setColour(colour);
 		setStartFile(startFile);
@@ -91,7 +81,6 @@ public abstract class Piece {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		setIcon(new ImageIcon(getImage()));
 	}
 
 	public String getImageURL() {

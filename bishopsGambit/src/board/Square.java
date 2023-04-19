@@ -1,8 +1,6 @@
 package board;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -11,11 +9,13 @@ import pieces.Piece;
 
 public class Square extends JButton {
 
-	private static final Color DARK = new Color(157, 108, 60);
-	private static final Color LIGHT = new Color(238, 213, 174);
+	private static final Color DARK = new Color(209, 139, 71);
+	private static final Color LIGHT = new Color(254, 206, 157);
+	public static final Color SELECTED = new Color(253, 253, 150);
 
 	private char file;
 	private int rank;
+	private Color bgColor;
 	private Piece piece;
 
 	private void setFile(char file) {
@@ -34,6 +34,14 @@ public class Square extends JButton {
 		return this.rank;
 	}
 
+	private void setBgColor(Color color) {
+		this.bgColor = color;
+	}
+
+	public Color getBgColor() {
+		return this.bgColor;
+	}
+
 	public void setPiece(Piece piece) {
 		this.piece = piece;
 	}
@@ -42,19 +50,31 @@ public class Square extends JButton {
 		return this.piece;
 	}
 
+	public int getFileIndex() {
+		return getFileIndex(getFile());
+	}
+
+	public int getRankIndex() {
+		return getRankIndex(getRank());
+	}
+
+	public static int getFileIndex(char file) {
+		return file - 97;
+	}
+
+	public static int getRankIndex(int rank) {
+		return rank - 1;
+	}
+
 	public Square(char file, int rank) {
 		setFile(file);
 		setRank(rank);
+		setBgColor((file + rank) % 2 == 0 ? DARK : LIGHT);
 
 		setBorder(BorderFactory.createEmptyBorder());
-		setBackground((file + rank) % 2 == 0 ? DARK : LIGHT);
+		setBackground(getBgColor());
 		setToolTipText(getCoordinates());
 		setOpaque(true);
-
-		addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 	}
 
 	/**
@@ -75,24 +95,16 @@ public class Square extends JButton {
 		return getPiece() != null;
 	}
 
-	public void setFontSize(float fontSize) {
-		setFont(getFont().deriveFont(fontSize));
+	public Square select() {
+		setSelected(true);
+		setBackground(SELECTED);
+		return this;
 	}
 
-	public void updateIcon() {
-		if (isOccupied()) {
-			setIcon(getPiece().getIcon());
-		} else {
-			setIcon(null);
-		}
-	}
-
-	public static int fileToIndex(char file) {
-		return (int) (file - 97);
-	}
-
-	public static int rankToIndex(int rank) {
-		return rank - 1;
+	public Square deselect() {
+		setSelected(false);
+		setBackground(getBgColor());
+		return null;
 	}
 
 }

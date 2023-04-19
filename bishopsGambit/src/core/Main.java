@@ -1,7 +1,7 @@
 package core;
 
 import java.awt.EventQueue;
-import board.Board;
+
 import gui.ChessGUI;
 
 public class Main {
@@ -11,12 +11,12 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		Game game = new Game();
-		Board board = game.getBoard();
 
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
-					ChessGUI frame = new ChessGUI(board);
+					ChessGUI frame = new ChessGUI(game);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

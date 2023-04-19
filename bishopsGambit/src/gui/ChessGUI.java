@@ -2,9 +2,14 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -12,45 +17,78 @@ import javax.swing.JPanel;
 
 import board.Board;
 import board.Square;
-import players.Colour;
+import core.Game;
+import players.Player;
 
 public class ChessGUI extends JFrame {
 
 	private JPanel contentPane;
+	private int scale;
 
-	private Board board;
+	private Game game;
 
-	private void setBoard(Board board) {
-		this.board = board;
+	private void setGame(Game game) {
+		this.game = game;
+	}
+
+	private Game getGame() {
+		return this.game;
 	}
 
 	private Board getBoard() {
-		return this.board;
+		return getGame().getBoard();
+	}
+
+	private Player getCurrentPlayer() {
+		return getGame().getCurrentPlayer();
 	}
 
 	/**
 	 * Create the frame.
 	 */
-	public ChessGUI(Board board) {
-		setBoard(board);
+	public ChessGUI(Game game) {
+		setGame(game);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		setBounds(0, 0, screenSize.width, screenSize.height);
+		setBounds(0, 0, screenSize.width / 2, screenSize.height);
 
 		contentPane = new JPanel();
 		contentPane.setLayout(null);
-
 		setContentPane(contentPane);
 
-		for (Square square : board) {
+		for (Square square : getBoard()) {
+			square.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					getBoard().squareSelected(square, getCurrentPlayer());
+				}
+			});
 			contentPane.add(square);
 		}
+
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent e) {
+				boolean b;
+				if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED) {
+					b = getBoard().makeMove();
+					if (b) {
+						getGame().nextTurn();
+						updateBoard();
+					}
+				} else {
+					b = false;
+				}
+				return b;
+			}
+		});
 
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				resizeBoard();
+				updateGUI();
 			}
 		});
 
@@ -58,33 +96,36 @@ public class ChessGUI extends JFrame {
 	}
 
 	public void updateGUI() {
-		for (Square square : getBoard()) {
-			square.updateIcon();
-		}
+		updateBoard();
 	}
 
-	public void resizeBoard() {
-		resizeBoard(Colour.WHITE);
+	public void updateBoard() {
+		updateBoard(getCurrentPlayer());
 	}
 
-	public void resizeBoard(Colour perspective) {
+	/**
+	 * Resizes and repositions the board relative to the size of the application
+	 * window.
+	 */
+	public void updateBoard(Player perspective) {
 		int width = contentPane.getWidth();
 		int height = contentPane.getHeight();
 
 		int xMid = width / 2;
 		int yMid = height / 2;
-		int scale = Math.min(width, height) / 10;
-		scale = Math.max(10, scale);
+
+		/*
+		 * Set scale to 10% of width or height of frame (whichever is smallest),
+		 * ensuring a lower bound of 10 pixels.
+		 */
+		scale = Math.max(10, Math.min(width, height) / 10);
 
 		for (Square square : getBoard()) {
-			char file = square.getFile();
-			int rank = square.getRank();
-
-			int fileIndex = Square.fileToIndex(file);
-			int rankIndex = Square.rankToIndex(rank);
+			int fileIndex = square.getFileIndex();
+			int rankIndex = square.getRankIndex();
 
 			int x, y;
-			if (perspective == Colour.WHITE) {
+			if (perspective == getGame().getWhite()) {
 				x = xMid - (4 - fileIndex) * scale;
 				y = yMid + (3 - rankIndex) * scale;
 			} else {
@@ -94,9 +135,13 @@ public class ChessGUI extends JFrame {
 			square.setBounds(x, y, scale, scale);
 
 			if (square.isOccupied()) {
-				Image image = square.getPiece().getImage().getScaledInstance(scale, scale, Image.SCALE_SMOOTH);
-				square.setIcon(new ImageIcon(image));
+				Image imageFull = square.getPiece().getImage();
+				Image imageScaled = imageFull.getScaledInstance(scale, scale, Image.SCALE_SMOOTH);
+				square.setIcon(new ImageIcon(imageScaled));
+			} else {
+				square.setIcon(null);
 			}
 		}
 	}
+
 }

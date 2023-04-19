@@ -2,11 +2,26 @@ package players;
 
 import java.util.ArrayList;
 
-import pieces.*;
+import pieces.Bishop;
+import pieces.King;
+import pieces.Knight;
+import pieces.Pawn;
+import pieces.Piece;
+import pieces.Queen;
+import pieces.Rook;
 
 public class Player {
 
+	private Colour colour;
 	private ArrayList<Piece> pieces;
+
+	private void setColour(Colour colour) {
+		this.colour = colour;
+	}
+
+	public Colour getColour() {
+		return this.colour;
+	}
 
 	private void setPieces(ArrayList<Piece> pieces) {
 		this.pieces = pieces;
@@ -17,6 +32,8 @@ public class Player {
 	}
 
 	public Player(Colour colour) {
+		setColour(colour);
+
 		int backRank = colour == Colour.WHITE ? 1 : 8;
 		int pawnRank = colour == Colour.WHITE ? 2 : 7;
 
