@@ -46,11 +46,11 @@ public class Game {
 		assignPieces(getBlack());
 	}
 
-	public void assignPieces(Player player) {
-		for (Piece piece : player.getPieces()) {
-			char startFile = piece.getStartFile();
-			int startRank = piece.getStartRank();
-			getBoard().getSquare(startFile, startRank).setPiece(piece);
+	private void assignPieces(Player player) {
+		for (Piece p : player.getPieces()) {
+			char startFile = p.getStartFile();
+			int startRank = p.getStartRank();
+			getBoard().getSquare(startFile, startRank).setPiece(p);
 		}
 	}
 

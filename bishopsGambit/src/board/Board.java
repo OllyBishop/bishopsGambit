@@ -7,8 +7,16 @@ import players.Player;
 
 public class Board extends ArrayList<Square> {
 
-	public Square from;
-	public Square to;
+	private Square from;
+	private Square to;
+
+	private void setFrom(Square from) {
+		this.from = from;
+	}
+
+	private void setTo(Square to) {
+		this.to = to;
+	}
 
 	/**
 	 * Creates an ArrayList of 64 squares, comprising the chess board.
@@ -29,49 +37,86 @@ public class Board extends ArrayList<Square> {
 	 * @return the square with the given file and rank
 	 */
 	public Square getSquare(char file, int rank) {
-		int fileIndex = Square.getFileIndex(file);
-		int rankIndex = Square.getRankIndex(rank);
-		return get(fileIndex * 8 + rankIndex);
+		Square square;
+		if ('a' <= file && file <= 'h' && 1 <= rank && rank <= 8) {
+			int fileIndex = Square.getFileIndex(file);
+			int rankIndex = Square.getRankIndex(rank);
+			square = get(fileIndex * 8 + rankIndex);
+		} else {
+			square = null;
+		}
+		return square;
 	}
 
-	public void squareSelected(Square square, Player player) {
-		boolean squareCanBeMovedFrom = player.getPieces().contains(square.getPiece());
+	/**
+	 * Finds the square containing the given piece.
+	 * 
+	 * @param piece the piece contained in the square to be found
+	 * @return the square containing the given piece
+	 */
+	public Square getSquare(Piece piece) {
+		Square square = null;
+		for (Square s : this) {
+			if (s.getPiece() == piece) {
+				square = s;
+				break;
+			}
+		}
+		return square;
+	}
 
+	/**
+	 * Updates the appearance of the chess board based on which square has been
+	 * pressed. Specifically, this method shows legal moves and highlights pressed
+	 * squares (that correspond to legal moves).
+	 * 
+	 * @param square the square that was pressed
+	 * @param player the player who pressed the square
+	 */
+	public void squarePressed(Square square, Player player) {
 		boolean deselectFrom = false;
 		Square selectFrom = null;
 		Square selectTo = null;
 
-		if (squareCanBeMovedFrom) {
+		if (square.containsPiece(player)) {
 			deselectFrom = true;
-			if (square != from)
+			if (from != square)
 				selectFrom = square;
 		}
 
 		else if (from != null) {
-			boolean squareCanBeMovedTo = !squareCanBeMovedFrom;
-
-			if (squareCanBeMovedTo) {
-				if (square != to)
+			if (to == null)
+				if (getTargets(from).contains(square))
 					selectTo = square;
-			}
-
-			else {
+				else
+					deselectFrom = true;
+			else if (to != square)
 				deselectFrom = true;
-			}
 		}
 
+		for (Square s : this)
+			s.setText(null);
+
 		if (deselectFrom && from != null)
-			from = from.deselect();
+			setFrom(from.deselect());
 		if (to != null)
-			to = to.deselect();
+			setTo(to.deselect());
 		if (selectFrom != null)
-			from = selectFrom.select();
+			setFrom(selectFrom.select());
 		if (selectTo != null)
-			to = selectTo.select();
+			setTo(selectTo.select());
+
+		if (from != null && to == null)
+			for (Square s : getTargets(from))
+				s.setText("●");
+	}
+
+	public ArrayList<Square> getTargets(Square square) {
+		return square.getPiece().getTargets(this);
 	}
 
 	public boolean makeMove() {
-		boolean b;
+		boolean success;
 		if (from != null && to != null) {
 			Piece pieceFrom = from.getPiece();
 			Piece pieceTo = to.getPiece();
@@ -83,14 +128,14 @@ public class Board extends ArrayList<Square> {
 			to.setPiece(pieceFrom);
 			from.setPiece(null);
 
-			from = from.deselect();
-			to = to.deselect();
+			setFrom(from.deselect());
+			setTo(to.deselect());
 
-			b = true;
+			success = true;
 		} else {
-			b = false;
+			success = false;
 		}
-		return b;
+		return success;
 	}
 
 }

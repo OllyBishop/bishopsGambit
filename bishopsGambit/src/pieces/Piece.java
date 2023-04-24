@@ -2,17 +2,29 @@ package pieces;
 
 import java.awt.Image;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import board.Board;
+import board.Square;
 import players.Colour;
+import players.Player;
 
 public abstract class Piece {
 
-	private Colour colour;
+	private Player player; // References the player this piece belongs to
+
+	private void setPlayer(Player player) {
+		this.player = player;
+	}
+
+	public Player getPlayer() {
+		return this.player;
+	}
+
 	private char startFile;
 	private int startRank;
-
 	private boolean hasMoved;
 	private boolean isCaptured;
 
@@ -20,13 +32,14 @@ public abstract class Piece {
 
 	public abstract int getValue();
 
-	private void setColour(Colour colour) {
-		this.colour = colour;
-	}
-
-	public Colour getColour() {
-		return this.colour;
-	}
+	/**
+	 * Returns a list of all squares this piece is currently targeting; i.e., all
+	 * squares this piece could move to (assuming checks are ignored).
+	 * 
+	 * @param board the chess board
+	 * @return a list of all squares this piece is currently targeting
+	 */
+	public abstract ArrayList<Square> getTargets(Board board);
 
 	private void setStartFile(char file) {
 		this.startFile = file;
@@ -68,11 +81,11 @@ public abstract class Piece {
 		return this.image;
 	}
 
-	public Piece(Colour colour, char startFile, int startRank) {
-		setColour(colour);
+	public Piece(Player player, char startFile, int startRank) {
+		setPlayer(player);
+
 		setStartFile(startFile);
 		setStartRank(startRank);
-
 		setMoved(false);
 		setCaptured(false);
 
@@ -87,6 +100,31 @@ public abstract class Piece {
 		String colourStr = getColour().toString();
 		String pieceStr = getClass().getSimpleName();
 		return String.format("/img/%s_%s.png", colourStr, pieceStr);
+	}
+
+	public Colour getColour() {
+		return getPlayer().getColour();
+	}
+
+	/**
+	 * Returns the square this piece is assigned to.
+	 * 
+	 * @param board the chess board
+	 * @return the square this piece is assigned to
+	 */
+	public Square getSquare(Board board) {
+		return board.getSquare(this);
+	}
+
+	public boolean isTargeted(Board board) {
+		boolean isTargeted = false;
+		for (Square s : board) {
+			if (s.isOccupiedByOpponent(getPlayer()) && board.getTargets(s).contains(getSquare(board))) {
+				isTargeted = true;
+				break;
+			}
+		}
+		return isTargeted;
 	}
 
 }

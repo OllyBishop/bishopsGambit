@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.KeyEventDispatcher;
@@ -11,9 +12,11 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 import board.Board;
 import board.Square;
@@ -23,7 +26,6 @@ import players.Player;
 public class ChessGUI extends JFrame {
 
 	private JPanel contentPane;
-	private int scale;
 
 	private Game game;
 
@@ -57,31 +59,26 @@ public class ChessGUI extends JFrame {
 		contentPane.setLayout(null);
 		setContentPane(contentPane);
 
-		for (Square square : getBoard()) {
-			square.addActionListener(new ActionListener() {
+		for (Square s : getBoard()) {
+			s.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					getBoard().squareSelected(square, getCurrentPlayer());
+					getBoard().squarePressed(s, getCurrentPlayer());
 				}
 			});
-			contentPane.add(square);
+			contentPane.add(s);
 		}
 
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
-
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent e) {
-				boolean b;
 				if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED) {
-					b = getBoard().makeMove();
-					if (b) {
+					if (getBoard().makeMove()) {
 						getGame().nextTurn();
 						updateBoard();
 					}
-				} else {
-					b = false;
 				}
-				return b;
+				return false;
 			}
 		});
 
@@ -95,19 +92,22 @@ public class ChessGUI extends JFrame {
 		updateGUI();
 	}
 
-	public void updateGUI() {
+	private void updateGUI() {
 		updateBoard();
 	}
 
-	public void updateBoard() {
+	private void updateBoard() {
 		updateBoard(getCurrentPlayer());
 	}
 
 	/**
-	 * Resizes and repositions the board relative to the size of the application
-	 * window.
+	 * Resizes and repositions the chess board relative to the size of the
+	 * application window. Updates the appearance of each square based on pieces
+	 * moved. The board is oriented to the given player's perspective.
+	 * 
+	 * @param perspective the player to whose perspective the board is oriented
 	 */
-	public void updateBoard(Player perspective) {
+	private void updateBoard(Player perspective) {
 		int width = contentPane.getWidth();
 		int height = contentPane.getHeight();
 
@@ -118,29 +118,50 @@ public class ChessGUI extends JFrame {
 		 * Set scale to 10% of width or height of frame (whichever is smallest),
 		 * ensuring a lower bound of 10 pixels.
 		 */
-		scale = Math.max(10, Math.min(width, height) / 10);
+		int scale = Math.max(10, Math.min(width, height) / 10);
 
-		for (Square square : getBoard()) {
-			int fileIndex = square.getFileIndex();
-			int rankIndex = square.getRankIndex();
+		for (Square s : getBoard()) {
+			int fileIndex = s.getFileIndex();
+			int rankIndex = s.getRankIndex();
 
-			int x, y;
-			if (perspective == getGame().getWhite()) {
-				x = xMid - (4 - fileIndex) * scale;
-				y = yMid + (3 - rankIndex) * scale;
-			} else {
-				x = xMid + (3 - fileIndex) * scale;
-				y = yMid - (4 - rankIndex) * scale;
+			int x = xMid;
+			int y = yMid;
+
+			switch (perspective.getColour()) {
+			case WHITE:
+				x -= (4 - fileIndex) * scale;
+				y += (3 - rankIndex) * scale;
+				break;
+			case BLACK:
+				x += (3 - fileIndex) * scale;
+				y -= (4 - rankIndex) * scale;
+				break;
 			}
-			square.setBounds(x, y, scale, scale);
 
-			if (square.isOccupied()) {
-				Image imageFull = square.getPiece().getImage();
+			s.setBounds(x, y, scale, scale);
+
+			if (s.isOccupied()) {
+				Image imageFull = s.getPiece().getImage();
 				Image imageScaled = imageFull.getScaledInstance(scale, scale, Image.SCALE_SMOOTH);
-				square.setIcon(new ImageIcon(imageScaled));
+				s.setIcon(new ImageIcon(imageScaled));
 			} else {
-				square.setIcon(null);
+				s.setIcon(null);
 			}
+
+			s.setFont(s.getFont().deriveFont((float) scale));
+
+			s.setEmptyBorder();
+		}
+
+		showCheck(getGame().getWhite(), scale);
+		showCheck(getGame().getBlack(), scale);
+	}
+
+	private void showCheck(Player player, int scale) {
+		Square square = player.getKing().getSquare(getBoard());
+		if (square != null && player.inCheck(getBoard())) {
+			Border border = BorderFactory.createLineBorder(Color.red, Math.max(1, scale / 20));
+			square.setBorder(border);
 		}
 	}
 

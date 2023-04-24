@@ -4,14 +4,20 @@ import java.awt.Color;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.border.Border;
 
 import pieces.Piece;
+import players.Player;
+import utils.ColorUtils;
 
 public class Square extends JButton {
 
+	private static final Border EMPTY_BORDER = BorderFactory.createEmptyBorder();
+
 	private static final Color DARK = new Color(209, 139, 71);
 	private static final Color LIGHT = new Color(254, 206, 157);
-	public static final Color SELECTED = new Color(253, 253, 150);
+	private static final Color HIGHLIGHT = ColorUtils.blend(Color.yellow, Color.white);
+	private static final Color BLACK_SEMI_TRANSPARENT = ColorUtils.changeAlpha(Color.black, 85);
 
 	private char file;
 	private int rank;
@@ -38,7 +44,7 @@ public class Square extends JButton {
 		this.bgColor = color;
 	}
 
-	public Color getBgColor() {
+	private Color getBgColor() {
 		return this.bgColor;
 	}
 
@@ -71,10 +77,16 @@ public class Square extends JButton {
 		setRank(rank);
 		setBgColor((file + rank) % 2 == 0 ? DARK : LIGHT);
 
-		setBorder(BorderFactory.createEmptyBorder());
+		setEmptyBorder();
 		setBackground(getBgColor());
+		setForeground(BLACK_SEMI_TRANSPARENT);
+		setHorizontalTextPosition(CENTER);
 		setToolTipText(getCoordinates());
 		setOpaque(true);
+	}
+
+	public void setEmptyBorder() {
+		setBorder(EMPTY_BORDER);
 	}
 
 	/**
@@ -82,7 +94,7 @@ public class Square extends JButton {
 	 * 
 	 * @return the coordinates of this square as a string
 	 */
-	public String getCoordinates() {
+	private String getCoordinates() {
 		return String.format("%s%s", getFile(), getRank());
 	}
 
@@ -95,9 +107,21 @@ public class Square extends JButton {
 		return getPiece() != null;
 	}
 
+	public boolean isOccupiedByPlayer(Player player) {
+		return isOccupied() && containsPiece(player);
+	}
+
+	public boolean isOccupiedByOpponent(Player player) {
+		return isOccupied() && !containsPiece(player);
+	}
+
+	public boolean containsPiece(Player player) {
+		return player.getPieces().contains(getPiece());
+	}
+
 	public Square select() {
 		setSelected(true);
-		setBackground(SELECTED);
+		setBackground(ColorUtils.blend(getBgColor(), HIGHLIGHT, 1, 3));
 		return this;
 	}
 
