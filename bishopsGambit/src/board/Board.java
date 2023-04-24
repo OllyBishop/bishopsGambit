@@ -49,23 +49,6 @@ public class Board extends ArrayList<Square> {
 	}
 
 	/**
-	 * Finds the square containing the given piece.
-	 * 
-	 * @param piece the piece contained in the square to be found
-	 * @return the square containing the given piece
-	 */
-	public Square getSquare(Piece piece) {
-		Square square = null;
-		for (Square s : this) {
-			if (s.getPiece() == piece) {
-				square = s;
-				break;
-			}
-		}
-		return square;
-	}
-
-	/**
 	 * Updates the appearance of the chess board based on which square has been
 	 * pressed. Specifically, this method shows legal moves and highlights pressed
 	 * squares (that correspond to legal moves).
@@ -78,7 +61,7 @@ public class Board extends ArrayList<Square> {
 		Square selectFrom = null;
 		Square selectTo = null;
 
-		if (square.containsPiece(player)) {
+		if (square.isOccupiedByPlayer(player)) {
 			deselectFrom = true;
 			if (from != square)
 				selectFrom = square;
@@ -94,8 +77,7 @@ public class Board extends ArrayList<Square> {
 				deselectFrom = true;
 		}
 
-		for (Square s : this)
-			s.setText(null);
+		stream().forEach(s -> s.setText(null));
 
 		if (deselectFrom && from != null)
 			setFrom(from.deselect());
@@ -107,14 +89,28 @@ public class Board extends ArrayList<Square> {
 			setTo(selectTo.select());
 
 		if (from != null && to == null)
-			for (Square s : getTargets(from))
-				s.setText("●");
+			getTargets(from).stream().forEach(s -> s.setText("●"));
 	}
 
+	/**
+	 * Returns a list of all squares the piece in the given square is currently
+	 * targeting; i.e., all squares the piece could move to (assuming checks are
+	 * ignored).
+	 * 
+	 * @param square the square
+	 * @return a list of all squares the piece in the given square is currently
+	 *         targeting
+	 */
 	public ArrayList<Square> getTargets(Square square) {
 		return square.getPiece().getTargets(this);
 	}
 
+	/**
+	 * Moves the piece from the 'from' square to the 'to' square. The 'from' square
+	 * is emptied and its piece is assigned to the 'to' square.
+	 * 
+	 * @return true if the move was successful, false otherwise
+	 */
 	public boolean makeMove() {
 		boolean success;
 		if (from != null && to != null) {

@@ -46,6 +46,11 @@ public class Game {
 		assignPieces(getBlack());
 	}
 
+	/**
+	 * Assigns all the pieces of the given player to their starting squares.
+	 * 
+	 * @param player the player whose pieces are to be assigned
+	 */
 	private void assignPieces(Player player) {
 		for (Piece p : player.getPieces()) {
 			char startFile = p.getStartFile();
@@ -54,10 +59,19 @@ public class Game {
 		}
 	}
 
+	/**
+	 * Returns the player whose turn it currently is, based on the number of turns
+	 * taken.
+	 * 
+	 * @return white if the number of turns taken is even, black if it is odd
+	 */
 	public Player getCurrentPlayer() {
 		return this.noOfTurns % 2 == 0 ? getWhite() : getBlack();
 	}
 
+	/**
+	 * Increments the number of turns taken by 1.
+	 */
 	public void nextTurn() {
 		this.noOfTurns++;
 	}

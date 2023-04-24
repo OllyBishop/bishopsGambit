@@ -21,7 +21,7 @@ public class Rook extends Piece {
 	public static ArrayList<Square> getTargets(Board board, Piece piece) {
 		ArrayList<Square> targets = new ArrayList<Square>();
 
-		Square square = board.getSquare(piece);
+		Square square = piece.getSquare(board);
 		char file = square.getFile();
 		int rank = square.getRank();
 

@@ -23,6 +23,10 @@ public abstract class Piece {
 		return this.player;
 	}
 
+	public Colour getColour() {
+		return getPlayer().getColour();
+	}
+
 	private char startFile;
 	private int startRank;
 	private boolean hasMoved;
@@ -30,6 +34,11 @@ public abstract class Piece {
 
 	private Image image;
 
+	/**
+	 * Returns the value of this piece as an integer.
+	 * 
+	 * @return the value of this piece as an integer
+	 */
 	public abstract int getValue();
 
 	/**
@@ -96,26 +105,43 @@ public abstract class Piece {
 		}
 	}
 
+	/**
+	 * Generates a URL for this piece's image based on its colour and type. The URL
+	 * has the form <code>"/img/COLOUR_TYPE.png"</code>.
+	 * 
+	 * @return a URL for this piece's image based on its colour and type
+	 */
 	public String getImageURL() {
 		String colourStr = getColour().toString();
 		String pieceStr = getClass().getSimpleName();
 		return String.format("/img/%s_%s.png", colourStr, pieceStr);
 	}
 
-	public Colour getColour() {
-		return getPlayer().getColour();
-	}
-
 	/**
-	 * Returns the square this piece is assigned to.
+	 * Finds the square this piece is assigned to.
 	 * 
 	 * @param board the chess board
 	 * @return the square this piece is assigned to
 	 */
 	public Square getSquare(Board board) {
-		return board.getSquare(this);
+		Square square = null;
+		for (Square s : board) {
+			if (s.getPiece() == this) {
+				square = s;
+				break;
+			}
+		}
+		return square;
 	}
 
+	/**
+	 * Returns a boolean indicating whether or not this piece is currently being
+	 * targeted by an opponent's piece.
+	 * 
+	 * @param board the chess board
+	 * @return true if this piece is currently being targeted by an opponent's
+	 *         piece, false otherwise
+	 */
 	public boolean isTargeted(Board board) {
 		boolean isTargeted = false;
 		for (Square s : board) {

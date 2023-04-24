@@ -21,11 +21,13 @@ import javax.swing.border.Border;
 import board.Board;
 import board.Square;
 import core.Game;
+import pieces.King;
 import players.Player;
 
 public class ChessGUI extends JFrame {
 
 	private JPanel contentPane;
+	private int scale;
 
 	private Game game;
 
@@ -41,6 +43,12 @@ public class ChessGUI extends JFrame {
 		return getGame().getBoard();
 	}
 
+	/**
+	 * Returns the player whose turn it currently is, based on the number of turns
+	 * taken.
+	 * 
+	 * @return white if the number of turns taken is even, black if it is odd
+	 */
 	private Player getCurrentPlayer() {
 		return getGame().getCurrentPlayer();
 	}
@@ -92,10 +100,19 @@ public class ChessGUI extends JFrame {
 		updateGUI();
 	}
 
+	/**
+	 * Updates the appearance of the GUI.
+	 */
 	private void updateGUI() {
 		updateBoard();
 	}
 
+	/**
+	 * Resizes and repositions the chess board relative to the size of the
+	 * application window. Updates the appearance of each square based on pieces
+	 * moved. The board is oriented to the perspective of the player whose turn it
+	 * is.
+	 */
 	private void updateBoard() {
 		updateBoard(getCurrentPlayer());
 	}
@@ -118,7 +135,7 @@ public class ChessGUI extends JFrame {
 		 * Set scale to 10% of width or height of frame (whichever is smallest),
 		 * ensuring a lower bound of 10 pixels.
 		 */
-		int scale = Math.max(10, Math.min(width, height) / 10);
+		scale = Math.max(10, Math.min(width, height) / 10);
 
 		for (Square s : getBoard()) {
 			int fileIndex = s.getFileIndex();
@@ -150,16 +167,12 @@ public class ChessGUI extends JFrame {
 
 			s.setFont(s.getFont().deriveFont((float) scale));
 
-			s.setEmptyBorder();
+			if (s.getPiece() instanceof King)
+				s.setEmptyBorder();
 		}
 
-		showCheck(getGame().getWhite(), scale);
-		showCheck(getGame().getBlack(), scale);
-	}
-
-	private void showCheck(Player player, int scale) {
-		Square square = player.getKing().getSquare(getBoard());
-		if (square != null && player.inCheck(getBoard())) {
+		Square square = getCurrentPlayer().getKing().getSquare(getBoard());
+		if (square != null && getCurrentPlayer().inCheck(getBoard())) {
 			Border border = BorderFactory.createLineBorder(Color.red, Math.max(1, scale / 20));
 			square.setBorder(border);
 		}

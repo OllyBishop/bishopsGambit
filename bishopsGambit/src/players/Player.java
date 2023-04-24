@@ -100,6 +100,13 @@ public class Player {
 		setPieces(pieces);
 	}
 
+	/**
+	 * Returns a boolean indicating whether or not this player's king is currently
+	 * in check.
+	 * 
+	 * @param board the chess board
+	 * @return true if this player's king is currently in check, false otherwise
+	 */
 	public boolean inCheck(Board board) {
 		return getKing().isTargeted(board);
 	}

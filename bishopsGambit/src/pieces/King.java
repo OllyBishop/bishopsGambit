@@ -17,7 +17,7 @@ public class King extends Piece {
 	public ArrayList<Square> getTargets(Board board) {
 		ArrayList<Square> targets = new ArrayList<Square>();
 
-		Square square = board.getSquare(this);
+		Square square = getSquare(board);
 		char file = square.getFile();
 		int rank = square.getRank();
 

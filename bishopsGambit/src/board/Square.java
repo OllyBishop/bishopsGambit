@@ -107,24 +107,48 @@ public class Square extends JButton {
 		return getPiece() != null;
 	}
 
+	/**
+	 * Returns a boolean indicating whether or not this square is occupied by a
+	 * piece belonging to the given player.
+	 * 
+	 * @param player the player
+	 * @return true if this square contains a piece belonging to the given player,
+	 *         false otherwise
+	 */
 	public boolean isOccupiedByPlayer(Player player) {
-		return isOccupied() && containsPiece(player);
-	}
-
-	public boolean isOccupiedByOpponent(Player player) {
-		return isOccupied() && !containsPiece(player);
-	}
-
-	public boolean containsPiece(Player player) {
 		return player.getPieces().contains(getPiece());
 	}
 
+	/**
+	 * Returns a boolean indicating whether or not this square is occupied by a
+	 * piece <i>not</i> belonging to the given player.
+	 * 
+	 * @param player the player
+	 * @return true if this square contains a piece <i>not</i> belonging to the
+	 *         given player, false otherwise
+	 */
+	public boolean isOccupiedByOpponent(Player player) {
+		return isOccupied() && !isOccupiedByPlayer(player);
+	}
+
+	/**
+	 * Sets the selected state of this square to true. Changes the background color
+	 * of this square to indicate it is selected.
+	 * 
+	 * @return this square
+	 */
 	public Square select() {
 		setSelected(true);
 		setBackground(ColorUtils.blend(getBgColor(), HIGHLIGHT, 1, 3));
 		return this;
 	}
 
+	/**
+	 * Sets the selected state of this square to false. Changes the background color
+	 * of this square to its default color.
+	 * 
+	 * @return null
+	 */
 	public Square deselect() {
 		setSelected(false);
 		setBackground(getBgColor());
