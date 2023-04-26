@@ -21,7 +21,6 @@ import javax.swing.border.Border;
 import board.Board;
 import board.Square;
 import core.Game;
-import pieces.King;
 import players.Player;
 
 public class ChessGUI extends JFrame {
@@ -80,13 +79,15 @@ public class ChessGUI extends JFrame {
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED) {
-					if (getBoard().makeMove()) {
-						getGame().nextTurn();
-						updateBoard();
-					}
+				boolean canMove = getBoard().canMove();
+				if (canMove && e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED) {
+					if (getCurrentPlayer().inCheck(getBoard()))
+						getCurrentPlayer().getKing().getSquare(getBoard()).setEmptyBorder();
+					getBoard().move();
+					getGame().nextTurn();
+					updateBoard();
 				}
-				return false;
+				return canMove;
 			}
 		});
 
@@ -166,9 +167,6 @@ public class ChessGUI extends JFrame {
 			}
 
 			s.setFont(s.getFont().deriveFont((float) scale));
-
-			if (s.getPiece() instanceof King)
-				s.setEmptyBorder();
 		}
 
 		Square square = getCurrentPlayer().getKing().getSquare(getBoard());

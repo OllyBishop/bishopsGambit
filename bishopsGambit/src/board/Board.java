@@ -106,32 +106,34 @@ public class Board extends ArrayList<Square> {
 	}
 
 	/**
+	 * Returns a boolean indicating whether or not both a valid 'from' and 'to'
+	 * square have been selected, thus a move can be made.
+	 * 
+	 * @return true if a move can be made, false otherwise
+	 */
+	public boolean canMove() {
+		return (from != null && to != null);
+	}
+
+	/**
 	 * Moves the piece from the 'from' square to the 'to' square. The 'from' square
 	 * is emptied and its piece is assigned to the 'to' square.
 	 * 
 	 * @return true if the move was successful, false otherwise
 	 */
-	public boolean makeMove() {
-		boolean success;
-		if (from != null && to != null) {
-			Piece pieceFrom = from.getPiece();
-			Piece pieceTo = to.getPiece();
+	public void move() {
+		Piece pieceFrom = from.getPiece();
+		Piece pieceTo = to.getPiece();
 
-			pieceFrom.setMoved(true);
-			if (pieceTo != null)
-				pieceTo.setCaptured(true);
+		pieceFrom.setMoved(true);
+		if (pieceTo != null)
+			pieceTo.setCaptured(true);
 
-			to.setPiece(pieceFrom);
-			from.setPiece(null);
+		to.setPiece(pieceFrom);
+		from.setPiece(null);
 
-			setFrom(from.deselect());
-			setTo(to.deselect());
-
-			success = true;
-		} else {
-			success = false;
-		}
-		return success;
+		setFrom(from.deselect());
+		setTo(to.deselect());
 	}
 
 }
