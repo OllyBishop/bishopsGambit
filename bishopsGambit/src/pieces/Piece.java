@@ -124,33 +124,19 @@ public abstract class Piece {
 	 * @return the square this piece is assigned to
 	 */
 	public Square getSquare(Board board) {
-		Square square = null;
-		for (Square s : board) {
-			if (s.getPiece() == this) {
-				square = s;
-				break;
-			}
-		}
-		return square;
+		return board.stream().filter(s -> s.getPiece() == this).findAny().get();
 	}
 
 	/**
-	 * Returns a boolean indicating whether or not this piece is currently being
-	 * targeted by an opponent's piece.
+	 * Returns a boolean indicating whether or not this piece is being targeted by
+	 * an opponent's piece.
 	 * 
 	 * @param board the chess board
-	 * @return true if this piece is currently being targeted by an opponent's
-	 *         piece, false otherwise
+	 * @return <code>true</code> if this piece is being targeted by an opponent's
+	 *         piece, <code>false</code> otherwise
 	 */
 	public boolean isTargeted(Board board) {
-		boolean isTargeted = false;
-		for (Square s : board) {
-			if (s.isOccupiedByOpponent(getPlayer()) && board.getTargets(s).contains(getSquare(board))) {
-				isTargeted = true;
-				break;
-			}
-		}
-		return isTargeted;
+		return board.stream().anyMatch(s -> s.isTargeting(this, board));
 	}
 
 }

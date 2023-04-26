@@ -105,7 +105,8 @@ public class Player {
 	 * in check.
 	 * 
 	 * @param board the chess board
-	 * @return true if this player's king is currently in check, false otherwise
+	 * @return <code>true</code> if this player's king is currently in check,
+	 *         <code>false</code> otherwise
 	 */
 	public boolean inCheck(Board board) {
 		return getKing().isTargeted(board);

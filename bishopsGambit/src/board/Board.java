@@ -109,7 +109,8 @@ public class Board extends ArrayList<Square> {
 	 * Returns a boolean indicating whether or not both a valid 'from' and 'to'
 	 * square have been selected, thus a move can be made.
 	 * 
-	 * @return true if a move can be made, false otherwise
+	 * @return <code>true</code> if a move can be made, <code>false</code>
+	 *         otherwise
 	 */
 	public boolean canMove() {
 		return (from != null && to != null);
