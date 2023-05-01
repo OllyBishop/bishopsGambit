@@ -8,6 +8,7 @@ import players.Player;
 public class Game {
 
 	private Board board;
+
 	private Player white;
 	private Player black;
 
@@ -39,6 +40,7 @@ public class Game {
 
 	public Game() {
 		setBoard(new Board());
+
 		setWhite(new Player(Colour.WHITE));
 		setBlack(new Player(Colour.BLACK));
 

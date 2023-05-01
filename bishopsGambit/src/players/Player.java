@@ -1,6 +1,7 @@
 package players;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import board.Board;
 import pieces.Bishop;
@@ -15,7 +16,7 @@ public class Player {
 
 	private Colour colour;
 	private int direction;
-	private ArrayList<Piece> pieces;
+	private List<Piece> pieces;
 	private King king;
 
 	private void setColour(Colour colour) {
@@ -34,11 +35,11 @@ public class Player {
 		return this.direction;
 	}
 
-	private void setPieces(ArrayList<Piece> pieces) {
+	private void setPieces(List<Piece> pieces) {
 		this.pieces = pieces;
 	}
 
-	public ArrayList<Piece> getPieces() {
+	public List<Piece> getPieces() {
 		return this.pieces;
 	}
 
@@ -72,7 +73,7 @@ public class Player {
 
 		setDirection(direction);
 
-		ArrayList<Piece> pieces = new ArrayList<Piece>();
+		List<Piece> pieces = new ArrayList<Piece>();
 
 		pieces.add(new Pawn(this, 'a', pawnRank));
 		pieces.add(new Pawn(this, 'b', pawnRank));

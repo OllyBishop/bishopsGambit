@@ -1,6 +1,7 @@
 package pieces;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import board.Board;
 import board.Square;
@@ -14,8 +15,8 @@ public class Knight extends Piece {
 	}
 
 	@Override
-	public ArrayList<Square> getTargets(Board board) {
-		ArrayList<Square> targets = new ArrayList<Square>();
+	public List<Square> getTargets(Board board) {
+		List<Square> targets = new ArrayList<Square>();
 
 		Square square = getSquare(board);
 		char file = square.getFile();

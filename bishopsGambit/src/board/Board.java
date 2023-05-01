@@ -1,6 +1,7 @@
 package board;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import pieces.Piece;
 import players.Player;
@@ -14,8 +15,16 @@ public class Board extends ArrayList<Square> {
 		this.from = from;
 	}
 
+	private Square getFrom() {
+		return this.from;
+	}
+
 	private void setTo(Square to) {
 		this.to = to;
+	}
+
+	private Square getTo() {
+		return this.to;
 	}
 
 	/**
@@ -57,39 +66,39 @@ public class Board extends ArrayList<Square> {
 	 * @param player the player who pressed the square
 	 */
 	public void squarePressed(Square square, Player player) {
+		stream().forEach(s -> s.setText(null));
+
 		boolean deselectFrom = false;
 		Square selectFrom = null;
 		Square selectTo = null;
 
 		if (square.isOccupiedByPlayer(player)) {
 			deselectFrom = true;
-			if (from != square)
+			if (getFrom() != square)
 				selectFrom = square;
 		}
 
-		else if (from != null) {
-			if (to == null)
-				if (getTargets(from).contains(square))
+		else if (getFrom() != null) {
+			if (getTo() == null)
+				if (getTargets(getFrom()).contains(square))
 					selectTo = square;
 				else
 					deselectFrom = true;
-			else if (to != square)
+			else if (getTo() != square)
 				deselectFrom = true;
 		}
 
-		stream().forEach(s -> s.setText(null));
-
-		if (deselectFrom && from != null)
-			setFrom(from.deselect());
-		if (to != null)
-			setTo(to.deselect());
+		if (deselectFrom && getFrom() != null)
+			setFrom(getFrom().deselect());
+		if (getTo() != null)
+			setTo(getTo().deselect());
 		if (selectFrom != null)
 			setFrom(selectFrom.select());
 		if (selectTo != null)
 			setTo(selectTo.select());
 
-		if (from != null && to == null)
-			getTargets(from).stream().forEach(s -> s.setText("●"));
+		if (getFrom() != null && getTo() == null)
+			getTargets(getFrom()).stream().forEach(s -> s.setText("●"));
 	}
 
 	/**
@@ -101,7 +110,7 @@ public class Board extends ArrayList<Square> {
 	 * @return a list of all squares the piece in the given square is currently
 	 *         targeting
 	 */
-	public ArrayList<Square> getTargets(Square square) {
+	public List<Square> getTargets(Square square) {
 		return square.getPiece().getTargets(this);
 	}
 
@@ -109,32 +118,29 @@ public class Board extends ArrayList<Square> {
 	 * Returns a boolean indicating whether or not both a valid 'from' and 'to'
 	 * square have been selected, thus a move can be made.
 	 * 
-	 * @return <code>true</code> if a move can be made, <code>false</code>
-	 *         otherwise
+	 * @return <code>true</code> if a move can be made, <code>false</code> otherwise
 	 */
 	public boolean canMove() {
-		return (from != null && to != null);
+		return (getFrom() != null && getTo() != null);
 	}
 
 	/**
 	 * Moves the piece from the 'from' square to the 'to' square. The 'from' square
 	 * is emptied and its piece is assigned to the 'to' square.
-	 * 
-	 * @return true if the move was successful, false otherwise
 	 */
 	public void move() {
-		Piece pieceFrom = from.getPiece();
-		Piece pieceTo = to.getPiece();
+		Piece pieceFrom = getFrom().getPiece();
+		Piece pieceTo = getTo().getPiece();
 
 		pieceFrom.setMoved(true);
 		if (pieceTo != null)
 			pieceTo.setCaptured(true);
 
-		to.setPiece(pieceFrom);
-		from.setPiece(null);
+		getTo().setPiece(pieceFrom);
+		getFrom().setPiece(null);
 
-		setFrom(from.deselect());
-		setTo(to.deselect());
+		setFrom(getFrom().deselect());
+		setTo(getTo().deselect());
 	}
 
 }

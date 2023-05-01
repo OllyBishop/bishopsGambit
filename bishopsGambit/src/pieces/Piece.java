@@ -2,7 +2,7 @@ package pieces;
 
 import java.awt.Image;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -48,7 +48,7 @@ public abstract class Piece {
 	 * @param board the chess board
 	 * @return a list of all squares this piece is currently targeting
 	 */
-	public abstract ArrayList<Square> getTargets(Board board);
+	public abstract List<Square> getTargets(Board board);
 
 	private void setStartFile(char file) {
 		this.startFile = file;
@@ -118,13 +118,14 @@ public abstract class Piece {
 	}
 
 	/**
-	 * Finds the square this piece is assigned to.
+	 * Finds the square this piece is occupying.
 	 * 
 	 * @param board the chess board
-	 * @return the square this piece is assigned to
+	 * @return the square this piece is occupying (if it exists), otherwise
+	 *         <code>null</code>
 	 */
 	public Square getSquare(Board board) {
-		return board.stream().filter(s -> s.getPiece() == this).findAny().get();
+		return board.stream().filter(s -> s.getPiece() == this).findAny().orElse(null);
 	}
 
 	/**

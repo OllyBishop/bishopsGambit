@@ -78,7 +78,7 @@ public class Square extends JButton {
 		setBgColor((file + rank) % 2 == 0 ? DARK : LIGHT);
 
 		setEmptyBorder();
-		setBackground(getBgColor());
+		setDefaultBackground();
 		setForeground(BLACK_SEMI_TRANSPARENT);
 		setHorizontalTextPosition(CENTER);
 		setToolTipText(getCoordinates());
@@ -87,6 +87,10 @@ public class Square extends JButton {
 
 	public void setEmptyBorder() {
 		setBorder(EMPTY_BORDER);
+	}
+
+	private void setDefaultBackground() {
+		setBackground(getBgColor());
 	}
 
 	/**
@@ -109,7 +113,7 @@ public class Square extends JButton {
 	 */
 	public Square deselect() {
 		setSelected(false);
-		setBackground(getBgColor());
+		setDefaultBackground();
 		return null;
 	}
 
