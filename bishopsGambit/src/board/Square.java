@@ -175,4 +175,16 @@ public class Square extends JButton {
 		return isOccupiedByOpponent(player) && board.getTargets(this).contains(square);
 	}
 
+	@Override
+	public Square clone() {
+		Square clone = new Square(getFile(), getRank());
+		return clone;
+	}
+
+	public Square clone(Piece piece) {
+		Square clone = clone();
+		clone.setPiece(piece);
+		return clone;
+	}
+
 }

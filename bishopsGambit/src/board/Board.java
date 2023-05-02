@@ -80,7 +80,7 @@ public class Board extends ArrayList<Square> {
 
 		else if (getFrom() != null) {
 			if (getTo() == null)
-				if (getTargets(getFrom()).contains(square))
+				if (getMoves(getFrom()).contains(square))
 					selectTo = square;
 				else
 					deselectFrom = true;
@@ -98,7 +98,7 @@ public class Board extends ArrayList<Square> {
 			setTo(selectTo.select());
 
 		if (getFrom() != null && getTo() == null)
-			getTargets(getFrom()).stream().forEach(s -> s.setText("●"));
+			getMoves(getFrom()).stream().forEach(s -> s.setText("●"));
 	}
 
 	/**
@@ -112,6 +112,10 @@ public class Board extends ArrayList<Square> {
 	 */
 	public List<Square> getTargets(Square square) {
 		return square.getPiece().getTargets(this);
+	}
+
+	public List<Square> getMoves(Square square) {
+		return square.getPiece().getMoves(this);
 	}
 
 	/**
@@ -141,6 +145,24 @@ public class Board extends ArrayList<Square> {
 
 		setFrom(getFrom().deselect());
 		setTo(getTo().deselect());
+	}
+
+	public Board testMove(Square from, Square to) {
+		Board newBoard = (Board) clone();
+
+		Square newFrom = from.clone();
+		Square newTo = to.clone(from.getPiece());
+
+		newBoard.replace(from, newFrom);
+		newBoard.replace(to, newTo);
+
+		return newBoard;
+	}
+
+	private void replace(Square s1, Square s2) {
+		int index = indexOf(s1);
+		remove(index);
+		add(index, s2);
 	}
 
 }

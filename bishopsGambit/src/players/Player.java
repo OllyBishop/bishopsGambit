@@ -113,4 +113,53 @@ public class Player {
 		return getKing().isTargeted(board);
 	}
 
+	/**
+	 * Returns a boolean indicating whether or not this player is currently in
+	 * checkmate.
+	 * 
+	 * @param board the chess board
+	 * @return <code>true</code> if this player is currently in checkmate,
+	 *         <code>false</code> otherwise
+	 */
+	public boolean inCheckmate(Board board) {
+		return inCheck(board) && noMoves(board);
+	}
+
+	/**
+	 * Returns a boolean indicating whether or not this player is currently in
+	 * stalemate.
+	 * 
+	 * @param board the chess board
+	 * @return <code>true</code> if this player is currently in stalemate,
+	 *         <code>false</code> otherwise
+	 */
+	public boolean inStalemate(Board board) {
+		return !inCheck(board) && noMoves(board);
+	}
+
+	/**
+	 * Calculates the number of legal moves this player can make.
+	 * 
+	 * @param board the chess board
+	 * @return the number of legal moves this player can make
+	 */
+	public int numberOfMoves(Board board) {
+		int noOfMoves = 0;
+		for (Piece p : getPieces()) {
+			noOfMoves += p.getMoves(board).size();
+		}
+		return noOfMoves;
+	}
+
+	/**
+	 * Returns a boolean indicating whether or not this player has any legal moves.
+	 * 
+	 * @param board the chess board
+	 * @return <code>true</code> if this player has no legal moves,
+	 *         <code>false</code> otherwise
+	 */
+	private boolean noMoves(Board board) {
+		return numberOfMoves(board) == 0;
+	}
+
 }

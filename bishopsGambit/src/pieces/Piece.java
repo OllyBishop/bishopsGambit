@@ -50,6 +50,21 @@ public abstract class Piece {
 	 */
 	public abstract List<Square> getTargets(Board board);
 
+	/**
+	 * Returns a list of all squares this piece can legally move to. The squares
+	 * returned are a subset of the list returned by getTargets(), with any moves
+	 * that would result in check removed.
+	 * 
+	 * @param board the chess board
+	 * @return a list of all squares this piece can legally move to
+	 */
+	public List<Square> getMoves(Board board) {
+		List<Square> targets = getTargets(board);
+		Player player = getPlayer();
+		Square square = getSquare(board);
+		return targets.stream().filter(s -> !player.inCheck(board.testMove(square, s))).toList();
+	}
+
 	private void setStartFile(char file) {
 		this.startFile = file;
 	}
