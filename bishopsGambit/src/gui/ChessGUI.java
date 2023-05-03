@@ -12,7 +12,10 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -30,16 +33,40 @@ import utils.ComponentUtils;
 
 public class ChessGUI extends JFrame {
 
-	private JPanel contentPane;
+	// Fields --------------------------------------------------------- //
+	private final JPanel contentPane;
 
-	private List<JLabel> files = new ArrayList<JLabel>();
-	private List<JLabel> ranks = new ArrayList<JLabel>();
+	private final List<JLabel> files = new ArrayList<JLabel>();
+	private final List<JLabel> ranks = new ArrayList<JLabel>();
+
+	private final Map<SButton, Square> buttonMap = new HashMap<SButton, Square>();
+
+	private SButton from;
+	private SButton to;
 
 	private int xMid;
 	private int yMid;
 	private int scale;
 
 	private Game game;
+	// ---------------------------------------------------------------- //
+
+	// Getters and setters -------------------------------------------- //
+	private void setFrom(SButton from) {
+		this.from = from;
+	}
+
+	private SButton getFrom() {
+		return from;
+	}
+
+	private void setTo(SButton to) {
+		this.to = to;
+	}
+
+	private SButton getTo() {
+		return to;
+	}
 
 	private void setGame(Game game) {
 		this.game = game;
@@ -48,9 +75,33 @@ public class ChessGUI extends JFrame {
 	private Game getGame() {
 		return this.game;
 	}
+	// ---------------------------------------------------------------- //
+
+	// Derived methods ------------------------------------------------ //
+	private Square getSquare(SButton button) {
+		return buttonMap.get(button);
+	}
+
+	private Set<SButton> getButtons() {
+		return buttonMap.keySet();
+	}
+
+	private SButton getButton(Square square) {
+		return getButtons().stream().filter(b -> getSquare(b) == square).findAny().orElse(null);
+	}
 
 	private Board getBoard() {
 		return getGame().getBoard();
+	}
+
+	private List<Square> getMoves(SButton button) {
+		return getBoard().getMoves(getSquare(button));
+	}
+
+	private void makeMove() {
+		getBoard().move(getSquare(getFrom()), getSquare(getTo()));
+		setFrom(getFrom().deselect());
+		setTo(getTo().deselect());
 	}
 
 	/**
@@ -67,9 +118,10 @@ public class ChessGUI extends JFrame {
 		return getCurrentPlayer().inCheck(getBoard());
 	}
 
-	private Square getKingSquare() {
-		return getCurrentPlayer().getKing().getSquare(getBoard());
+	private SButton getKingButton() {
+		return getButton(getCurrentPlayer().getKing().getSquare(getBoard()));
 	}
+	// ---------------------------------------------------------------- //
 
 	/**
 	 * Create the frame.
@@ -85,14 +137,50 @@ public class ChessGUI extends JFrame {
 		contentPane.setLayout(null);
 		setContentPane(contentPane);
 
-		for (Square s : getBoard()) {
-			s.addActionListener(new ActionListener() {
+		for (Square square : getBoard()) {
+			SButton button = new SButton(square);
+
+			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					getBoard().squarePressed(s, getCurrentPlayer());
+					getButtons().stream().forEach(b -> b.setText(null));
+
+					boolean deselectFrom = false;
+					SButton selectFrom = null;
+					SButton selectTo = null;
+
+					if (square.isOccupiedByPlayer(getCurrentPlayer())) {
+						deselectFrom = true;
+						if (getFrom() != button)
+							selectFrom = button;
+					}
+
+					else if (getFrom() != null) {
+						if (getTo() == null)
+							if (getMoves(getFrom()).contains(square))
+								selectTo = button;
+							else
+								deselectFrom = true;
+						else if (getTo() != button)
+							deselectFrom = true;
+					}
+
+					if (deselectFrom && getFrom() != null)
+						setFrom(getFrom().deselect());
+					if (getTo() != null)
+						setTo(getTo().deselect());
+					if (selectFrom != null)
+						setFrom(selectFrom.select());
+					if (selectTo != null)
+						setTo(selectTo.select());
+
+					if (getFrom() != null && getTo() == null)
+						getMoves(getFrom()).stream().forEach(s -> getButton(s).setText("●"));
 				}
 			});
-			contentPane.add(s);
+
+			buttonMap.put(button, square);
+			contentPane.add(button);
 		}
 
 		for (char file = 'a'; file <= 'h'; file++) {
@@ -114,15 +202,16 @@ public class ChessGUI extends JFrame {
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent e) {
-				boolean canMove = getBoard().canMove();
-				if (canMove && e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED) {
+				boolean enterKeyReleased = e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED;
+				boolean canMove = getFrom() != null && getTo() != null;
+				if (enterKeyReleased && canMove) {
 					if (inCheck())
-						getKingSquare().setEmptyBorder();
-					getBoard().move();
+						getKingButton().setEmptyBorder();
+					makeMove();
 					getGame().nextTurn();
 					updateBoard();
 				}
-				return canMove;
+				return enterKeyReleased;
 			}
 		});
 
@@ -173,9 +262,11 @@ public class ChessGUI extends JFrame {
 	 * @param perspective the player to whose perspective the board is oriented
 	 */
 	private void updateBoard(Player perspective) {
-		for (Square s : getBoard()) {
-			int fileIndex = s.getFileIndex();
-			int rankIndex = s.getRankIndex();
+		for (SButton button : getButtons()) {
+			Square square = getSquare(button);
+
+			int fileIndex = square.getFileIndex();
+			int rankIndex = square.getRankIndex();
 
 			int x = xMid;
 			int y = yMid;
@@ -191,16 +282,16 @@ public class ChessGUI extends JFrame {
 				break;
 			}
 
-			s.setBounds(x, y, scale, scale);
+			button.setBounds(x, y, scale, scale);
 
-			ComponentUtils.resizeFont(s, scale);
+			ComponentUtils.resizeFont(button, scale);
 
-			if (s.isOccupied()) {
-				Image imageFull = s.getPiece().getImage();
+			if (square.isOccupied()) {
+				Image imageFull = square.getPiece().getImage();
 				Image imageScaled = imageFull.getScaledInstance(scale, scale, Image.SCALE_SMOOTH);
-				s.setIcon(new ImageIcon(imageScaled));
+				button.setIcon(new ImageIcon(imageScaled));
 			} else {
-				s.setIcon(null);
+				button.setIcon(null);
 			}
 		}
 
@@ -233,7 +324,7 @@ public class ChessGUI extends JFrame {
 
 		if (inCheck()) {
 			Border border = BorderFactory.createLineBorder(Color.red, Math.max(1, scale / 20));
-			getKingSquare().setBorder(border);
+			getKingButton().setBorder(border);
 		}
 	}
 

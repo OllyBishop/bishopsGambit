@@ -4,28 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pieces.Piece;
-import players.Player;
 
 public class Board extends ArrayList<Square> {
-
-	private Square from;
-	private Square to;
-
-	private void setFrom(Square from) {
-		this.from = from;
-	}
-
-	private Square getFrom() {
-		return this.from;
-	}
-
-	private void setTo(Square to) {
-		this.to = to;
-	}
-
-	private Square getTo() {
-		return this.to;
-	}
 
 	/**
 	 * Creates an ArrayList of 64 squares, comprising the chess board.
@@ -58,50 +38,6 @@ public class Board extends ArrayList<Square> {
 	}
 
 	/**
-	 * Updates the appearance of the chess board based on which square has been
-	 * pressed. Specifically, this method shows legal moves and highlights pressed
-	 * squares (that correspond to legal moves).
-	 * 
-	 * @param square the square that was pressed
-	 * @param player the player who pressed the square
-	 */
-	public void squarePressed(Square square, Player player) {
-		stream().forEach(s -> s.setText(null));
-
-		boolean deselectFrom = false;
-		Square selectFrom = null;
-		Square selectTo = null;
-
-		if (square.isOccupiedByPlayer(player)) {
-			deselectFrom = true;
-			if (getFrom() != square)
-				selectFrom = square;
-		}
-
-		else if (getFrom() != null) {
-			if (getTo() == null)
-				if (getMoves(getFrom()).contains(square))
-					selectTo = square;
-				else
-					deselectFrom = true;
-			else if (getTo() != square)
-				deselectFrom = true;
-		}
-
-		if (deselectFrom && getFrom() != null)
-			setFrom(getFrom().deselect());
-		if (getTo() != null)
-			setTo(getTo().deselect());
-		if (selectFrom != null)
-			setFrom(selectFrom.select());
-		if (selectTo != null)
-			setTo(selectTo.select());
-
-		if (getFrom() != null && getTo() == null)
-			getMoves(getFrom()).stream().forEach(s -> s.setText("●"));
-	}
-
-	/**
 	 * Returns a list of all squares the piece in the given square is currently
 	 * targeting; i.e., all squares the piece could move to (assuming checks are
 	 * ignored).
@@ -119,39 +55,31 @@ public class Board extends ArrayList<Square> {
 	}
 
 	/**
-	 * Returns a boolean indicating whether or not both a valid 'from' and 'to'
-	 * square have been selected, thus a move can be made.
+	 * Moves the piece occupying the <b>from</b> square to the <b>to</b> square. The
+	 * <b>from</b> square is emptied and its piece is assigned to the <b>to</b>
+	 * square.
 	 * 
-	 * @return <code>true</code> if a move can be made, <code>false</code> otherwise
+	 * @param from the square being moved from
+	 * @param to   the square being moved to
 	 */
-	public boolean canMove() {
-		return (getFrom() != null && getTo() != null);
-	}
-
-	/**
-	 * Moves the piece from the 'from' square to the 'to' square. The 'from' square
-	 * is emptied and its piece is assigned to the 'to' square.
-	 */
-	public void move() {
-		Piece pieceFrom = getFrom().getPiece();
-		Piece pieceTo = getTo().getPiece();
+	public void move(Square from, Square to) {
+		Piece pieceFrom = from.getPiece();
+		Piece pieceTo = to.getPiece();
 
 		pieceFrom.setMoved(true);
 		if (pieceTo != null)
 			pieceTo.setCaptured(true);
 
-		getTo().setPiece(pieceFrom);
-		getFrom().setPiece(null);
-
-		setFrom(getFrom().deselect());
-		setTo(getTo().deselect());
+		to.setPiece(pieceFrom);
+		from.setPiece(null);
 	}
 
 	public Board testMove(Square from, Square to) {
 		Board newBoard = (Board) clone();
 
 		Square newFrom = from.clone();
-		Square newTo = to.clone(from.getPiece());
+		Square newTo = to.clone();
+		newTo.setPiece(from.getPiece());
 
 		newBoard.replace(from, newFrom);
 		newBoard.replace(to, newTo);

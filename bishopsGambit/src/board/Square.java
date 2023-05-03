@@ -1,27 +1,12 @@
 package board;
 
-import java.awt.Color;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.border.Border;
-
 import pieces.Piece;
 import players.Player;
-import utils.ColorUtils;
 
-public class Square extends JButton {
-
-	private static final Border EMPTY_BORDER = BorderFactory.createEmptyBorder();
-
-	private static final Color DARK = new Color(209, 139, 71);
-	private static final Color LIGHT = new Color(254, 206, 157);
-	private static final Color HIGHLIGHT = ColorUtils.blend(Color.yellow, Color.white);
-	private static final Color BLACK_SEMI_TRANSPARENT = ColorUtils.changeAlpha(Color.black, 85);
+public class Square {
 
 	private char file;
 	private int rank;
-	private Color bgColor;
 	private Piece piece;
 
 	private void setFile(char file) {
@@ -40,12 +25,8 @@ public class Square extends JButton {
 		return this.rank;
 	}
 
-	private void setBgColor(Color color) {
-		this.bgColor = color;
-	}
-
-	private Color getBgColor() {
-		return this.bgColor;
+	public boolean getParity() {
+		return (getFile() + getRank()) % 2 == 0;
 	}
 
 	public void setPiece(Piece piece) {
@@ -75,46 +56,6 @@ public class Square extends JButton {
 	public Square(char file, int rank) {
 		setFile(file);
 		setRank(rank);
-		setBgColor((file + rank) % 2 == 0 ? DARK : LIGHT);
-
-		setEmptyBorder();
-		setDefaultBackground();
-		setForeground(BLACK_SEMI_TRANSPARENT);
-		setHorizontalTextPosition(CENTER);
-		setToolTipText(getCoordinates());
-		setOpaque(true);
-	}
-
-	public void setEmptyBorder() {
-		setBorder(EMPTY_BORDER);
-	}
-
-	private void setDefaultBackground() {
-		setBackground(getBgColor());
-	}
-
-	/**
-	 * Sets the selected state of this square to true. Changes the background color
-	 * of this square to indicate it is selected.
-	 * 
-	 * @return this square
-	 */
-	public Square select() {
-		setSelected(true);
-		setBackground(ColorUtils.blend(getBgColor(), HIGHLIGHT, 1, 3));
-		return this;
-	}
-
-	/**
-	 * Sets the selected state of this square to false. Changes the background color
-	 * of this square to its default color.
-	 * 
-	 * @return <code>null</code>
-	 */
-	public Square deselect() {
-		setSelected(false);
-		setDefaultBackground();
-		return null;
 	}
 
 	/**
@@ -122,7 +63,7 @@ public class Square extends JButton {
 	 * 
 	 * @return the coordinates of this square as a string
 	 */
-	private String getCoordinates() {
+	public String getCoordinates() {
 		return String.format("%s%s", getFile(), getRank());
 	}
 
@@ -177,14 +118,7 @@ public class Square extends JButton {
 
 	@Override
 	public Square clone() {
-		Square clone = new Square(getFile(), getRank());
-		return clone;
-	}
-
-	public Square clone(Piece piece) {
-		Square clone = clone();
-		clone.setPiece(piece);
-		return clone;
+		return new Square(getFile(), getRank());
 	}
 
 }
