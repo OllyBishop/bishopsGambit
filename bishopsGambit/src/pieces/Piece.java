@@ -23,7 +23,7 @@ public abstract class Piece {
 		return this.player;
 	}
 
-	public Colour getColour() {
+	private Colour getColour() {
 		return getPlayer().getColour();
 	}
 
@@ -62,7 +62,7 @@ public abstract class Piece {
 		List<Square> targets = getTargets(board);
 		Player player = getPlayer();
 		Square square = getSquare(board);
-		return targets.stream().filter(s -> !player.inCheck(board.testMove(square, s))).toList();
+		return targets.stream().filter(s -> !player.inCheck(board.move(square, s))).toList();
 	}
 
 	private void setStartFile(char file) {
@@ -126,7 +126,7 @@ public abstract class Piece {
 	 * 
 	 * @return a URL for this piece's image based on its colour and type
 	 */
-	public String getImageURL() {
+	private String getImageURL() {
 		String colourStr = getColour().toString();
 		String pieceStr = getClass().getSimpleName();
 		return String.format("/img/%s_%s.png", colourStr, pieceStr);

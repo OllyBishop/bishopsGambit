@@ -144,11 +144,12 @@ public class Player {
 	 * @return the number of legal moves this player can make
 	 */
 	public int numberOfMoves(Board board) {
-		int noOfMoves = 0;
-		for (Piece p : getPieces()) {
-			noOfMoves += p.getMoves(board).size();
+		int numberOfMoves = 0;
+		for (Piece piece : getPieces()) {
+			if (!piece.isCaptured())
+				numberOfMoves += piece.getMoves(board).size();
 		}
-		return noOfMoves;
+		return numberOfMoves;
 	}
 
 	/**

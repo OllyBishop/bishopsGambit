@@ -3,8 +3,6 @@ package board;
 import java.util.ArrayList;
 import java.util.List;
 
-import pieces.Piece;
-
 public class Board extends ArrayList<Square> {
 
 	/**
@@ -50,31 +48,30 @@ public class Board extends ArrayList<Square> {
 		return square.getPiece().getTargets(this);
 	}
 
+	/**
+	 * Returns a list of all squares the piece in the given square can legally move
+	 * to. The squares returned are a subset of the list returned by getTargets(),
+	 * with any moves that would result in check removed.
+	 * 
+	 * @param square the square
+	 * @return a list of all squares the piece in the given square can legally move
+	 *         to
+	 */
 	public List<Square> getMoves(Square square) {
 		return square.getPiece().getMoves(this);
 	}
 
 	/**
-	 * Moves the piece occupying the <b>from</b> square to the <b>to</b> square. The
-	 * <b>from</b> square is emptied and its piece is assigned to the <b>to</b>
-	 * square.
+	 * Creates a clone of this board where the piece occupying the <b>from</b>
+	 * square has been moved to the <b>to</b> square. This is achieved by cloning
+	 * the given squares and assigning the piece accordingly.
 	 * 
 	 * @param from the square being moved from
 	 * @param to   the square being moved to
+	 * @return a clone of this board where the piece occupying the <b>from</b>
+	 *         square has been moved to the <b>to</b> square
 	 */
-	public void move(Square from, Square to) {
-		Piece pieceFrom = from.getPiece();
-		Piece pieceTo = to.getPiece();
-
-		pieceFrom.setMoved(true);
-		if (pieceTo != null)
-			pieceTo.setCaptured(true);
-
-		to.setPiece(pieceFrom);
-		from.setPiece(null);
-	}
-
-	public Board testMove(Square from, Square to) {
+	public Board move(Square from, Square to) {
 		Board newBoard = (Board) clone();
 
 		Square newFrom = from.clone();
@@ -87,6 +84,12 @@ public class Board extends ArrayList<Square> {
 		return newBoard;
 	}
 
+	/**
+	 * Replaces the square <b>s1</b> on this board with the square <b>s2</b>.
+	 * 
+	 * @param s1 the old square
+	 * @param s2 the new square
+	 */
 	private void replace(Square s1, Square s2) {
 		int index = indexOf(s1);
 		remove(index);
