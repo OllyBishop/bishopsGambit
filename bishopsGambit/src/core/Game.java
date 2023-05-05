@@ -55,7 +55,7 @@ public class Game {
 
 	private void turnInfo(Board board) {
 		Player player = getCurrentPlayer();
-		Player opponent = player == getWhite() ? getBlack() : player;
+		Player opponent = getOpponent(player);
 		int n = player.numberOfMoves(board);
 		if (n == 0) {
 			if (player.inCheck(board))
@@ -79,10 +79,30 @@ public class Game {
 	 * Returns the player whose turn it currently is, based on the number of turns
 	 * taken.
 	 * 
-	 * @return white if the number of turns taken is even, black if it is odd
+	 * @return White if the number of turns taken is even, Black if it is odd
 	 */
 	public Player getCurrentPlayer() {
 		return getNumberOfTurns() % 2 == 0 ? getWhite() : getBlack();
+	}
+
+	/**
+	 * Returns the opponent of the given player.
+	 * 
+	 * @param player the player
+	 * @return White if the given player is Black, Black if the given player is
+	 *         White, <code>null</code> otherwise
+	 */
+	private Player getOpponent(Player player) {
+		Player opponent = null;
+		switch (player.getColour()) {
+		case WHITE:
+			opponent = getBlack();
+			break;
+		case BLACK:
+			opponent = getWhite();
+			break;
+		}
+		return opponent;
 	}
 
 }
