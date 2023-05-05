@@ -6,7 +6,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.border.Border;
 
-import board.Square;
 import utils.ColorUtils;
 
 public class SButton extends JButton {
@@ -18,34 +17,33 @@ public class SButton extends JButton {
 	private static final Color HIGHLIGHT = ColorUtils.blend(Color.yellow, Color.white);
 	private static final Color BLACK_SEMI_TRANSPARENT = ColorUtils.changeAlpha(Color.black, 85);
 
-	private Color bgColor;
+	private Color defaultBg;
 
-	private void setBgColor(Color color) {
-		this.bgColor = color;
+	private void setDefaultBg(Color color) {
+		this.defaultBg = color;
 	}
 
-	private Color getBgColor() {
-		return this.bgColor;
+	private Color getDefaultBg() {
+		return this.defaultBg;
 	}
 
-	public SButton(Square square) {
-		setEmptyBorder();
+	public SButton(char file, int rank) {
+		setDefaultBg((file + rank) % 2 == 0 ? DARK : LIGHT);
 
-		setBgColor(square.getParity() ? DARK : LIGHT);
-		setDefaultBackground();
+		resetBorder();
+		resetBackground();
 
 		setForeground(BLACK_SEMI_TRANSPARENT);
 		setHorizontalTextPosition(CENTER);
-		setToolTipText(square.getCoordinates());
 		setOpaque(true);
 	}
 
-	public void setEmptyBorder() {
+	public void resetBorder() {
 		setBorder(EMPTY_BORDER);
 	}
 
-	private void setDefaultBackground() {
-		setBackground(getBgColor());
+	private void resetBackground() {
+		setBackground(getDefaultBg());
 	}
 
 	/**
@@ -56,7 +54,7 @@ public class SButton extends JButton {
 	 */
 	public SButton select() {
 		setSelected(true);
-		setBackground(ColorUtils.blend(getBgColor(), HIGHLIGHT, 1, 3));
+		setBackground(ColorUtils.blend(getDefaultBg(), HIGHLIGHT, 1, 3));
 		return this;
 	}
 
@@ -68,7 +66,7 @@ public class SButton extends JButton {
 	 */
 	public SButton deselect() {
 		setSelected(false);
-		setDefaultBackground();
+		resetBackground();
 		return null;
 	}
 

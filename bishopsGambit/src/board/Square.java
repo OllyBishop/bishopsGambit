@@ -25,10 +25,6 @@ public class Square {
 		return this.rank;
 	}
 
-	public boolean getParity() {
-		return (getFile() + getRank()) % 2 == 0;
-	}
-
 	public void setPiece(Piece piece) {
 		this.piece = piece;
 	}
@@ -56,15 +52,6 @@ public class Square {
 	public Square(char file, int rank) {
 		setFile(file);
 		setRank(rank);
-	}
-
-	/**
-	 * Expresses the file and rank of this square as a string.
-	 * 
-	 * @return the coordinates of this square as a string
-	 */
-	public String getCoordinates() {
-		return String.format("%s%s", getFile(), getRank());
 	}
 
 	/**
