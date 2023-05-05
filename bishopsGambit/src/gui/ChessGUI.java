@@ -200,22 +200,16 @@ public class ChessGUI extends JFrame {
 				Square fromSquare = getSquare(from);
 				Square toSquare = getSquare(to);
 
-				fromSquare.getPiece().setMoved(true);
-				if (toSquare.isOccupied())
-					toSquare.getPiece().setCaptured(true);
-
-				Board newBoard = getBoard().move(fromSquare, toSquare);
-
 				int fromIndex = getBoard().indexOf(fromSquare);
 				int toIndex = getBoard().indexOf(toSquare);
+
+				Board newBoard = getGame().move(fromSquare, toSquare);
 
 				map.put(from, newBoard.get(fromIndex));
 				map.put(to, newBoard.get(toIndex));
 
 				from = from.deselect();
 				to = to.deselect();
-
-				getGame().addBoard(newBoard);
 			}
 		});
 

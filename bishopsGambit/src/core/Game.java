@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import board.Board;
+import board.Square;
 import pieces.Piece;
 import players.Colour;
 import players.Player;
@@ -19,11 +20,11 @@ public class Game {
 		return this.boards;
 	}
 
-	private Player getWhite() {
+	public Player getWhite() {
 		return this.white;
 	}
 
-	private Player getBlack() {
+	public Player getBlack() {
 		return this.black;
 	}
 
@@ -59,7 +60,7 @@ public class Game {
 		int n = player.numberOfMoves(board);
 		if (n == 0) {
 			if (player.inCheck(board))
-				System.out.printf("%s wins by checkmate!", opponent.getColour());
+				System.out.printf("%s wins by checkmate!\n", opponent.getColour());
 			else
 				System.out.println("It's a stalemate!");
 		} else {
@@ -103,6 +104,26 @@ public class Game {
 			break;
 		}
 		return opponent;
+	}
+
+	public Board move(Square from, Square to) {
+		Board newBoard = getBoard().move(from, to);
+		addBoard(newBoard);
+		return newBoard;
+	}
+
+	public Board move(char fromFile, int fromRank, char toFile, int toRank) {
+		Square from = getBoard().getSquare(fromFile, fromRank);
+		Square to = getBoard().getSquare(toFile, toRank);
+		return move(from, to);
+	}
+
+	public Board move(String from, String to) {
+		char fromFile = from.charAt(0);
+		int fromRank = Integer.parseInt(from.substring(1));
+		char toFile = to.charAt(0);
+		int toRank = Integer.parseInt(to.substring(1));
+		return move(fromFile, fromRank, toFile, toRank);
 	}
 
 }

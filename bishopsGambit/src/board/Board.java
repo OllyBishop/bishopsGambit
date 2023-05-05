@@ -72,6 +72,10 @@ public class Board extends ArrayList<Square> {
 	 *         square has been moved to the <b>to</b> square
 	 */
 	public Board move(Square from, Square to) {
+		from.getPiece().setMoved(true);
+		if (to.isOccupied())
+			to.getPiece().setCaptured(true);
+
 		Board newBoard = (Board) clone();
 
 		Square newFrom = from.clone();
