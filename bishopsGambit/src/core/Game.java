@@ -109,6 +109,11 @@ public class Game {
 	public Board move(Square from, Square to) {
 		Board newBoard = getBoard().move(from, to);
 		addBoard(newBoard);
+
+		from.getPiece().setMoved(true);
+		if (to.isOccupied())
+			to.getPiece().setCaptured(true);
+
 		return newBoard;
 	}
 
