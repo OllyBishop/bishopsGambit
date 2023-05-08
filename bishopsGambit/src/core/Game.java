@@ -107,12 +107,12 @@ public class Game {
 	}
 
 	public Board move(Square from, Square to) {
-		Board newBoard = getBoard().move(from, to);
-		addBoard(newBoard);
-
 		from.getPiece().setMoved(true);
 		if (to.isOccupied())
-			to.getPiece().setCaptured(true);
+			to.getPiece().setCaptured(true); // This must go before addBoard() call to prevent NPEs when capturing pawns
+
+		Board newBoard = getBoard().move(from, to);
+		addBoard(newBoard);
 
 		return newBoard;
 	}
