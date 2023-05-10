@@ -26,12 +26,36 @@ public class King extends Piece {
 			for (int y : new int[] { -1, 0, 1 }) {
 				Square s = board.getSquare((char) (file + x), rank + y);
 				if (s != null)
-					if (!s.isOccupiedByPlayer(getPlayer()))
+					if (!s.isOccupiedBy(getPlayer()))
 						targets.add(s);
 			}
 		}
 
 		return targets;
+	}
+
+	@Override
+	public List<Square> getMoves(Board board) {
+		List<Square> moves = new ArrayList<Square>(super.getMoves(board));
+
+		for (int x : new int[] { -1, 1 }) {
+			if (!hasMoved() && !isTargeted(board)) {
+				Rook rook = getPlayer().getCastlingRook(x);
+
+				if (!rook.hasMoved() && !rook.isCaptured()) {
+					Square s1 = getPlayer().getCastlingSquare(board, x);
+					Square s2 = getPlayer().getCastlingSquare(board, 2 * x);
+
+					Board b1 = board.move(this, s1);
+					Board b2 = board.move(this, s2);
+
+					if (!s1.isOccupied() && !s2.isOccupied() && !isTargeted(b1) && !isTargeted(b2))
+						moves.add(s2);
+				}
+			}
+		}
+
+		return moves;
 	}
 
 	public King(Player player, char startFile, int startRank) {

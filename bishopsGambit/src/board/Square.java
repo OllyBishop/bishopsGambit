@@ -5,20 +5,13 @@ import players.Player;
 
 public class Square {
 
-	private char file;
-	private int rank;
-	private Piece piece;
+	private final char file;
+	private final int rank;
 
-	private void setFile(char file) {
-		this.file = file;
-	}
+	private Piece piece;
 
 	public char getFile() {
 		return this.file;
-	}
-
-	private void setRank(int rank) {
-		this.rank = rank;
 	}
 
 	public int getRank() {
@@ -33,12 +26,9 @@ public class Square {
 		return this.piece;
 	}
 
-	public int getFileIndex() {
-		return getFileIndex(getFile());
-	}
-
-	public int getRankIndex() {
-		return getRankIndex(getRank());
+	public Square(char file, int rank) {
+		this.file = file;
+		this.rank = rank;
 	}
 
 	public static int getFileIndex(char file) {
@@ -49,9 +39,12 @@ public class Square {
 		return rank - 1;
 	}
 
-	public Square(char file, int rank) {
-		setFile(file);
-		setRank(rank);
+	public int getFileIndex() {
+		return getFileIndex(getFile());
+	}
+
+	public int getRankIndex() {
+		return getRankIndex(getRank());
 	}
 
 	/**
@@ -72,7 +65,7 @@ public class Square {
 	 * @return <code>true</code> if this square contains a piece belonging to the
 	 *         given player, <code>false</code> otherwise
 	 */
-	public boolean isOccupiedByPlayer(Player player) {
+	public boolean isOccupiedBy(Player player) {
 		return player.getPieces().contains(getPiece());
 	}
 
@@ -85,7 +78,7 @@ public class Square {
 	 *         belonging to the given player, <code>false</code> otherwise
 	 */
 	public boolean isOccupiedByOpponent(Player player) {
-		return isOccupied() && !isOccupiedByPlayer(player);
+		return isOccupied() && !isOccupiedBy(player);
 	}
 
 	/**

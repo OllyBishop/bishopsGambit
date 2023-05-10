@@ -27,7 +27,7 @@ public class Knight extends Piece {
 				for (int n : new int[] { 1, 2 }) {
 					Square s = board.getSquare((char) (file + n * x), rank + (3 - n) * y);
 					if (s != null)
-						if (!s.isOccupiedByPlayer(getPlayer()))
+						if (!s.isOccupiedBy(getPlayer()))
 							targets.add(s);
 				}
 			}

@@ -5,7 +5,9 @@ import java.util.List;
 
 import board.Board;
 import board.Square;
+import pieces.King;
 import pieces.Piece;
+import pieces.Rook;
 import players.Colour;
 import players.Player;
 
@@ -106,12 +108,31 @@ public class Game {
 		return opponent;
 	}
 
-	public Board move(Square from, Square to) {
-		from.getPiece().setMoved(true);
+	public Board move(Piece piece, Square to) {
+		Board newBoard = getBoard().move(piece, to);
+
+		// Castling
+		if (piece instanceof King && !piece.hasMoved()) {
+			int fileDiff = to.getFile() - piece.getStartFile();
+			int rankDiff = to.getRank() - piece.getStartRank();
+
+			if (Math.abs(fileDiff) == 2 && rankDiff == 0) {
+				Player player = piece.getPlayer();
+				int x = fileDiff / 2;
+
+				Rook rook = player.getCastlingRook(x);
+				Square rookTo = player.getCastlingSquare(getBoard(), x);
+
+				newBoard = newBoard.move(rook, rookTo);
+
+				rook.setMoved(true);
+			}
+		}
+
+		piece.setMoved(true);
 		if (to.isOccupied())
 			to.getPiece().setCaptured(true); // This must go before addBoard() call to prevent NPEs when capturing pawns
 
-		Board newBoard = getBoard().move(from, to);
 		addBoard(newBoard);
 
 		return newBoard;
@@ -120,7 +141,7 @@ public class Game {
 	public Board move(char fromFile, int fromRank, char toFile, int toRank) {
 		Square from = getBoard().getSquare(fromFile, fromRank);
 		Square to = getBoard().getSquare(toFile, toRank);
-		return move(from, to);
+		return move(from.getPiece(), to);
 	}
 
 	public Board move(String from, String to) {

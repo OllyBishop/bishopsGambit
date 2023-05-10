@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import board.Board;
+import board.Square;
 import pieces.Bishop;
 import pieces.King;
 import pieces.Knight;
@@ -14,37 +15,32 @@ import pieces.Rook;
 
 public class Player {
 
-	private Colour colour;
-	private int direction;
-	private List<Piece> pieces;
-	private King king;
+	private final Colour colour;
+	private final int direction;
 
-	private void setColour(Colour colour) {
-		this.colour = colour;
-	}
+	private final List<Piece> pieces = new ArrayList<Piece>();;
+	private final Rook queenRook;
+	private final Rook kingRook;
+	private final King king;
 
 	public Colour getColour() {
 		return this.colour;
-	}
-
-	private void setDirection(int direction) {
-		this.direction = direction;
 	}
 
 	public int getDirection() {
 		return this.direction;
 	}
 
-	private void setPieces(List<Piece> pieces) {
-		this.pieces = pieces;
-	}
-
 	public List<Piece> getPieces() {
 		return this.pieces;
 	}
 
-	private void setKing(King king) {
-		this.king = king;
+	public Rook getQueenRook() {
+		return this.queenRook;
+	}
+
+	public Rook getKingRook() {
+		return this.kingRook;
 	}
 
 	public King getKing() {
@@ -52,7 +48,7 @@ public class Player {
 	}
 
 	public Player(Colour colour) {
-		setColour(colour);
+		this.colour = colour;
 
 		int direction = 0;
 		int backRank = 0;
@@ -71,34 +67,29 @@ public class Player {
 			break;
 		}
 
-		setDirection(direction);
+		this.direction = direction;
 
-		List<Piece> pieces = new ArrayList<Piece>();
+		new Pawn(this, 'a', pawnRank);
+		new Pawn(this, 'b', pawnRank);
+		new Pawn(this, 'c', pawnRank);
+		new Pawn(this, 'd', pawnRank);
+		new Pawn(this, 'e', pawnRank);
+		new Pawn(this, 'f', pawnRank);
+		new Pawn(this, 'g', pawnRank);
+		new Pawn(this, 'h', pawnRank);
 
-		pieces.add(new Pawn(this, 'a', pawnRank));
-		pieces.add(new Pawn(this, 'b', pawnRank));
-		pieces.add(new Pawn(this, 'c', pawnRank));
-		pieces.add(new Pawn(this, 'd', pawnRank));
-		pieces.add(new Pawn(this, 'e', pawnRank));
-		pieces.add(new Pawn(this, 'f', pawnRank));
-		pieces.add(new Pawn(this, 'g', pawnRank));
-		pieces.add(new Pawn(this, 'h', pawnRank));
+		this.queenRook = new Rook(this, 'a', backRank);
+		this.kingRook = new Rook(this, 'h', backRank);
 
-		pieces.add(new Rook(this, 'a', backRank));
-		pieces.add(new Rook(this, 'h', backRank));
+		new Knight(this, 'b', backRank);
+		new Knight(this, 'g', backRank);
 
-		pieces.add(new Knight(this, 'b', backRank));
-		pieces.add(new Knight(this, 'g', backRank));
+		new Bishop(this, 'c', backRank);
+		new Bishop(this, 'f', backRank);
 
-		pieces.add(new Bishop(this, 'c', backRank));
-		pieces.add(new Bishop(this, 'f', backRank));
+		new Queen(this, 'd', backRank);
 
-		pieces.add(new Queen(this, 'd', backRank));
-
-		setKing(new King(this, 'e', backRank));
-		pieces.add(getKing());
-
-		setPieces(pieces);
+		this.king = new King(this, 'e', backRank);
 	}
 
 	/**
@@ -161,6 +152,23 @@ public class Player {
 	 */
 	private boolean noMoves(Board board) {
 		return numberOfMoves(board) == 0;
+	}
+
+	public Rook getCastlingRook(int x) {
+		Rook rook = null;
+		switch (x) {
+		case -1:
+			rook = getQueenRook();
+			break;
+		case 1:
+			rook = getKingRook();
+			break;
+		}
+		return rook;
+	}
+
+	public Square getCastlingSquare(Board board, int x) {
+		return board.getSquare((char) (getKing().getStartFile() + x), getKing().getStartRank());
 	}
 
 }

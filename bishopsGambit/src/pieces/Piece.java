@@ -8,31 +8,71 @@ import javax.imageio.ImageIO;
 
 import board.Board;
 import board.Square;
-import players.Colour;
 import players.Player;
 
 public abstract class Piece {
 
-	private Player player; // References the player this piece belongs to
+	private final Player player; // References the player this piece belongs to
+	private final char startFile;
+	private final int startRank;
+	private final Image image;
 
-	private void setPlayer(Player player) {
-		this.player = player;
-	}
+	private boolean hasMoved;
+	private boolean isCaptured;
 
 	public Player getPlayer() {
 		return this.player;
 	}
 
-	private Colour getColour() {
-		return getPlayer().getColour();
+	public char getStartFile() {
+		return this.startFile;
 	}
 
-	private char startFile;
-	private int startRank;
-	private boolean hasMoved;
-	private boolean isCaptured;
+	public int getStartRank() {
+		return this.startRank;
+	}
 
-	private Image image;
+	public Image getImage() {
+		return this.image;
+	}
+
+	public void setMoved(boolean hasMoved) {
+		this.hasMoved = hasMoved;
+	}
+
+	public boolean hasMoved() {
+		return this.hasMoved;
+	}
+
+	public void setCaptured(boolean isCaptured) {
+		this.isCaptured = isCaptured;
+	}
+
+	public boolean isCaptured() {
+		return this.isCaptured;
+	}
+
+	public Piece(Player player, char startFile, int startRank) {
+		this.player = player;
+		this.startFile = startFile;
+		this.startRank = startRank;
+
+		Image image = null;
+		try {
+			String colourStr = getPlayer().getColour().toString();
+			String pieceStr = getClass().getSimpleName();
+			String imageURL = String.format("/img/%s_%s.png", colourStr, pieceStr);
+			image = ImageIO.read(getClass().getResource(imageURL));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.image = image;
+
+		setMoved(false);
+		setCaptured(false);
+
+		player.getPieces().add(this);
+	}
 
 	/**
 	 * Returns the value of this piece as an integer.
@@ -61,75 +101,7 @@ public abstract class Piece {
 	public List<Square> getMoves(Board board) {
 		List<Square> targets = getTargets(board);
 		Player player = getPlayer();
-		Square square = getSquare(board);
-		return targets.stream().filter(s -> !player.inCheck(board.move(square, s))).toList();
-	}
-
-	private void setStartFile(char file) {
-		this.startFile = file;
-	}
-
-	public char getStartFile() {
-		return this.startFile;
-	}
-
-	private void setStartRank(int rank) {
-		this.startRank = rank;
-	}
-
-	public int getStartRank() {
-		return this.startRank;
-	}
-
-	public void setMoved(boolean hasMoved) {
-		this.hasMoved = hasMoved;
-	}
-
-	public boolean hasMoved() {
-		return this.hasMoved;
-	}
-
-	public void setCaptured(boolean isCaptured) {
-		this.isCaptured = isCaptured;
-	}
-
-	public boolean isCaptured() {
-		return this.isCaptured;
-	}
-
-	private void setImage(Image image) {
-		this.image = image;
-	}
-
-	public Image getImage() {
-		return this.image;
-	}
-
-	public Piece(Player player, char startFile, int startRank) {
-		setPlayer(player);
-
-		setStartFile(startFile);
-		setStartRank(startRank);
-		setMoved(false);
-		setCaptured(false);
-
-		try {
-			setImage(ImageIO.read(getClass().getResource(getImageURL())));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Generates a URL for this piece's image based on its colour and type. The URL
-	 * has the form <code>"/img/COLOUR_TYPE.png"</code>.
-	 * 
-	 * @return a URL for this piece's image based on its colour and type
-	 */
-	private String getImageURL() {
-		String colourStr = getColour().toString();
-		String pieceStr = getClass().getSimpleName();
-		return String.format("/img/%s_%s.png", colourStr, pieceStr);
+		return targets.stream().filter(s -> !player.inCheck(board.move(this, s))).toList();
 	}
 
 	/**

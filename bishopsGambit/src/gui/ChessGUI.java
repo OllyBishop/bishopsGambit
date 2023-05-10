@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -34,12 +35,12 @@ import utils.ComponentUtils;
 public class ChessGUI extends JFrame {
 
 	// Fields --------------------------------------------------------- //
-	private final JPanel contentPane;
-
+	private final JPanel contentPane = new JPanel();
 	private final List<JLabel> files = new ArrayList<JLabel>();
 	private final List<JLabel> ranks = new ArrayList<JLabel>();
-
 	private final Map<SButton, Square> map = new HashMap<SButton, Square>();
+
+	private Game game;
 
 	private SButton from;
 	private SButton to;
@@ -48,8 +49,6 @@ public class ChessGUI extends JFrame {
 	private int yMid;
 	private int scale;
 	private Border checkBorder;
-
-	private Game game;
 	// ---------------------------------------------------------------- //
 
 	// Getters and setters -------------------------------------------- //
@@ -112,7 +111,6 @@ public class ChessGUI extends JFrame {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setBounds(0, 0, screenSize.width / 2, screenSize.height);
 
-		contentPane = new JPanel();
 		contentPane.setLayout(null);
 		setContentPane(contentPane);
 
@@ -134,6 +132,7 @@ public class ChessGUI extends JFrame {
 			contentPane.add(label);
 		}
 
+		// Create square buttons
 		for (Square square : getBoard()) {
 			SButton button = new SButton(square.getFile(), square.getRank());
 			map.put(button, square);
@@ -152,7 +151,7 @@ public class ChessGUI extends JFrame {
 					SButton selectFrom = null;
 					SButton selectTo = null;
 
-					if (square.isOccupiedByPlayer(getCurrentPlayer())) {
+					if (square.isOccupiedBy(getCurrentPlayer())) {
 						deselectFrom = true;
 						if (from != button)
 							selectFrom = button;
@@ -200,13 +199,15 @@ public class ChessGUI extends JFrame {
 				Square fromSquare = getSquare(from);
 				Square toSquare = getSquare(to);
 
-				int fromIndex = getBoard().indexOf(fromSquare);
-				int toIndex = getBoard().indexOf(toSquare);
+				Board newBoard = game.move(fromSquare.getPiece(), toSquare);
 
-				Board newBoard = getGame().move(fromSquare, toSquare);
-
-				map.put(from, newBoard.get(fromIndex));
-				map.put(to, newBoard.get(toIndex));
+				for (SButton button : getButtons()) {
+					Square square = map.get(button);
+					char file = square.getFile();
+					int rank = square.getRank();
+					Square newSquare = newBoard.getSquare(file, rank);
+					map.put(button, newSquare);
+				}
 
 				from = from.deselect();
 				to = to.deselect();
@@ -312,13 +313,13 @@ public class ChessGUI extends JFrame {
 
 			ComponentUtils.resizeFont(button, scale);
 
+			Icon icon = null;
 			if (square.isOccupied()) {
 				Image imageFull = square.getPiece().getImage();
 				Image imageScaled = imageFull.getScaledInstance(scale, scale, Image.SCALE_SMOOTH);
-				button.setIcon(new ImageIcon(imageScaled));
-			} else {
-				button.setIcon(null);
+				icon = new ImageIcon(imageScaled);
 			}
+			button.setIcon(icon);
 		}
 
 		if (inCheck())

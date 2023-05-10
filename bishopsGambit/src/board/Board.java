@@ -3,6 +3,8 @@ package board;
 import java.util.ArrayList;
 import java.util.List;
 
+import pieces.Piece;
+
 public class Board extends ArrayList<Square> {
 
 	/**
@@ -21,7 +23,8 @@ public class Board extends ArrayList<Square> {
 	 * 
 	 * @param file the file of the square to be found
 	 * @param rank the rank of the square to be found
-	 * @return the square with the given file and rank
+	 * @return the square with the given file and rank (if it exists), otherwise
+	 *         <code>null</code>
 	 */
 	public Square getSquare(char file, int rank) {
 		Square square;
@@ -62,22 +65,23 @@ public class Board extends ArrayList<Square> {
 	}
 
 	/**
-	 * Creates a clone of this board where the piece occupying the <b>from</b>
-	 * square has been moved to the <b>to</b> square. This is achieved by cloning
-	 * the given squares and assigning the piece accordingly.
+	 * Creates a clone of this board where the given piece has been moved to the
+	 * given square. This is achieved by cloning the squares and assigning the piece
+	 * accordingly.
 	 * 
-	 * @param from the square being moved from
-	 * @param to   the square being moved to
-	 * @return a clone of this board where the piece occupying the <b>from</b>
-	 *         square has been moved to the <b>to</b> square
+	 * @param piece the piece to be moved
+	 * @param to    the destination square for the piece
+	 * @return a clone of this board where the given piece has been moved to the
+	 *         given square
 	 */
-	public Board move(Square from, Square to) {
-		Board newBoard = (Board) clone();
+	public Board move(Piece piece, Square to) {
+		Square from = piece.getSquare(this);
 
 		Square newFrom = from.clone();
 		Square newTo = to.clone();
-		newTo.setPiece(from.getPiece());
+		newTo.setPiece(piece);
 
+		Board newBoard = (Board) clone();
 		newBoard.replace(from, newFrom);
 		newBoard.replace(to, newTo);
 

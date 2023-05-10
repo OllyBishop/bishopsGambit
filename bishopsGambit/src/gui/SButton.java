@@ -4,31 +4,24 @@ import java.awt.Color;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.border.Border;
 
 import utils.ColorUtils;
 
 public class SButton extends JButton {
-
-	private static final Border EMPTY_BORDER = BorderFactory.createEmptyBorder();
 
 	private static final Color DARK = new Color(209, 139, 71);
 	private static final Color LIGHT = new Color(254, 206, 157);
 	private static final Color HIGHLIGHT = ColorUtils.blend(Color.yellow, Color.white);
 	private static final Color BLACK_SEMI_TRANSPARENT = ColorUtils.changeAlpha(Color.black, 85);
 
-	private Color defaultBg;
-
-	private void setDefaultBg(Color color) {
-		this.defaultBg = color;
-	}
+	private final Color defaultBg;
 
 	private Color getDefaultBg() {
 		return this.defaultBg;
 	}
 
 	public SButton(char file, int rank) {
-		setDefaultBg((file + rank) % 2 == 0 ? DARK : LIGHT);
+		this.defaultBg = (file + rank) % 2 == 0 ? DARK : LIGHT;
 
 		resetBorder();
 		resetBackground();
@@ -39,7 +32,7 @@ public class SButton extends JButton {
 	}
 
 	public void resetBorder() {
-		setBorder(EMPTY_BORDER);
+		setBorder(BorderFactory.createEmptyBorder());
 	}
 
 	private void resetBackground() {
