@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pieces.Piece;
+import players.Player;
 
 public class Board extends ArrayList<Square> {
 
@@ -15,6 +16,19 @@ public class Board extends ArrayList<Square> {
 			for (int rank = 1; rank <= 8; rank++) {
 				add(new Square(file, rank));
 			}
+		}
+	}
+
+	/**
+	 * Assigns all the pieces of the given player to their starting squares.
+	 * 
+	 * @param player the player whose pieces are to be assigned
+	 */
+	public void assignPieces(Player player) {
+		for (Piece piece : player.getPieces()) {
+			char startFile = piece.getStartFile();
+			int startRank = piece.getStartRank();
+			getSquare(startFile, startRank).setPiece(piece);
 		}
 	}
 
@@ -36,6 +50,12 @@ public class Board extends ArrayList<Square> {
 			square = null;
 		}
 		return square;
+	}
+
+	public Square getSquare(String string) {
+		char file = string.charAt(0);
+		int rank = string.charAt(1) - '0';
+		return getSquare(file, rank);
 	}
 
 	/**

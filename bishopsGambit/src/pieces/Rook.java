@@ -9,6 +9,10 @@ import players.Player;
 
 public class Rook extends Piece {
 
+	public Rook(Player player, char startFile, int startRank) {
+		super(player, startFile, startRank);
+	}
+
 	@Override
 	public int getValue() {
 		return 5;
@@ -46,10 +50,6 @@ public class Rook extends Piece {
 		}
 
 		return targets;
-	}
-
-	public Rook(Player player, char startFile, int startRank) {
-		super(player, startFile, startRank);
 	}
 
 }

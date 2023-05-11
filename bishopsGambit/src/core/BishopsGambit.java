@@ -4,7 +4,7 @@ import java.awt.EventQueue;
 
 import gui.ChessGUI;
 
-public class Main {
+public class BishopsGambit {
 
 	/**
 	 * Launch the application.

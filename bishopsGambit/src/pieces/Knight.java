@@ -9,6 +9,10 @@ import players.Player;
 
 public class Knight extends Piece {
 
+	public Knight(Player player, char startFile, int startRank) {
+		super(player, startFile, startRank);
+	}
+
 	@Override
 	public int getValue() {
 		return 3;
@@ -34,10 +38,6 @@ public class Knight extends Piece {
 		}
 
 		return targets;
-	}
-
-	public Knight(Player player, char startFile, int startRank) {
-		super(player, startFile, startRank);
 	}
 
 }

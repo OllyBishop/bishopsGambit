@@ -9,6 +9,10 @@ import players.Player;
 
 public class Pawn extends Piece {
 
+	public Pawn(Player player, char startFile, int startRank) {
+		super(player, startFile, startRank);
+	}
+
 	@Override
 	public int getValue() {
 		return 1;
@@ -44,10 +48,6 @@ public class Pawn extends Piece {
 		}
 
 		return targets;
-	}
-
-	public Pawn(Player player, char startFile, int startRank) {
-		super(player, startFile, startRank);
 	}
 
 }

@@ -9,6 +9,10 @@ import players.Player;
 
 public class Bishop extends Piece {
 
+	public Bishop(Player player, char startFile, int startRank) {
+		super(player, startFile, startRank);
+	}
+
 	@Override
 	public int getValue() {
 		return 3;
@@ -46,10 +50,6 @@ public class Bishop extends Piece {
 		}
 
 		return targets;
-	}
-
-	public Bishop(Player player, char startFile, int startRank) {
-		super(player, startFile, startRank);
 	}
 
 }

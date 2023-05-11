@@ -32,23 +32,9 @@ public class Game {
 
 	public Game() {
 		Board board = new Board();
-		assignPieces(board, getWhite());
-		assignPieces(board, getBlack());
+		board.assignPieces(getWhite());
+		board.assignPieces(getBlack());
 		addBoard(board);
-	}
-
-	/**
-	 * Assigns all the pieces of the given player to their starting squares.
-	 * 
-	 * @param board  the chess board
-	 * @param player the player whose pieces are to be assigned
-	 */
-	private void assignPieces(Board board, Player player) {
-		for (Piece piece : player.getPieces()) {
-			char startFile = piece.getStartFile();
-			int startRank = piece.getStartRank();
-			board.getSquare(startFile, startRank).setPiece(piece);
-		}
 	}
 
 	public void addBoard(Board board) {
@@ -120,7 +106,7 @@ public class Game {
 				Player player = piece.getPlayer();
 				int x = fileDiff / 2;
 
-				Rook rook = player.getCastlingRook(x);
+				Rook rook = player.getRook(x);
 				Square rookTo = player.getCastlingSquare(getBoard(), x);
 
 				newBoard = newBoard.move(rook, rookTo);
@@ -138,18 +124,14 @@ public class Game {
 		return newBoard;
 	}
 
-	public Board move(char fromFile, int fromRank, char toFile, int toRank) {
-		Square from = getBoard().getSquare(fromFile, fromRank);
-		Square to = getBoard().getSquare(toFile, toRank);
-		return move(from.getPiece(), to);
-	}
+	public Board move(String string) {
+		String from = string.substring(0, 2);
+		String to = string.substring(2, 4);
 
-	public Board move(String from, String to) {
-		char fromFile = from.charAt(0);
-		int fromRank = Integer.parseInt(from.substring(1));
-		char toFile = to.charAt(0);
-		int toRank = Integer.parseInt(to.substring(1));
-		return move(fromFile, fromRank, toFile, toRank);
+		Square fromSquare = getBoard().getSquare(from);
+		Square toSquare = getBoard().getSquare(to);
+
+		return move(fromSquare.getPiece(), toSquare);
 	}
 
 }

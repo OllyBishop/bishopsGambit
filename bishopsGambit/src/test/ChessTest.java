@@ -14,11 +14,11 @@ class ChessTest {
 	void foolsMate() {
 		Game game = new Game();
 
-		game.move("f2", "f3");
-		game.move("e7", "e5");
+		game.move("f2f3");
+		game.move("e7e5");
 
-		game.move("g2", "g4");
-		game.move("d8", "h4");
+		game.move("g2g4");
+		game.move("d8h4");
 
 		Player white = game.getWhite();
 		Board board = game.getBoard();
@@ -31,16 +31,16 @@ class ChessTest {
 	void scholarsMate() {
 		Game game = new Game();
 
-		game.move("e2", "e4");
-		game.move("e7", "e5");
+		game.move("e2e4");
+		game.move("e7e5");
 
-		game.move("d1", "f3");
-		game.move("f8", "c5");
+		game.move("d1f3");
+		game.move("f8c5");
 
-		game.move("f1", "c4");
-		game.move("d7", "d6");
+		game.move("f1c4");
+		game.move("d7d6");
 
-		game.move("f3", "f7");
+		game.move("f3f7");
 
 		Player black = game.getBlack();
 		Board board = game.getBoard();

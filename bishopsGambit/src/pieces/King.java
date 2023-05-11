@@ -9,6 +9,10 @@ import players.Player;
 
 public class King extends Piece {
 
+	public King(Player player, char startFile, int startRank) {
+		super(player, startFile, startRank);
+	}
+
 	@Override
 	public int getValue() {
 		return 0;
@@ -40,7 +44,7 @@ public class King extends Piece {
 
 		for (int x : new int[] { -1, 1 }) {
 			if (!hasMoved() && !isTargeted(board)) {
-				Rook rook = getPlayer().getCastlingRook(x);
+				Rook rook = getPlayer().getRook(x);
 
 				if (!rook.hasMoved() && !rook.isCaptured()) {
 					Square s1 = getPlayer().getCastlingSquare(board, x);
@@ -56,10 +60,6 @@ public class King extends Piece {
 		}
 
 		return moves;
-	}
-
-	public King(Player player, char startFile, int startRank) {
-		super(player, startFile, startRank);
 	}
 
 }

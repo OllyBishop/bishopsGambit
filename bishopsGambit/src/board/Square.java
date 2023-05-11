@@ -32,7 +32,7 @@ public class Square {
 	}
 
 	public static int getFileIndex(char file) {
-		return file - 97;
+		return file - 'a';
 	}
 
 	public static int getRankIndex(int rank) {

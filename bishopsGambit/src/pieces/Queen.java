@@ -9,6 +9,10 @@ import players.Player;
 
 public class Queen extends Piece {
 
+	public Queen(Player player, char startFile, int startRank) {
+		super(player, startFile, startRank);
+	}
+
 	@Override
 	public int getValue() {
 		return 9;
@@ -20,10 +24,6 @@ public class Queen extends Piece {
 		targets.addAll(Bishop.getTargets(board, this));
 		targets.addAll(Rook.getTargets(board, this));
 		return targets;
-	}
-
-	public Queen(Player player, char startFile, int startRank) {
-		super(player, startFile, startRank);
 	}
 
 }

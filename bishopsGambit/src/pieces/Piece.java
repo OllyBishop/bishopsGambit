@@ -70,8 +70,6 @@ public abstract class Piece {
 
 		setMoved(false);
 		setCaptured(false);
-
-		player.getPieces().add(this);
 	}
 
 	/**

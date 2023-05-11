@@ -61,7 +61,7 @@ public class ChessGUI extends JFrame {
 	}
 	// ---------------------------------------------------------------- //
 
-	// Derived getters ------------------------------------------------ //
+	// Map methods ---------------------------------------------------- //
 	private Square getSquare(SButton button) {
 		return map.get(button);
 	}
@@ -73,27 +73,25 @@ public class ChessGUI extends JFrame {
 	private SButton getButton(Square square) {
 		return getButtons().stream().filter(b -> getSquare(b) == square).findAny().orElse(null);
 	}
+	// ---------------------------------------------------------------- //
 
+	// Derived getters ------------------------------------------------ //
 	private Board getBoard() {
 		return getGame().getBoard();
-	}
-
-	private List<Square> getMoves(SButton button) {
-		return getBoard().getMoves(getSquare(button));
 	}
 
 	/**
 	 * Returns the player whose turn it currently is, based on the number of turns
 	 * taken.
 	 * 
-	 * @return white if the number of turns taken is even, black if it is odd
+	 * @return White if the number of turns taken is even, Black if it is odd
 	 */
 	private Player getCurrentPlayer() {
 		return getGame().getCurrentPlayer();
 	}
 
-	private boolean inCheck() {
-		return getCurrentPlayer().inCheck(getBoard());
+	private List<Square> getMoves(SButton button) {
+		return getBoard().getMoves(getSquare(button));
 	}
 
 	private SButton getKingButton() {
@@ -202,7 +200,7 @@ public class ChessGUI extends JFrame {
 				Board newBoard = game.move(fromSquare.getPiece(), toSquare);
 
 				for (SButton button : getButtons()) {
-					Square square = map.get(button);
+					Square square = getSquare(button);
 					char file = square.getFile();
 					int rank = square.getRank();
 					Square newSquare = newBoard.getSquare(file, rank);
@@ -322,7 +320,7 @@ public class ChessGUI extends JFrame {
 			button.setIcon(icon);
 		}
 
-		if (inCheck())
+		if (getCurrentPlayer().inCheck(getBoard()))
 			getKingButton().setBorder(checkBorder);
 	}
 
