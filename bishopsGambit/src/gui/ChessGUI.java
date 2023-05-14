@@ -22,6 +22,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -90,12 +91,16 @@ public class ChessGUI extends JFrame {
 		return getGame().getCurrentPlayer();
 	}
 
+	private Player getLastPlayer() {
+		return getGame().getLastPlayer();
+	}
+
 	private List<Square> getMoves(SButton button) {
 		return getBoard().getMoves(getSquare(button));
 	}
 
-	private SButton getKingButton() {
-		return getButton(getCurrentPlayer().getKing().getSquare(getBoard()));
+	private SButton getKingButton(Player player) {
+		return getButton(player.getKing().getSquare(getBoard()));
 	}
 	// ---------------------------------------------------------------- //
 
@@ -186,9 +191,10 @@ public class ChessGUI extends JFrame {
 				boolean enterKeyReleased = e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED;
 				boolean canMove = from != null && to != null;
 				if (enterKeyReleased && canMove) {
-					getKingButton().resetBorder();
+					getKingButton(getCurrentPlayer()).resetBorder();
 					makeMove();
 					updateBoard();
+					turnInfo();
 				}
 				return enterKeyReleased;
 			}
@@ -197,7 +203,9 @@ public class ChessGUI extends JFrame {
 				Square fromSquare = getSquare(from);
 				Square toSquare = getSquare(to);
 
-				Board newBoard = game.move(fromSquare.getPiece(), toSquare);
+				String move = fromSquare.getCoordinates() + toSquare.getCoordinates();
+
+				Board newBoard = game.move(move);
 
 				for (SButton button : getButtons()) {
 					Square square = getSquare(button);
@@ -219,6 +227,8 @@ public class ChessGUI extends JFrame {
 				updateGUI();
 			}
 		});
+
+		turnInfo();
 	}
 
 	/**
@@ -320,8 +330,32 @@ public class ChessGUI extends JFrame {
 			button.setIcon(icon);
 		}
 
-		if (getCurrentPlayer().inCheck(getBoard()))
-			getKingButton().setBorder(checkBorder);
+		Player currentPlayer = getCurrentPlayer();
+
+		if (currentPlayer.inCheck(getBoard()))
+			getKingButton(currentPlayer).setBorder(checkBorder);
+	}
+
+	private void turnInfo() {
+		Player currentPlayer = getCurrentPlayer();
+		int n = currentPlayer.numberOfMoves(getBoard());
+
+		System.out.printf("%s has %d legal move%s.\n", currentPlayer.getName(), n, n == 1 ? "" : "s");
+
+		if (n == 0) {
+			String message;
+			Icon icon = null;
+
+			if (currentPlayer.inCheck(getBoard())) {
+				Player lastPlayer = getLastPlayer();
+				message = lastPlayer.getName() + " wins by checkmate!";
+				icon = getKingButton(lastPlayer).getIcon();
+			} else {
+				message = "It's a stalemate!";
+			}
+
+			JOptionPane.showMessageDialog(this, message, "Game over", JOptionPane.PLAIN_MESSAGE, icon);
+		}
 	}
 
 }

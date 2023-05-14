@@ -47,6 +47,10 @@ public class Square {
 		return getRankIndex(getRank());
 	}
 
+	public String getCoordinates() {
+		return String.format("%s%s", getFile(), getRank());
+	}
+
 	/**
 	 * Returns a boolean indicating whether or not this square is occupied.
 	 * 

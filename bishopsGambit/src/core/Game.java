@@ -5,8 +5,11 @@ import java.util.List;
 
 import board.Board;
 import board.Square;
+import pieces.Bishop;
 import pieces.King;
+import pieces.Knight;
 import pieces.Piece;
+import pieces.Queen;
 import pieces.Rook;
 import players.Colour;
 import players.Player;
@@ -37,26 +40,11 @@ public class Game {
 		addBoard(board);
 	}
 
-	public void addBoard(Board board) {
+	private void addBoard(Board board) {
 		getBoards().add(board);
-		turnInfo(board);
 	}
 
-	private void turnInfo(Board board) {
-		Player player = getCurrentPlayer();
-		Player opponent = getOpponent(player);
-		int n = player.numberOfMoves(board);
-		if (n == 0) {
-			if (player.inCheck(board))
-				System.out.printf("%s wins by checkmate!\n", opponent.getColour());
-			else
-				System.out.println("It's a stalemate!");
-		} else {
-			System.out.printf("%s has %d legal move%s.\n", player.getColour(), n, n == 1 ? "" : "s");
-		}
-	}
-
-	public int getNumberOfTurns() {
+	private int getNumberOfTurns() {
 		return getBoards().size() - 1;
 	}
 
@@ -71,30 +59,51 @@ public class Game {
 	 * @return White if the number of turns taken is even, Black if it is odd
 	 */
 	public Player getCurrentPlayer() {
-		return getNumberOfTurns() % 2 == 0 ? getWhite() : getBlack();
+		return getPlayer(getNumberOfTurns());
 	}
 
-	/**
-	 * Returns the opponent of the given player.
-	 * 
-	 * @param player the player
-	 * @return White if the given player is Black, Black if the given player is
-	 *         White, <code>null</code> otherwise
-	 */
-	private Player getOpponent(Player player) {
-		Player opponent = null;
-		switch (player.getColour()) {
-		case WHITE:
-			opponent = getBlack();
+	public Player getLastPlayer() {
+		return getPlayer(getNumberOfTurns() - 1);
+	}
+
+	private Player getPlayer(int n) {
+		return n % 2 == 0 ? getWhite() : getBlack();
+	}
+
+	public Board move(String move) {
+		String fromString = move.substring(0, 2);
+		String toString = move.substring(2, 4);
+
+		Square from = getBoard().getSquare(fromString);
+		Square to = getBoard().getSquare(toString);
+
+		Player player = getCurrentPlayer();
+		char toFile = to.getFile();
+		int toRank = to.getRank();
+
+		Piece promotion = null;
+
+		switch (move.substring(4)) {
+		case "n":
+			promotion = new Knight(player, toFile, toRank);
 			break;
-		case BLACK:
-			opponent = getWhite();
+		case "b":
+			promotion = new Bishop(player, toFile, toRank);
+			break;
+		case "r":
+			promotion = new Rook(player, toFile, toRank);
+			break;
+		case "q":
+			promotion = new Queen(player, toFile, toRank);
 			break;
 		}
-		return opponent;
+
+		return move(from, to, promotion);
 	}
 
-	public Board move(Piece piece, Square to) {
+	private Board move(Square from, Square to, Piece promotion) {
+		Piece piece = from.getPiece();
+
 		Board newBoard = getBoard().move(piece, to);
 
 		// Castling
@@ -122,16 +131,6 @@ public class Game {
 		addBoard(newBoard);
 
 		return newBoard;
-	}
-
-	public Board move(String string) {
-		String from = string.substring(0, 2);
-		String to = string.substring(2, 4);
-
-		Square fromSquare = getBoard().getSquare(from);
-		Square toSquare = getBoard().getSquare(to);
-
-		return move(fromSquare.getPiece(), toSquare);
 	}
 
 }

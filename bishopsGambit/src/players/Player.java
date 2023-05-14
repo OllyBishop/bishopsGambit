@@ -116,6 +116,10 @@ public class Player {
 		this.king = king;
 	}
 
+	public String getName() {
+		return getColour().toString();
+	}
+
 	/**
 	 * Returns a boolean indicating whether or not this player's king is currently
 	 * in check.
