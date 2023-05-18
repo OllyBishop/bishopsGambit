@@ -41,13 +41,11 @@ public class Board extends ArrayList<Square> {
 	 *         <code>null</code>
 	 */
 	public Square getSquare(char file, int rank) {
-		Square square;
+		Square square = null;
 		if ('a' <= file && file <= 'h' && 1 <= rank && rank <= 8) {
 			int fileIndex = Square.getFileIndex(file);
 			int rankIndex = Square.getRankIndex(rank);
 			square = get(fileIndex * 8 + rankIndex);
-		} else {
-			square = null;
 		}
 		return square;
 	}

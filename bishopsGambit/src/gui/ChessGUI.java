@@ -146,11 +146,15 @@ public class ChessGUI extends JFrame {
 			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					getButtons().stream().forEach(b -> b.setText(null));
+					if (to != null)
+						unpreviewMove();
+					else if (from != null)
+						getButtons().stream().forEach(b -> b.setText(null));
 
 					Square square = getSquare(button);
 
 					boolean deselectFrom = false;
+					boolean deselectTo = true;
 					SButton selectFrom = null;
 					SButton selectTo = null;
 
@@ -172,14 +176,16 @@ public class ChessGUI extends JFrame {
 
 					if (deselectFrom && from != null)
 						from = from.deselect();
-					if (to != null)
+					if (deselectTo && to != null)
 						to = to.deselect();
 					if (selectFrom != null)
 						from = selectFrom.select();
 					if (selectTo != null)
 						to = selectTo.select();
 
-					if (from != null && to == null)
+					if (to != null)
+						previewMove();
+					else if (from != null)
 						getMoves(from).stream().forEach(s -> getButton(s).setText("●"));
 				}
 			});
@@ -189,8 +195,8 @@ public class ChessGUI extends JFrame {
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent e) {
 				boolean enterKeyReleased = e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED;
-				boolean canMove = from != null && to != null;
-				if (enterKeyReleased && canMove) {
+				boolean moveSelected = from != null && to != null;
+				if (enterKeyReleased && moveSelected) {
 					getKingButton(getCurrentPlayer()).resetBorder();
 					makeMove();
 					updateBoard();
@@ -321,19 +327,44 @@ public class ChessGUI extends JFrame {
 
 			ComponentUtils.resizeFont(button, scale);
 
-			Icon icon = null;
-			if (square.isOccupied()) {
-				Image imageFull = square.getPiece().getImage();
-				Image imageScaled = imageFull.getScaledInstance(scale, scale, Image.SCALE_SMOOTH);
-				icon = new ImageIcon(imageScaled);
-			}
-			button.setIcon(icon);
+			updateIcon(button, square);
 		}
 
 		Player currentPlayer = getCurrentPlayer();
 
 		if (currentPlayer.inCheck(getBoard()))
 			getKingButton(currentPlayer).setBorder(checkBorder);
+
+		if (to != null)
+			previewMove();
+	}
+
+	private void previewMove() {
+		updateIcon(from, null);
+		updateIcon(to, getSquare(from));
+	}
+
+	private void unpreviewMove() {
+		updateIcon(from, getSquare(from));
+		updateIcon(to, getSquare(to));
+	}
+
+	/**
+	 * Sets the icon of the given button to an image of the piece occupying the
+	 * given square. If the square is {@code null} or not occupied by any piece, an
+	 * empty icon is set.
+	 * 
+	 * @param button the button
+	 * @param square the square
+	 */
+	private void updateIcon(SButton button, Square square) {
+		Icon icon = null;
+		if (square != null && square.isOccupied()) {
+			Image imageFull = square.getPiece().getImage();
+			Image imageScaled = imageFull.getScaledInstance(scale, scale, Image.SCALE_SMOOTH);
+			icon = new ImageIcon(imageScaled);
+		}
+		button.setIcon(icon);
 	}
 
 	private void turnInfo() {
