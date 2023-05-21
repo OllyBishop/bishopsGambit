@@ -8,6 +8,7 @@ import board.Square;
 import pieces.Bishop;
 import pieces.King;
 import pieces.Knight;
+import pieces.Pawn;
 import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
@@ -105,9 +106,33 @@ public class Game {
 		Piece piece = from.getPiece();
 
 		Board newBoard = getBoard().move(piece, to);
+		piece.setMoved(true);
+
+		if (to.isOccupied())
+			to.getPiece().setCaptured(true);
+
+		for (Piece p : getLastPlayer().getPieces())
+			if (p instanceof Pawn)
+				((Pawn) p).setEnPassant(false);
+
+		// En passant
+		if (piece instanceof Pawn) {
+			int fileDiff = to.getFile() - from.getFile();
+			int rankDiff = to.getRank() - from.getRank();
+			int direction = piece.getPlayer().getDirection();
+
+			if (fileDiff == 0 && rankDiff == 2 * direction)
+				((Pawn) piece).setEnPassant(true);
+
+			if (Math.abs(fileDiff) == 1 && rankDiff == direction && !to.isOccupied()) {
+				Square s0 = getBoard().getSquare(to.getFile(), from.getRank());
+				s0.getPiece().setCaptured(true);
+				s0.setPiece(null);
+			}
+		}
 
 		// Castling
-		if (piece instanceof King && !piece.hasMoved()) {
+		else if (piece instanceof King && !piece.hasMoved()) {
 			int fileDiff = to.getFile() - piece.getStartFile();
 			int rankDiff = to.getRank() - piece.getStartRank();
 
@@ -119,14 +144,9 @@ public class Game {
 				Square rookTo = player.getCastlingSquare(getBoard(), x);
 
 				newBoard = newBoard.move(rook, rookTo);
-
 				rook.setMoved(true);
 			}
 		}
-
-		piece.setMoved(true);
-		if (to.isOccupied())
-			to.getPiece().setCaptured(true); // This must go before addBoard() call to prevent NPEs when capturing pawns
 
 		addBoard(newBoard);
 
