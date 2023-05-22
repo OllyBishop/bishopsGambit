@@ -47,13 +47,13 @@ public class King extends Piece {
 				Rook rook = getPlayer().getRook(x);
 
 				if (!rook.hasMoved() && !rook.isCaptured()) {
-					Square s1 = getPlayer().getCastlingSquare(board, x);
-					Square s2 = getPlayer().getCastlingSquare(board, 2 * x);
+					Square s1 = getPlayer().getCastlingSquare(board, x); // Rook moves to
+					Square s2 = getPlayer().getCastlingSquare(board, 2 * x); // King moves to
 
 					Board b1 = board.move(this, s1);
 					Board b2 = board.move(this, s2);
 
-					if (!s1.isOccupied() && !s2.isOccupied() && !isTargeted(b1) && !isTargeted(b2))
+					if (rook.isTargeting(s1, board) && !isTargeted(b1) && !isTargeted(b2))
 						moves.add(s2);
 				}
 			}

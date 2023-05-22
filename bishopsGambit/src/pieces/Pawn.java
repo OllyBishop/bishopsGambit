@@ -52,18 +52,18 @@ public class Pawn extends Piece {
 		// Capture diagonally
 		for (int x : new int[] { -1, 1 }) {
 			Square s1 = board.getSquare((char) (file + x), rank + y);
-			if (s1 != null)
-				if (s1.isOccupiedByOpponent(getPlayer()))
-					targets.add(s1);
+			if (s1 != null && s1.isOccupiedByOpponent(getPlayer())) {
+				targets.add(s1);
+				continue;
+			}
 
 			// En passant
 			Square s0 = board.getSquare((char) (file + x), rank);
-			if (s0 != null)
-				if (s0.isOccupiedByOpponent(getPlayer())) {
-					Piece piece = s0.getPiece();
-					if (piece instanceof Pawn && ((Pawn) piece).canEnPassant())
-						targets.add(s1);
-				}
+			if (s0 != null && s0.isOccupiedByOpponent(getPlayer())) {
+				Piece piece = s0.getPiece();
+				if (piece instanceof Pawn && ((Pawn) piece).canEnPassant())
+					targets.add(s1);
+			}
 		}
 
 		return targets;

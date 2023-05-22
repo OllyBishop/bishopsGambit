@@ -106,10 +106,6 @@ public class Game {
 		Piece piece = from.getPiece();
 
 		Board newBoard = getBoard().move(piece, to);
-		piece.setMoved(true);
-
-		if (to.isOccupied())
-			to.getPiece().setCaptured(true);
 
 		for (Piece p : getLastPlayer().getPieces())
 			if (p instanceof Pawn)
@@ -125,9 +121,9 @@ public class Game {
 				((Pawn) piece).setEnPassant(true);
 
 			if (Math.abs(fileDiff) == 1 && rankDiff == direction && !to.isOccupied()) {
-				Square s0 = getBoard().getSquare(to.getFile(), from.getRank());
-				s0.getPiece().setCaptured(true);
-				s0.setPiece(null);
+				Square s = getBoard().getSquare(to.getFile(), from.getRank());
+				s.getPiece().setCaptured(true);
+				s.setPiece(null);
 			}
 		}
 
@@ -144,9 +140,14 @@ public class Game {
 				Square rookTo = player.getCastlingSquare(getBoard(), x);
 
 				newBoard = newBoard.move(rook, rookTo);
+
 				rook.setMoved(true);
 			}
 		}
+
+		piece.setMoved(true);
+		if (to.isOccupied())
+			to.getPiece().setCaptured(true);
 
 		addBoard(newBoard);
 

@@ -33,6 +33,22 @@ public class Board extends ArrayList<Square> {
 	}
 
 	/**
+	 * Returns a list of all pieces currently in play; i.e., all pieces that are
+	 * currently on the board.
+	 * 
+	 * @return a list of all pieces currently in play
+	 */
+	public List<Piece> getPieces() {
+		return stream().filter(Square::isOccupied).map(Square::getPiece).toList();
+	}
+
+	public Square getSquare(String string) {
+		char file = string.charAt(0);
+		int rank = string.charAt(1) - '0';
+		return getSquare(file, rank);
+	}
+
+	/**
 	 * Finds the square with the given file and rank.
 	 * 
 	 * @param file the file of the square to be found
@@ -48,38 +64,6 @@ public class Board extends ArrayList<Square> {
 			square = get(fileIndex * 8 + rankIndex);
 		}
 		return square;
-	}
-
-	public Square getSquare(String string) {
-		char file = string.charAt(0);
-		int rank = string.charAt(1) - '0';
-		return getSquare(file, rank);
-	}
-
-	/**
-	 * Returns a list of all squares the piece in the given square is currently
-	 * targeting; i.e., all squares the piece could move to (assuming checks are
-	 * ignored).
-	 * 
-	 * @param square the square
-	 * @return a list of all squares the piece in the given square is currently
-	 *         targeting
-	 */
-	public List<Square> getTargets(Square square) {
-		return square.getPiece().getTargets(this);
-	}
-
-	/**
-	 * Returns a list of all squares the piece in the given square can legally move
-	 * to. The squares returned are a subset of the list returned by getTargets(),
-	 * with any moves that would result in check removed.
-	 * 
-	 * @param square the square
-	 * @return a list of all squares the piece in the given square can legally move
-	 *         to
-	 */
-	public List<Square> getMoves(Square square) {
-		return square.getPiece().getMoves(this);
 	}
 
 	/**

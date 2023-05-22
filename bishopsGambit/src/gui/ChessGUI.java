@@ -96,7 +96,7 @@ public class ChessGUI extends JFrame {
 	}
 
 	private List<Square> getMoves(SButton button) {
-		return getBoard().getMoves(getSquare(button));
+		return getSquare(button).getPiece().getMoves(getBoard());
 	}
 
 	private SButton getKingButton(Player player) {

@@ -31,6 +31,11 @@ public class Square {
 		this.rank = rank;
 	}
 
+	@Override
+	public Square clone() {
+		return new Square(getFile(), getRank());
+	}
+
 	public static int getFileIndex(char file) {
 		return file - 'a';
 	}
@@ -86,23 +91,14 @@ public class Square {
 	}
 
 	/**
-	 * Returns a boolean indicating whether or not this square contains a piece
-	 * which is targeting the given piece.
+	 * Returns a boolean indicating whether or not this square is being targeted.
 	 * 
-	 * @param piece the piece
 	 * @param board the chess board
-	 * @return <code>true</code> if this square contains a piece which is targeting
-	 *         the given piece, <code>false</code> otherwise
+	 * @return <code>true</code> if this square is being targeted,
+	 *         <code>false</code> otherwise
 	 */
-	public boolean isTargeting(Piece piece, Board board) {
-		Player player = piece.getPlayer();
-		Square square = piece.getSquare(board);
-		return isOccupiedByOpponent(player) && board.getTargets(this).contains(square);
-	}
-
-	@Override
-	public Square clone() {
-		return new Square(getFile(), getRank());
+	public boolean isTargeted(Board board) {
+		return board.getPieces().stream().anyMatch(p -> p.isTargeting(this, board));
 	}
 
 }

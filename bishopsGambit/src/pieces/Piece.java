@@ -114,15 +114,28 @@ public abstract class Piece {
 	}
 
 	/**
-	 * Returns a boolean indicating whether or not this piece is being targeted by
-	 * an opponent's piece.
+	 * Returns a boolean indicating whether or not (the square occupied by) this
+	 * piece is being targeted.
 	 * 
 	 * @param board the chess board
-	 * @return <code>true</code> if this piece is being targeted by an opponent's
-	 *         piece, <code>false</code> otherwise
+	 * @return <code>true</code> if this piece is being targeted, <code>false</code>
+	 *         otherwise
 	 */
 	public boolean isTargeted(Board board) {
-		return board.stream().anyMatch(s -> s.isTargeting(this, board));
+		return getSquare(board).isTargeted(board);
+	}
+
+	/**
+	 * Returns a boolean indicating whether or not this piece is targeting the given
+	 * square.
+	 * 
+	 * @param piece the square
+	 * @param board the chess board
+	 * @return <code>true</code> if this piece is targeting the given square,
+	 *         <code>false</code> otherwise
+	 */
+	public boolean isTargeting(Square square, Board board) {
+		return getTargets(board).contains(square);
 	}
 
 }
