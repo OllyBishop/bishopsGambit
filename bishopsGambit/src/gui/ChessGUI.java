@@ -197,28 +197,31 @@ public class ChessGUI extends JFrame {
 				boolean enterKeyReleased = e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED;
 				boolean moveSelected = from != null && to != null;
 				if (enterKeyReleased && moveSelected) {
-					getKingButton(getCurrentPlayer()).resetBorder();
+					resetCheckBorder();
 					makeMove();
-					updateBoard();
+					updateCheckBorder();
+					orientBoard();
 					turnInfo();
 				}
 				return enterKeyReleased;
 			}
 
-			private void makeMove() {
+			void makeMove() {
 				Square fromSquare = getSquare(from);
 				Square toSquare = getSquare(to);
 
 				String move = fromSquare.getCoordinates() + toSquare.getCoordinates();
-
 				Board newBoard = game.move(move);
 
 				for (SButton button : getButtons()) {
 					Square square = getSquare(button);
+
 					char file = square.getFile();
 					int rank = square.getRank();
 					Square newSquare = newBoard.getSquare(file, rank);
-					map.put(button, newSquare);
+
+					map.put(button, newSquare); // Re-map buttons to corresponding squares
+					updateIcon(button, newSquare); // Update button icons
 				}
 
 				from = from.deselect();
@@ -230,7 +233,36 @@ public class ChessGUI extends JFrame {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				updateScale();
-				updateGUI();
+				orientBoard();
+
+				if (to == null)
+					updateCheckBorder();
+				else
+					previewMove();
+			}
+
+			void updateScale() {
+				int width = contentPane.getWidth();
+				int height = contentPane.getHeight();
+
+				xMid = width / 2;
+				yMid = height / 2;
+				scale = Math.max(10, Math.min(width, height) / 10);
+				checkBorder = BorderFactory.createLineBorder(Color.red, Math.max(1, scale / 20));
+
+				for (int index = 0; index <= 7; index++) {
+					JLabel file = files.get(index);
+					JLabel rank = ranks.get(index);
+					file.setSize(scale, scale);
+					rank.setSize(scale, scale);
+					ComponentUtils.resizeFont(file, scale / 4);
+					ComponentUtils.resizeFont(rank, scale / 4);
+				}
+
+				for (SButton button : getButtons()) {
+					button.setScale(scale);
+					updateIcon(button, getSquare(button));
+				}
 			}
 		});
 
@@ -238,44 +270,20 @@ public class ChessGUI extends JFrame {
 	}
 
 	/**
-	 * Sets scale to 10% of width or height of frame (whichever is smallest),
-	 * ensuring a lower bound of 10 pixels.
+	 * Repositions the chess board relative to the size of the application window.
+	 * The board is oriented to the current player's perspective.
 	 */
-	private void updateScale() {
-		int width = contentPane.getWidth();
-		int height = contentPane.getHeight();
-
-		xMid = width / 2;
-		yMid = height / 2;
-		scale = Math.max(10, Math.min(width, height) / 10);
-		checkBorder = BorderFactory.createLineBorder(Color.red, Math.max(1, scale / 20));
+	private void orientBoard() {
+		orientBoard(getCurrentPlayer());
 	}
 
 	/**
-	 * Updates the appearance of the GUI.
-	 */
-	private void updateGUI() {
-		updateBoard();
-	}
-
-	/**
-	 * Resizes and repositions the chess board relative to the size of the
-	 * application window. Updates the appearance of each square based on pieces
-	 * moved. The board is oriented to the perspective of the player whose turn it
-	 * is.
-	 */
-	private void updateBoard() {
-		updateBoard(getCurrentPlayer());
-	}
-
-	/**
-	 * Resizes and repositions the chess board relative to the size of the
-	 * application window. Updates the appearance of each square based on pieces
-	 * moved. The board is oriented to the given player's perspective.
+	 * Repositions the chess board relative to the size of the application window.
+	 * The board is oriented to the given player's perspective.
 	 * 
 	 * @param perspective the player to whose perspective the board is oriented
 	 */
-	private void updateBoard(Player perspective) {
+	private void orientBoard(Player perspective) {
 		for (int index = 0; index <= 7; index++) {
 			JLabel file = files.get(index);
 			JLabel rank = ranks.get(index);
@@ -296,11 +304,8 @@ public class ChessGUI extends JFrame {
 				break;
 			}
 
-			file.setBounds(xFile, yFile, scale, scale);
-			rank.setBounds(xRank, yRank, scale, scale);
-
-			ComponentUtils.resizeFont(file, scale / 4);
-			ComponentUtils.resizeFont(rank, scale / 4);
+			file.setLocation(xFile, yFile);
+			rank.setLocation(xRank, yRank);
 		}
 
 		for (SButton button : getButtons()) {
@@ -323,30 +328,20 @@ public class ChessGUI extends JFrame {
 				break;
 			}
 
-			button.setBounds(x, y, scale, scale);
-
-			ComponentUtils.resizeFont(button, scale);
-
-			updateIcon(button, square);
+			button.setLocation(x, y);
 		}
-
-		Player currentPlayer = getCurrentPlayer();
-
-		if (currentPlayer.inCheck(getBoard()))
-			getKingButton(currentPlayer).setBorder(checkBorder);
-
-		if (to != null)
-			previewMove();
 	}
 
 	private void previewMove() {
 		updateIcon(from, null);
 		updateIcon(to, getSquare(from));
+		resetCheckBorder();
 	}
 
 	private void unpreviewMove() {
 		updateIcon(from, getSquare(from));
 		updateIcon(to, getSquare(to));
+		updateCheckBorder();
 	}
 
 	/**
@@ -365,6 +360,16 @@ public class ChessGUI extends JFrame {
 			icon = new ImageIcon(imageScaled);
 		}
 		button.setIcon(icon);
+	}
+
+	private void resetCheckBorder() {
+		getKingButton(getCurrentPlayer()).resetBorder();
+	}
+
+	private void updateCheckBorder() {
+		Player currentPlayer = getCurrentPlayer();
+		if (currentPlayer.inCheck(getBoard()))
+			getKingButton(currentPlayer).setBorder(checkBorder);
 	}
 
 	private void turnInfo() {

@@ -42,6 +42,13 @@ public class Board extends ArrayList<Square> {
 		return stream().filter(Square::isOccupied).map(Square::getPiece).toList();
 	}
 
+	/**
+	 * Finds the square whose coordinates match the given string. For example, an
+	 * input of "a1" finds the square with file 'a' and rank '1'.
+	 * 
+	 * @param string the coordinates of the desired square as a string
+	 * @return the square whose coordinates match the given string
+	 */
 	public Square getSquare(String string) {
 		char file = string.charAt(0);
 		int rank = string.charAt(1) - '0';

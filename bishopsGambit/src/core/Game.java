@@ -63,6 +63,12 @@ public class Game {
 		return getPlayer(getNumberOfTurns());
 	}
 
+	/**
+	 * Returns the player whose turn it last was, based on the number of turns
+	 * taken.
+	 * 
+	 * @return White if the number of turns taken is even, Black if it is odd
+	 */
 	public Player getLastPlayer() {
 		return getPlayer(getNumberOfTurns() - 1);
 	}

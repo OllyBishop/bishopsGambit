@@ -6,6 +6,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
 import utils.ColorUtils;
+import utils.ComponentUtils;
 
 public class SButton extends JButton {
 
@@ -61,6 +62,11 @@ public class SButton extends JButton {
 		setSelected(false);
 		resetBackground();
 		return null;
+	}
+
+	public void setScale(int scale) {
+		setSize(scale, scale);
+		ComponentUtils.resizeFont(this, scale);
 	}
 
 }
