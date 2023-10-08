@@ -78,17 +78,12 @@ public class Player {
 		new Bishop(this, 'c', backRank);
 		new Bishop(this, 'f', backRank);
 
-		Rook queenRook = new Rook(this, 'a', backRank);
-		Rook kingRook = new Rook(this, 'h', backRank);
+		getRooks().put(-1, new Rook(this, 'a', backRank));
+		getRooks().put(1, new Rook(this, 'h', backRank));
 
 		new Queen(this, 'd', backRank);
 
-		King king = new King(this, 'e', backRank);
-
-		getRooks().put(-1, queenRook);
-		getRooks().put(1, kingRook);
-
-		this.king = king;
+		this.king = new King(this, 'e', backRank);
 	}
 
 	public String getName() {
