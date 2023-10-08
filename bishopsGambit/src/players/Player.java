@@ -47,68 +47,43 @@ public class Player {
 	public Player(Colour colour) {
 		this.colour = colour;
 
-		int direction = 0;
 		int backRank = 0;
 		int pawnRank = 0;
 
 		switch (colour) {
 		case WHITE:
-			direction = 1;
 			backRank = 1;
 			pawnRank = 2;
 			break;
 		case BLACK:
-			direction = -1;
 			backRank = 8;
 			pawnRank = 7;
 			break;
 		}
 
-		this.direction = direction;
+		this.direction = Integer.signum(pawnRank - backRank);
 
-		Pawn aPawn = new Pawn(this, 'a', pawnRank);
-		Pawn bPawn = new Pawn(this, 'b', pawnRank);
-		Pawn cPawn = new Pawn(this, 'c', pawnRank);
-		Pawn dPawn = new Pawn(this, 'd', pawnRank);
-		Pawn ePawn = new Pawn(this, 'e', pawnRank);
-		Pawn fPawn = new Pawn(this, 'f', pawnRank);
-		Pawn gPawn = new Pawn(this, 'g', pawnRank);
-		Pawn hPawn = new Pawn(this, 'h', pawnRank);
+		new Pawn(this, 'a', pawnRank);
+		new Pawn(this, 'b', pawnRank);
+		new Pawn(this, 'c', pawnRank);
+		new Pawn(this, 'd', pawnRank);
+		new Pawn(this, 'e', pawnRank);
+		new Pawn(this, 'f', pawnRank);
+		new Pawn(this, 'g', pawnRank);
+		new Pawn(this, 'h', pawnRank);
 
-		Knight queenKnight = new Knight(this, 'b', backRank);
-		Knight kingKnight = new Knight(this, 'g', backRank);
+		new Knight(this, 'b', backRank);
+		new Knight(this, 'g', backRank);
 
-		Bishop queenBishop = new Bishop(this, 'c', backRank);
-		Bishop kingBishop = new Bishop(this, 'f', backRank);
+		new Bishop(this, 'c', backRank);
+		new Bishop(this, 'f', backRank);
 
 		Rook queenRook = new Rook(this, 'a', backRank);
 		Rook kingRook = new Rook(this, 'h', backRank);
 
-		Queen queen = new Queen(this, 'd', backRank);
+		new Queen(this, 'd', backRank);
 
 		King king = new King(this, 'e', backRank);
-
-		getPieces().add(aPawn);
-		getPieces().add(bPawn);
-		getPieces().add(cPawn);
-		getPieces().add(dPawn);
-		getPieces().add(ePawn);
-		getPieces().add(fPawn);
-		getPieces().add(gPawn);
-		getPieces().add(hPawn);
-
-		getPieces().add(queenKnight);
-		getPieces().add(kingKnight);
-
-		getPieces().add(queenBishop);
-		getPieces().add(kingBishop);
-
-		getPieces().add(queenRook);
-		getPieces().add(kingRook);
-
-		getPieces().add(queen);
-
-		getPieces().add(king);
 
 		getRooks().put(-1, queenRook);
 		getRooks().put(1, kingRook);

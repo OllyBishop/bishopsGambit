@@ -64,6 +64,11 @@ public class SButton extends JButton {
 		return null;
 	}
 
+	/**
+	 * Sets the width, height and font size of this button to the given scale.
+	 * 
+	 * @param scale the new width, height and font size of this button
+	 */
 	public void setScale(int scale) {
 		setSize(scale, scale);
 		ComponentUtils.resizeFont(this, scale);

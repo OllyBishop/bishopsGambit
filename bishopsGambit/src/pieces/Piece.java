@@ -70,6 +70,8 @@ public abstract class Piece {
 
 		setMoved(false);
 		setCaptured(false);
+
+		player.getPieces().add(this);
 	}
 
 	/**
@@ -90,8 +92,8 @@ public abstract class Piece {
 
 	/**
 	 * Returns a list of all squares this piece can legally move to. The squares
-	 * returned are a subset of the list returned by getTargets(), with any moves
-	 * that would result in check removed.
+	 * returned are a subset of the squares returned by {@code getTargets()}, with
+	 * any moves that would result in check removed.
 	 * 
 	 * @param board the chess board
 	 * @return a list of all squares this piece can legally move to
