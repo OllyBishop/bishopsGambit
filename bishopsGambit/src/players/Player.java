@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import board.Board;
-import board.Square;
 import pieces.Bishop;
 import pieces.King;
 import pieces.Knight;
@@ -14,13 +13,23 @@ import pieces.Pawn;
 import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
+import utils.StringUtils;
 
 public class Player {
+
+	public enum Colour {
+		WHITE, BLACK;
+
+		@Override
+		public String toString() {
+			return StringUtils.toUpperCamelCase(name());
+		}
+	}
 
 	private final Colour colour;
 	private final int direction;
 
-	private final List<Piece> pieces = new ArrayList<Piece>();;
+	private final List<Piece> pieces = new ArrayList<Piece>();
 	private final Map<Integer, Rook> rooks = new HashMap<Integer, Rook>();
 	private final King king;
 
@@ -84,10 +93,6 @@ public class Player {
 		new Queen(this, 'd', backRank);
 
 		this.king = new King(this, 'e', backRank);
-	}
-
-	public String getName() {
-		return getColour().toString();
 	}
 
 	/**
@@ -154,10 +159,6 @@ public class Player {
 
 	public Rook getRook(int x) {
 		return getRooks().get(x);
-	}
-
-	public Square getCastlingSquare(Board board, int x) {
-		return board.getSquare((char) (getKing().getStartFile() + x), getKing().getStartRank());
 	}
 
 }

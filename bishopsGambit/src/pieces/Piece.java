@@ -9,8 +9,18 @@ import javax.imageio.ImageIO;
 import board.Board;
 import board.Square;
 import players.Player;
+import utils.StringUtils;
 
 public abstract class Piece {
+
+	public enum Typ {
+		PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING;
+
+		@Override
+		public String toString() {
+			return StringUtils.toUpperCamelCase(name());
+		}
+	}
 
 	private final Player player; // References the player this piece belongs to
 	private final char startFile;
@@ -99,9 +109,11 @@ public abstract class Piece {
 	 * @return a list of all squares this piece can legally move to
 	 */
 	public List<Square> getMoves(Board board) {
-		List<Square> targets = getTargets(board);
-		Player player = getPlayer();
-		return targets.stream().filter(s -> !player.inCheck(board.move(this, s))).toList();
+		return getTargets(board).stream().filter(s -> !getPlayer().inCheck(board.move(this, s))).toList();
+	}
+
+	public Square getStartSquare(Board board) {
+		return board.getSquare(getStartFile(), getStartRank());
 	}
 
 	/**
@@ -131,13 +143,35 @@ public abstract class Piece {
 	 * Returns a boolean indicating whether or not this piece is targeting the given
 	 * square.
 	 * 
-	 * @param piece the square
-	 * @param board the chess board
+	 * @param board  the chess board
+	 * @param square the square
 	 * @return <code>true</code> if this piece is targeting the given square,
 	 *         <code>false</code> otherwise
 	 */
-	public boolean isTargeting(Square square, Board board) {
+	public boolean isTargeting(Board board, Square square) {
 		return getTargets(board).contains(square);
+	}
+
+	public boolean canPromote(Board board, Square square) {
+		return this instanceof Pawn && square.travel(board, 0, getPlayer().getDirection()) == null;
+	}
+
+	public boolean movedTwoSquaresForward(Square from, Square to) {
+		int fileDiff = to.getFile() - from.getFile();
+		int rankDiff = to.getRank() - from.getRank();
+		return fileDiff == 0 && rankDiff == 2 * getPlayer().getDirection();
+	}
+
+	public boolean movedOneSquareDiagonallyForward(Square from, Square to) {
+		int fileDiff = to.getFile() - from.getFile();
+		int rankDiff = to.getRank() - from.getRank();
+		return Math.abs(fileDiff) == 1 && rankDiff == getPlayer().getDirection();
+	}
+
+	public boolean movedTwoSquaresLaterally(Square from, Square to) {
+		int fileDiff = to.getFile() - from.getFile();
+		int rankDiff = to.getRank() - from.getRank();
+		return Math.abs(fileDiff) == 2 && rankDiff == 0;
 	}
 
 }
