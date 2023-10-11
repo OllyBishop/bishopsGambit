@@ -30,6 +30,7 @@ import javax.swing.border.Border;
 import board.Board;
 import board.Square;
 import core.Game;
+import pieces.Piece.Typ;
 import players.Player;
 import utils.ComponentUtils;
 
@@ -210,8 +211,21 @@ public class ChessGUI extends JFrame {
 				Square fromSquare = getSquare(from);
 				Square toSquare = getSquare(to);
 
-				String move = fromSquare.getCoordinates() + toSquare.getCoordinates();
-				Board newBoard = game.move(move);
+				Typ prom = null;
+
+				if (fromSquare.getPiece().canPromote(getBoard(), toSquare)) {
+					Typ[] options = new Typ[] { Typ.KNIGHT, Typ.BISHOP, Typ.ROOK, Typ.QUEEN };
+
+					int i = JOptionPane.showOptionDialog(rootPane, "Select a piece to promote to.", "Promotion",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, to.getIcon(), options, null);
+
+					if (i == JOptionPane.CLOSED_OPTION)
+						prom = Typ.QUEEN;
+					else
+						prom = options[i];
+				}
+
+				Board newBoard = game.move(fromSquare, toSquare, prom);
 
 				for (SButton button : getButtons()) {
 					Square square = getSquare(button);
@@ -376,7 +390,7 @@ public class ChessGUI extends JFrame {
 		Player currentPlayer = getCurrentPlayer();
 		int n = currentPlayer.numberOfMoves(getBoard());
 
-		System.out.printf("%s has %d legal move%s.\n", currentPlayer.getName(), n, n == 1 ? "" : "s");
+		System.out.printf("%s has %d legal move%s.\n", currentPlayer.getColour(), n, n == 1 ? "" : "s");
 
 		if (n == 0) {
 			String message;
@@ -384,7 +398,7 @@ public class ChessGUI extends JFrame {
 
 			if (currentPlayer.inCheck(getBoard())) {
 				Player lastPlayer = getLastPlayer();
-				message = lastPlayer.getName() + " wins by checkmate!";
+				message = lastPlayer.getColour() + " wins by checkmate!";
 				icon = getKingButton(lastPlayer).getIcon();
 			} else {
 				message = "It's a stalemate!";

@@ -10,10 +10,11 @@ import pieces.King;
 import pieces.Knight;
 import pieces.Pawn;
 import pieces.Piece;
+import pieces.Piece.Typ;
 import pieces.Queen;
 import pieces.Rook;
-import players.Colour;
 import players.Player;
+import players.Player.Colour;
 
 public class Game {
 
@@ -78,37 +79,37 @@ public class Game {
 	}
 
 	public Board move(String move) {
+		Board board = getBoard();
+
 		String fromString = move.substring(0, 2);
 		String toString = move.substring(2, 4);
 
-		Square from = getBoard().getSquare(fromString);
-		Square to = getBoard().getSquare(toString);
+		Square from = board.getSquare(fromString);
+		Square to = board.getSquare(toString);
 
-		Player player = getCurrentPlayer();
-		char toFile = to.getFile();
-		int toRank = to.getRank();
-
-		Piece promotion = null;
+		Typ prom;
 
 		switch (move.substring(4)) {
 		case "n":
-			promotion = new Knight(player, toFile, toRank);
+			prom = Typ.KNIGHT;
 			break;
 		case "b":
-			promotion = new Bishop(player, toFile, toRank);
+			prom = Typ.BISHOP;
 			break;
 		case "r":
-			promotion = new Rook(player, toFile, toRank);
+			prom = Typ.ROOK;
 			break;
 		case "q":
-			promotion = new Queen(player, toFile, toRank);
+			prom = Typ.QUEEN;
 			break;
+		default:
+			prom = null;
 		}
 
-		return move(from, to, promotion);
+		return move(from, to, prom);
 	}
 
-	private Board move(Square from, Square to, Piece promotion) {
+	public Board move(Square from, Square to, Typ prom) {
 		Piece piece = from.getPiece();
 
 		Board newBoard = getBoard().move(piece, to);
@@ -117,38 +118,61 @@ public class Game {
 			if (p instanceof Pawn)
 				((Pawn) p).setEnPassant(false);
 
-		// En passant
+		char fromFile = from.getFile();
+		int fromRank = from.getRank();
+		char toFile = to.getFile();
+		int toRank = to.getRank();
+
 		if (piece instanceof Pawn) {
-			int fileDiff = to.getFile() - from.getFile();
-			int rankDiff = to.getRank() - from.getRank();
-			int direction = piece.getPlayer().getDirection();
+			// Promotion
+			if (prom != null) {
+				Piece promotion;
 
-			if (fileDiff == 0 && rankDiff == 2 * direction)
+				switch (prom) {
+				case KNIGHT:
+					promotion = new Knight(getCurrentPlayer(), toFile, toRank);
+					break;
+				case BISHOP:
+					promotion = new Bishop(getCurrentPlayer(), toFile, toRank);
+					break;
+				case ROOK:
+					promotion = new Rook(getCurrentPlayer(), toFile, toRank);
+					break;
+				case QUEEN:
+					promotion = new Queen(getCurrentPlayer(), toFile, toRank);
+					break;
+				default:
+					promotion = null;
+				}
+
+				piece.setCaptured(true);
+				newBoard.getSquare(toFile, toRank).setPiece(promotion);
+			}
+
+			// En passant (make the player's pawn available for capture)
+			else if (piece.movedTwoSquaresForward(from, to)) {
 				((Pawn) piece).setEnPassant(true);
+			}
 
-			if (Math.abs(fileDiff) == 1 && rankDiff == direction && !to.isOccupied()) {
-				Square s = getBoard().getSquare(to.getFile(), from.getRank());
+			// En passant (capture the opponent's pawn)
+			else if (piece.movedOneSquareDiagonallyForward(from, to) && !to.isOccupied()) {
+				Square s = newBoard.getSquare(toFile, fromRank);
 				s.getPiece().setCaptured(true);
 				s.setPiece(null);
 			}
 		}
 
 		// Castling
-		else if (piece instanceof King && !piece.hasMoved()) {
-			int fileDiff = to.getFile() - piece.getStartFile();
-			int rankDiff = to.getRank() - piece.getStartRank();
+		else if (piece instanceof King && !piece.hasMoved() && piece.movedTwoSquaresLaterally(from, to)) {
+			Player player = piece.getPlayer();
+			int x = Integer.signum(toFile - fromFile);
 
-			if (Math.abs(fileDiff) == 2 && rankDiff == 0) {
-				Player player = piece.getPlayer();
-				int x = fileDiff / 2;
+			Rook rook = player.getRook(x);
+			Square rookTo = from.travel(newBoard, x, 0);
 
-				Rook rook = player.getRook(x);
-				Square rookTo = player.getCastlingSquare(getBoard(), x);
+			newBoard = newBoard.move(rook, rookTo);
 
-				newBoard = newBoard.move(rook, rookTo);
-
-				rook.setMoved(true);
-			}
+			rook.setMoved(true);
 		}
 
 		piece.setMoved(true);

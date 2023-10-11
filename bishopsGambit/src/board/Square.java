@@ -98,7 +98,11 @@ public class Square {
 	 *         <code>false</code> otherwise
 	 */
 	public boolean isTargeted(Board board) {
-		return board.getPieces().stream().anyMatch(p -> p.isTargeting(this, board));
+		return board.getPieces().stream().anyMatch(p -> p.isTargeting(board, this));
+	}
+
+	public Square travel(Board board, int x, int y) {
+		return board.getSquare((char) (getFile() + x), getRank() + y);
 	}
 
 }
