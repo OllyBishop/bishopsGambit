@@ -24,6 +24,11 @@ public class Pawn extends Piece {
 	}
 
 	@Override
+	public Typ getType() {
+		return Typ.PAWN;
+	}
+
+	@Override
 	public int getValue() {
 		return 1;
 	}

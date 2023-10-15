@@ -14,6 +14,11 @@ public class Knight extends Piece {
 	}
 
 	@Override
+	public Typ getType() {
+		return Typ.KNIGHT;
+	}
+
+	@Override
 	public int getValue() {
 		return 3;
 	}

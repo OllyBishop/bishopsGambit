@@ -14,6 +14,11 @@ public class Queen extends Piece {
 	}
 
 	@Override
+	public Typ getType() {
+		return Typ.QUEEN;
+	}
+
+	@Override
 	public int getValue() {
 		return 9;
 	}
