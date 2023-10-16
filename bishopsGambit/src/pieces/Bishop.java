@@ -14,6 +14,11 @@ public class Bishop extends Piece {
 	}
 
 	@Override
+	public Typ getType() {
+		return Typ.BISHOP;
+	}
+
+	@Override
 	public int getValue() {
 		return 3;
 	}

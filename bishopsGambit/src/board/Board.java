@@ -3,6 +3,8 @@ package board;
 import java.util.ArrayList;
 import java.util.List;
 
+import pieces.King;
+import pieces.Pawn;
 import pieces.Piece;
 import players.Player;
 
@@ -12,11 +14,9 @@ public class Board extends ArrayList<Square> {
 	 * Creates an ArrayList of 64 squares, comprising the chess board.
 	 */
 	public Board() {
-		for (char file = 'a'; file <= 'h'; file++) {
-			for (int rank = 1; rank <= 8; rank++) {
+		for (char file = 'a'; file <= 'h'; file++)
+			for (int rank = 1; rank <= 8; rank++)
 				add(new Square(file, rank));
-			}
-		}
 	}
 
 	/**
@@ -33,10 +33,9 @@ public class Board extends ArrayList<Square> {
 	}
 
 	/**
-	 * Returns a list of all pieces currently in play; i.e., all pieces that are
-	 * currently on the board.
+	 * Returns a list of all pieces currently on the board.
 	 * 
-	 * @return a list of all pieces currently in play
+	 * @return a list of all pieces currently on the board
 	 */
 	public List<Piece> getPieces() {
 		return stream().filter(Square::isOccupied).map(Square::getPiece).toList();
@@ -73,27 +72,45 @@ public class Board extends ArrayList<Square> {
 		return square;
 	}
 
+	public Board move(Square from, Square to) {
+		Piece piece = from.getPiece();
+		Board newBoard = movePiece(from, to);
+
+		char fromFile = from.getFile();
+		int fromRank = from.getRank();
+		char toFile = to.getFile();
+
+		// Capture opponent's pawn en passant
+		if (piece instanceof Pawn && piece.movedOneSquareDiagonallyForward(from, to) && !to.isOccupied()) {
+			Square square = newBoard.getSquare(toFile, fromRank);
+			newBoard.replace(square, square.clone());
+		}
+
+		// Castling
+		else if (piece instanceof King && piece.movedTwoSquaresLaterally(from, to)) {
+			int x = Integer.signum(toFile - fromFile);
+			Square rookFrom = piece.getPlayer().getRook(x).getStartSquare(this);
+			Square rookTo = from.travel(newBoard, x, 0);
+			newBoard = newBoard.movePiece(rookFrom, rookTo);
+		}
+
+		return newBoard;
+	}
+
 	/**
-	 * Creates a clone of this board where the given piece has been moved to the
-	 * given square. This is achieved by cloning the squares and assigning the piece
-	 * accordingly.
+	 * Creates a clone of this board where the piece occupying the <i>from</i>
+	 * square has been moved to the <i>to</i> square. This is achieved by cloning
+	 * the squares and assigning the piece accordingly.
 	 * 
-	 * @param piece the piece to be moved
-	 * @param to    the destination square for the piece
-	 * @return a clone of this board where the given piece has been moved to the
-	 *         given square
+	 * @param from the square containing the piece to be moved
+	 * @param to   the destination square for the piece
+	 * @return a clone of this board where the piece occupying the <i>from</i>
+	 *         square has been moved to the <i>to</i> square
 	 */
-	public Board move(Piece piece, Square to) {
-		Square from = piece.getSquare(this);
-
-		Square newFrom = from.clone();
-		Square newTo = to.clone();
-		newTo.setPiece(piece);
-
+	private Board movePiece(Square from, Square to) {
 		Board newBoard = (Board) clone();
-		newBoard.replace(from, newFrom);
-		newBoard.replace(to, newTo);
-
+		newBoard.replace(from, from.clone());
+		newBoard.replace(to, to.clone(from.getPiece()));
 		return newBoard;
 	}
 
@@ -107,6 +124,10 @@ public class Board extends ArrayList<Square> {
 		int index = indexOf(s1);
 		remove(index);
 		add(index, s2);
+	}
+
+	public boolean isLegalMove(Square from, Square to) {
+		return from.getPiece().getMoves(this).contains(to);
 	}
 
 }

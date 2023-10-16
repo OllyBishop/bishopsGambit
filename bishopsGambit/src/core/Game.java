@@ -6,7 +6,6 @@ import java.util.List;
 import board.Board;
 import board.Square;
 import pieces.Bishop;
-import pieces.King;
 import pieces.Knight;
 import pieces.Pawn;
 import pieces.Piece;
@@ -46,7 +45,7 @@ public class Game {
 		getBoards().add(board);
 	}
 
-	private int getNumberOfTurns() {
+	public int getNumberOfTurns() {
 		return getBoards().size() - 1;
 	}
 
@@ -78,55 +77,34 @@ public class Game {
 		return n % 2 == 0 ? getWhite() : getBlack();
 	}
 
-	public Board move(String move) {
+	public Board move(Square from, Square to, Typ prom) {
+		if (!from.isOccupied())
+			throw new UnoccupiedSquareException(from);
+
 		Board board = getBoard();
 
-		String fromString = move.substring(0, 2);
-		String toString = move.substring(2, 4);
+		if (!board.isLegalMove(from, to))
+			throw new IllegalMoveException(from, to);
 
-		Square from = board.getSquare(fromString);
-		Square to = board.getSquare(toString);
-
-		Typ prom;
-
-		switch (move.substring(4)) {
-		case "n":
-			prom = Typ.KNIGHT;
-			break;
-		case "b":
-			prom = Typ.BISHOP;
-			break;
-		case "r":
-			prom = Typ.ROOK;
-			break;
-		case "q":
-			prom = Typ.QUEEN;
-			break;
-		default:
-			prom = null;
-		}
-
-		return move(from, to, prom);
-	}
-
-	public Board move(Square from, Square to, Typ prom) {
-		Piece piece = from.getPiece();
-
-		Board newBoard = getBoard().move(piece, to);
-
+		// Disable en passant capture of opponent's pawns
 		for (Piece p : getLastPlayer().getPieces())
 			if (p instanceof Pawn)
 				((Pawn) p).setEnPassant(false);
 
-		char fromFile = from.getFile();
-		int fromRank = from.getRank();
-		char toFile = to.getFile();
-		int toRank = to.getRank();
+		Piece piece = from.getPiece();
+		Board newBoard = board.move(from, to);
 
 		if (piece instanceof Pawn) {
+			// Enable en passant capture of this pawn
+			if (piece.movedTwoSquaresForward(from, to))
+				((Pawn) piece).setEnPassant(true);
+
 			// Promotion
-			if (prom != null) {
+			else if (prom != null) {
 				Piece promotion;
+
+				char toFile = to.getFile();
+				int toRank = to.getRank();
 
 				switch (prom) {
 				case KNIGHT:
@@ -145,39 +123,25 @@ public class Game {
 					promotion = null;
 				}
 
-				piece.setCaptured(true);
 				newBoard.getSquare(toFile, toRank).setPiece(promotion);
 			}
-
-			// En passant (make the player's pawn available for capture)
-			else if (piece.movedTwoSquaresForward(from, to)) {
-				((Pawn) piece).setEnPassant(true);
-			}
-
-			// En passant (capture the opponent's pawn)
-			else if (piece.movedOneSquareDiagonallyForward(from, to) && !to.isOccupied()) {
-				Square s = newBoard.getSquare(toFile, fromRank);
-				s.getPiece().setCaptured(true);
-				s.setPiece(null);
-			}
 		}
 
-		// Castling
-		else if (piece instanceof King && !piece.hasMoved() && piece.movedTwoSquaresLaterally(from, to)) {
-			Player player = piece.getPlayer();
-			int x = Integer.signum(toFile - fromFile);
+		List<Piece> pieces = new ArrayList<>();
+		pieces.addAll(getWhite().getPieces());
+		pieces.addAll(getBlack().getPieces());
 
-			Rook rook = player.getRook(x);
-			Square rookTo = from.travel(newBoard, x, 0);
+		for (Piece p : pieces) {
+			Square square = p.getSquare(newBoard);
 
-			newBoard = newBoard.move(rook, rookTo);
+			// If piece is not on the board, set it as captured
+			if (square == null)
+				p.setCaptured(true);
 
-			rook.setMoved(true);
+			// If piece is on the board but not on its starting square, set it as moved
+			else if (square != p.getStartSquare(newBoard))
+				p.setMoved(true);
 		}
-
-		piece.setMoved(true);
-		if (to.isOccupied())
-			to.getPiece().setCaptured(true);
 
 		addBoard(newBoard);
 

@@ -14,6 +14,11 @@ public class King extends Piece {
 	}
 
 	@Override
+	public Typ getType() {
+		return Typ.KING;
+	}
+
+	@Override
 	public int getValue() {
 		return 0;
 	}
@@ -47,13 +52,13 @@ public class King extends Piece {
 				Rook rook = getPlayer().getRook(x);
 
 				if (!rook.hasMoved() && !rook.isCaptured()) {
-					Square startSquare = getStartSquare(board);
+					Square s = getStartSquare(board);
 
-					Square s1 = startSquare.travel(board, x, 0); // Rook moves to
-					Square s2 = startSquare.travel(board, 2 * x, 0); // King moves to
+					Square s1 = s.travel(board, x, 0); // Rook moves to
+					Square s2 = s.travel(board, 2 * x, 0); // King moves to
 
-					Board b1 = board.move(this, s1);
-					Board b2 = board.move(this, s2);
+					Board b1 = board.move(s, s1);
+					Board b2 = board.move(s, s2);
 
 					if (rook.isTargeting(board, s1) && !isTargeted(b1) && !isTargeted(b2))
 						moves.add(s2);

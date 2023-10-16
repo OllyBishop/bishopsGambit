@@ -32,8 +32,25 @@ public class Square {
 	}
 
 	@Override
+	public String toString() {
+		return String.format("%s%s", getFile(), getRank());
+	}
+
+	/**
+	 * Creates a new square that has the same file and rank as {@code this}. No
+	 * piece is assigned to the new square; that is, the new square is unoccupied.
+	 * 
+	 * @return a new square that has the same file and rank as {@code this}
+	 */
+	@Override
 	public Square clone() {
 		return new Square(getFile(), getRank());
+	}
+
+	public Square clone(Piece piece) {
+		Square clone = clone();
+		clone.setPiece(piece);
+		return clone;
 	}
 
 	public static int getFileIndex(char file) {
@@ -50,10 +67,6 @@ public class Square {
 
 	public int getRankIndex() {
 		return getRankIndex(getRank());
-	}
-
-	public String getCoordinates() {
-		return String.format("%s%s", getFile(), getRank());
 	}
 
 	/**
@@ -91,7 +104,8 @@ public class Square {
 	}
 
 	/**
-	 * Returns a boolean indicating whether or not this square is being targeted.
+	 * Returns a boolean indicating whether or not this square is being targeted by
+	 * an enemy piece.
 	 * 
 	 * @param board the chess board
 	 * @return <code>true</code> if this square is being targeted,

@@ -1,9 +1,7 @@
 package players;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import board.Board;
 import pieces.Bishop;
@@ -30,7 +28,8 @@ public class Player {
 	private final int direction;
 
 	private final List<Piece> pieces = new ArrayList<Piece>();
-	private final Map<Integer, Rook> rooks = new HashMap<Integer, Rook>();
+	private final Rook queensideRook;
+	private final Rook kingsideRook;
 	private final King king;
 
 	public Colour getColour() {
@@ -45,8 +44,20 @@ public class Player {
 		return this.pieces;
 	}
 
-	private Map<Integer, Rook> getRooks() {
-		return this.rooks;
+	public Rook getRook(int x) {
+		if (x == -1)
+			return getQueensideRook();
+		if (x == 1)
+			return getKingsideRook();
+		return null;
+	}
+
+	public Rook getQueensideRook() {
+		return this.queensideRook;
+	}
+
+	public Rook getKingsideRook() {
+		return this.kingsideRook;
 	}
 
 	public King getKing() {
@@ -87,8 +98,8 @@ public class Player {
 		new Bishop(this, 'c', backRank);
 		new Bishop(this, 'f', backRank);
 
-		getRooks().put(-1, new Rook(this, 'a', backRank));
-		getRooks().put(1, new Rook(this, 'h', backRank));
+		this.queensideRook = new Rook(this, 'a', backRank);
+		this.kingsideRook = new Rook(this, 'h', backRank);
 
 		new Queen(this, 'd', backRank);
 
@@ -139,10 +150,9 @@ public class Player {
 	 */
 	public int numberOfMoves(Board board) {
 		int numberOfMoves = 0;
-		for (Piece piece : getPieces()) {
+		for (Piece piece : getPieces())
 			if (!piece.isCaptured())
 				numberOfMoves += piece.getMoves(board).size();
-		}
 		return numberOfMoves;
 	}
 
@@ -155,10 +165,6 @@ public class Player {
 	 */
 	private boolean noMoves(Board board) {
 		return numberOfMoves(board) == 0;
-	}
-
-	public Rook getRook(int x) {
-		return getRooks().get(x);
 	}
 
 }

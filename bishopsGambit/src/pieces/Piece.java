@@ -84,6 +84,13 @@ public abstract class Piece {
 		player.getPieces().add(this);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s %s", getPlayer().getColour(), getType());
+	}
+
+	public abstract Typ getType();
+
 	/**
 	 * Returns the value of this piece as an integer.
 	 * 
@@ -109,7 +116,8 @@ public abstract class Piece {
 	 * @return a list of all squares this piece can legally move to
 	 */
 	public List<Square> getMoves(Board board) {
-		return getTargets(board).stream().filter(s -> !getPlayer().inCheck(board.move(this, s))).toList();
+		Square from = getSquare(board);
+		return getTargets(board).stream().filter(to -> !getPlayer().inCheck(board.move(from, to))).toList();
 	}
 
 	public Square getStartSquare(Board board) {
@@ -129,7 +137,7 @@ public abstract class Piece {
 
 	/**
 	 * Returns a boolean indicating whether or not (the square occupied by) this
-	 * piece is being targeted.
+	 * piece is being targeted by an enemy piece.
 	 * 
 	 * @param board the chess board
 	 * @return <code>true</code> if this piece is being targeted, <code>false</code>

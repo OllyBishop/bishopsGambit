@@ -14,6 +14,11 @@ public class Rook extends Piece {
 	}
 
 	@Override
+	public Typ getType() {
+		return Typ.ROOK;
+	}
+
+	@Override
 	public int getValue() {
 		return 5;
 	}
