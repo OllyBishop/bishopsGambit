@@ -25,7 +25,7 @@ public class King extends Piece {
 
 	@Override
 	public List<Square> getTargets(Board board) {
-		List<Square> targets = new ArrayList<Square>();
+		List<Square> targets = new ArrayList<>();
 
 		Square square = getSquare(board);
 		char file = square.getFile();
@@ -45,7 +45,7 @@ public class King extends Piece {
 
 	@Override
 	public List<Square> getMoves(Board board) {
-		List<Square> moves = new ArrayList<Square>(super.getMoves(board));
+		List<Square> moves = new ArrayList<>(super.getMoves(board));
 
 		for (int x : new int[] { -1, 1 }) {
 			if (!hasMoved() && !isTargeted(board)) {

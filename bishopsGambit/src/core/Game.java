@@ -17,7 +17,7 @@ import players.Player.Colour;
 
 public class Game {
 
-	private final List<Board> boards = new ArrayList<Board>();
+	private final List<Board> boards = new ArrayList<>();
 
 	private final Player white = new Player(Colour.WHITE);
 	private final Player black = new Player(Colour.BLACK);
@@ -77,7 +77,7 @@ public class Game {
 		return n % 2 == 0 ? getWhite() : getBlack();
 	}
 
-	public Board move(Square from, Square to, Typ prom) {
+	public void move(Square from, Square to, Typ prom) {
 		if (!from.isOccupied())
 			throw new UnoccupiedSquareException(from);
 
@@ -144,8 +144,6 @@ public class Game {
 		}
 
 		addBoard(newBoard);
-
-		return newBoard;
 	}
 
 }

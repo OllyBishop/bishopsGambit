@@ -25,7 +25,7 @@ public class Queen extends Piece {
 
 	@Override
 	public List<Square> getTargets(Board board) {
-		List<Square> targets = new ArrayList<Square>();
+		List<Square> targets = new ArrayList<>();
 		targets.addAll(Bishop.getTargets(board, this));
 		targets.addAll(Rook.getTargets(board, this));
 		return targets;

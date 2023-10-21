@@ -81,15 +81,15 @@ class ChessTest {
 //	private static final String H7 = "h7";
 //	private static final String H8 = "h8";
 
-	public static Board move(Game game, String fromStr, String toStr) {
-		return move(game, fromStr, toStr, null);
+	public static void move(Game game, String fromStr, String toStr) {
+		move(game, fromStr, toStr, null);
 	}
 
-	public static Board move(Game game, String fromStr, String toStr, Typ prom) {
+	public static void move(Game game, String fromStr, String toStr, Typ prom) {
 		Board board = game.getBoard();
 		Square from = board.getSquare(fromStr);
 		Square to = board.getSquare(toStr);
-		return game.move(from, to, prom);
+		game.move(from, to, prom);
 	}
 
 	public static Piece getPiece(Board board, String squareStr) {

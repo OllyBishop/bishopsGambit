@@ -35,7 +35,7 @@ public class Pawn extends Piece {
 
 	@Override
 	public List<Square> getTargets(Board board) {
-		List<Square> targets = new ArrayList<Square>();
+		List<Square> targets = new ArrayList<>();
 
 		Square square = getSquare(board);
 		char file = square.getFile();
