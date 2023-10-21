@@ -27,7 +27,7 @@ public class Player {
 	private final Colour colour;
 	private final int direction;
 
-	private final List<Piece> pieces = new ArrayList<Piece>();
+	private final List<Piece> pieces = new ArrayList<>();
 	private final Rook queensideRook;
 	private final Rook kingsideRook;
 	private final King king;

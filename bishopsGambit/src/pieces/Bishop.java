@@ -29,7 +29,7 @@ public class Bishop extends Piece {
 	}
 
 	public static List<Square> getTargets(Board board, Piece piece) {
-		List<Square> targets = new ArrayList<Square>();
+		List<Square> targets = new ArrayList<>();
 
 		Square square = piece.getSquare(board);
 		char file = square.getFile();

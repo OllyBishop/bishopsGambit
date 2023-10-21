@@ -1,10 +1,15 @@
 package gui;
 
 import java.awt.Color;
+import java.awt.Image;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+import board.Board;
+import board.Square;
 import utils.ColorUtils;
 import utils.ComponentUtils;
 
@@ -15,16 +20,22 @@ public class SButton extends JButton {
 	private static final Color HIGHLIGHT = ColorUtils.blend(Color.yellow, Color.white);
 	private static final Color BLACK_SEMI_TRANSPARENT = ColorUtils.changeAlpha(Color.black, 85);
 
-	private final Color defaultBg;
+	private final char file;
+	private final int rank;
 
-	private Color getDefaultBg() {
-		return this.defaultBg;
+	public char getFile() {
+		return this.file;
+	}
+
+	public int getRank() {
+		return this.rank;
 	}
 
 	public SButton(char file, int rank) {
-		this.defaultBg = (file + rank) % 2 == 0 ? DARK : LIGHT;
+		this.file = file;
+		this.rank = rank;
 
-		resetBorder();
+		clearBorder();
 		resetBackground();
 
 		setForeground(BLACK_SEMI_TRANSPARENT);
@@ -32,7 +43,11 @@ public class SButton extends JButton {
 		setOpaque(true);
 	}
 
-	public void resetBorder() {
+	private Color getDefaultBg() {
+		return (getFile() + getRank()) % 2 == 0 ? DARK : LIGHT;
+	}
+
+	public void clearBorder() {
 		setBorder(BorderFactory.createEmptyBorder());
 	}
 
@@ -72,6 +87,27 @@ public class SButton extends JButton {
 	public void setScale(int scale) {
 		setSize(scale, scale);
 		ComponentUtils.resizeFont(this, scale);
+	}
+
+	/**
+	 * Sets this button's icon to an image of the piece occupying its corresponding
+	 * square. The corresponding square is the square on the given <b>board</b> that
+	 * has the same file and rank as this button. If the square is not occupied by
+	 * any piece, an empty icon is set.
+	 * 
+	 * @param board the board
+	 */
+	public void paintIcon(Board board) {
+		Icon icon = null;
+
+		Square square = board.getSquare(getFile(), getRank());
+		if (square.isOccupied()) {
+			Image imageFull = square.getPiece().getImage();
+			Image imageScaled = imageFull.getScaledInstance(getWidth(), getHeight(), Image.SCALE_SMOOTH);
+			icon = new ImageIcon(imageScaled);
+		}
+
+		setIcon(icon);
 	}
 
 }
