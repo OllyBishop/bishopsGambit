@@ -1,8 +1,13 @@
 package utils;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ListUtils {
+
+	public static <T> List<T> combine(List<? extends T> list1, List<? extends T> list2) {
+		return Stream.concat(list1.stream(), list2.stream()).toList();
+	}
 
 	public static boolean hasIndex(List<?> list, int index) {
 		return 0 <= index && index < list.size();
@@ -22,9 +27,11 @@ public class ListUtils {
 	 */
 	public static <T, U> T get(List<T> list1, List<U> list2, U object) {
 		T element = null;
+
 		int index;
 		if (object != null && hasIndex(list1, index = list2.indexOf(object)))
 			element = list1.get(index);
+
 		return element;
 	}
 

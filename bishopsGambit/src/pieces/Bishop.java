@@ -32,13 +32,11 @@ public class Bishop extends Piece {
 		List<Square> targets = new ArrayList<>();
 
 		Square square = piece.getSquare(board);
-		char file = square.getFile();
-		int rank = square.getRank();
 
 		for (int x : new int[] { -1, 1 }) {
 			for (int y : new int[] { -1, 1 }) {
 				for (int n = 1; n < 8; n++) {
-					Square s = board.getSquare((char) (file + n * x), rank + n * y);
+					Square s = square.travel(board, n * x, n * y);
 					if (s == null) {
 						break;
 					} else {

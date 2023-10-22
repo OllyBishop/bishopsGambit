@@ -97,12 +97,12 @@ public class SButton extends JButton {
 	 * 
 	 * @param board the board
 	 */
-	public void paintIcon(Board board) {
+	public void paintIcon(Board board, Graphics graphics) {
 		Icon icon = null;
 
 		Square square = board.getSquare(getFile(), getRank());
 		if (square.isOccupied()) {
-			Image imageFull = square.getPiece().getImage();
+			Image imageFull = graphics.getImage(square.getPiece());
 			Image imageScaled = imageFull.getScaledInstance(getWidth(), getHeight(), Image.SCALE_SMOOTH);
 			icon = new ImageIcon(imageScaled);
 		}

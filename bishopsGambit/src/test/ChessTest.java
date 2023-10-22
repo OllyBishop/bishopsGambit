@@ -6,12 +6,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 
 import board.Board;
-import board.Square;
 import core.Game;
 import core.IllegalMoveException;
 import core.UnoccupiedSquareException;
-import pieces.Piece;
-import pieces.Piece.Typ;
 import players.Player;
 
 class ChessTest {
@@ -81,27 +78,12 @@ class ChessTest {
 //	private static final String H7 = "h7";
 //	private static final String H8 = "h8";
 
-	public static void move(Game game, String fromStr, String toStr) {
-		move(game, fromStr, toStr, null);
-	}
-
-	public static void move(Game game, String fromStr, String toStr, Typ prom) {
-		Board board = game.getBoard();
-		Square from = board.getSquare(fromStr);
-		Square to = board.getSquare(toStr);
-		game.move(from, to, prom);
-	}
-
-	public static Piece getPiece(Board board, String squareStr) {
-		return board.getSquare(squareStr).getPiece();
-	}
-
 	@Test
 	void unoccupiedSquare() {
 		Game game = new Game();
 
 		try {
-			move(game, E3, E4);
+			game.move(E3, E4);
 		} catch (UnoccupiedSquareException e) {
 			System.out.println(e.getMessage());
 			return;
@@ -115,7 +97,7 @@ class ChessTest {
 		Game game = new Game();
 
 		try {
-			move(game, E1, E2);
+			game.move(E1, E2);
 		} catch (IllegalMoveException e) {
 			System.out.println(e.getMessage());
 			return;
@@ -128,11 +110,11 @@ class ChessTest {
 	void foolsMate() {
 		Game game = new Game();
 
-		move(game, F2, F3);
-		move(game, E7, E5);
+		game.move(F2, F3);
+		game.move(E7, E5);
 
-		move(game, G2, G4);
-		move(game, D8, H4);
+		game.move(G2, G4);
+		game.move(D8, H4);
 
 		Board board = game.getBoard();
 
@@ -144,16 +126,16 @@ class ChessTest {
 	void scholarsMate() {
 		Game game = new Game();
 
-		move(game, E2, E4);
-		move(game, E7, E5);
+		game.move(E2, E4);
+		game.move(E7, E5);
 
-		move(game, D1, H5);
-		move(game, B8, C6);
+		game.move(D1, H5);
+		game.move(B8, C6);
 
-		move(game, F1, C4);
-		move(game, G8, F6);
+		game.move(F1, C4);
+		game.move(G8, F6);
 
-		move(game, H5, F7);
+		game.move(H5, F7);
 
 		Board board = game.getBoard();
 
@@ -165,17 +147,17 @@ class ChessTest {
 	void kingsideCastling() {
 		Game game = new Game();
 
-		move(game, E2, E4);
-		move(game, E7, E5);
+		game.move(E2, E4);
+		game.move(E7, E5);
 
-		move(game, G1, F3);
-		move(game, G8, F6);
+		game.move(G1, F3);
+		game.move(G8, F6);
 
-		move(game, F1, C4);
-		move(game, F8, C5);
+		game.move(F1, C4);
+		game.move(F8, C5);
 
-		move(game, E1, G1);
-		move(game, E8, G8);
+		game.move(E1, G1);
+		game.move(E8, G8);
 
 		Board board = game.getBoard();
 		Player white = game.getWhite();
@@ -183,31 +165,31 @@ class ChessTest {
 
 		assertTrue(game.getNumberOfTurns() == 8);
 
-		assertTrue(white.getKing() == getPiece(board, G1));
-		assertTrue(white.getKingsideRook() == getPiece(board, F1));
+		assertTrue(white.getKing() == board.getPiece(G1));
+		assertTrue(white.getKingsideRook() == board.getPiece(F1));
 
-		assertTrue(black.getKing() == getPiece(board, G8));
-		assertTrue(black.getKingsideRook() == getPiece(board, F8));
+		assertTrue(black.getKing() == board.getPiece(G8));
+		assertTrue(black.getKingsideRook() == board.getPiece(F8));
 	}
 
 	@Test
 	void queensideCastling() {
 		Game game = new Game();
 
-		move(game, D2, D4);
-		move(game, D7, D5);
+		game.move(D2, D4);
+		game.move(D7, D5);
 
-		move(game, B1, C3);
-		move(game, B8, C6);
+		game.move(B1, C3);
+		game.move(B8, C6);
 
-		move(game, C1, F4);
-		move(game, C8, F5);
+		game.move(C1, F4);
+		game.move(C8, F5);
 
-		move(game, D1, D2);
-		move(game, D8, D7);
+		game.move(D1, D2);
+		game.move(D8, D7);
 
-		move(game, E1, C1);
-		move(game, E8, C8);
+		game.move(E1, C1);
+		game.move(E8, C8);
 
 		Board board = game.getBoard();
 		Player white = game.getWhite();
@@ -215,31 +197,31 @@ class ChessTest {
 
 		assertTrue(game.getNumberOfTurns() == 10);
 
-		assertTrue(white.getKing() == getPiece(board, C1));
-		assertTrue(white.getQueensideRook() == getPiece(board, D1));
+		assertTrue(white.getKing() == board.getPiece(C1));
+		assertTrue(white.getQueensideRook() == board.getPiece(D1));
 
-		assertTrue(black.getKing() == getPiece(board, C8));
-		assertTrue(black.getQueensideRook() == getPiece(board, D8));
+		assertTrue(black.getKing() == board.getPiece(C8));
+		assertTrue(black.getQueensideRook() == board.getPiece(D8));
 	}
 
 	@Test
 	void enPassantOnlyLegalMove() {
 		Game game = new Game();
 
-		move(game, E2, E4);
-		move(game, E7, E6);
+		game.move(E2, E4);
+		game.move(E7, E6);
 
-		move(game, E4, E5);
-		move(game, D8, H4);
+		game.move(E4, E5);
+		game.move(D8, H4);
 
-		move(game, E1, E2);
-		move(game, B8, C6);
+		game.move(E1, E2);
+		game.move(B8, C6);
 
-		move(game, E2, E3);
-		move(game, H4, G3);
+		game.move(E2, E3);
+		game.move(H4, G3);
 
-		move(game, E3, E4);
-		move(game, D7, D5);
+		game.move(E3, E4);
+		game.move(D7, D5);
 
 		Board board = game.getBoard();
 

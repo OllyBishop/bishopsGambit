@@ -119,4 +119,12 @@ public class Square {
 		return board.getSquare((char) (getFile() + x), getRank() + y);
 	}
 
+	public int fileDiff(Square square) {
+		return getFile() - square.getFile();
+	}
+
+	public int rankDiff(Square square) {
+		return getRank() - square.getRank();
+	}
+
 }

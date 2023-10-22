@@ -32,13 +32,11 @@ public class Rook extends Piece {
 		List<Square> targets = new ArrayList<>();
 
 		Square square = piece.getSquare(board);
-		char file = square.getFile();
-		int rank = square.getRank();
 
 		for (int x : new int[] { 0, 1 }) {
 			for (int y : new int[] { -1, 1 }) {
 				for (int n = 1; n < 8; n++) {
-					Square s = board.getSquare((char) (file + n * x * y), rank + n * (1 - x) * y);
+					Square s = square.travel(board, n * x * y, n * (1 - x) * y);
 					if (s == null) {
 						break;
 					} else {
