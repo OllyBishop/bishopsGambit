@@ -3,8 +3,6 @@ package board;
 import java.util.ArrayList;
 import java.util.List;
 
-import pieces.King;
-import pieces.Pawn;
 import pieces.Piece;
 import players.Player;
 
@@ -20,16 +18,12 @@ public class Board extends ArrayList<Square> {
 	}
 
 	/**
-	 * Assigns all the pieces of the given player to their starting squares.
+	 * Assigns each of the given player's pieces to its start square.
 	 * 
 	 * @param player the player whose pieces are to be assigned
 	 */
 	public void assignPieces(Player player) {
-		for (Piece piece : player.getPieces()) {
-			char startFile = piece.getStartFile();
-			int startRank = piece.getStartRank();
-			getSquare(startFile, startRank).setPiece(piece);
-		}
+		player.getPieces().forEach(p -> p.getStartSquare(this).setPiece(p));
 	}
 
 	/**
@@ -39,6 +33,10 @@ public class Board extends ArrayList<Square> {
 	 */
 	public List<Piece> getPieces() {
 		return stream().filter(Square::isOccupied).map(Square::getPiece).toList();
+	}
+
+	public Piece getPiece(String squareStr) {
+		return getSquare(squareStr).getPiece();
 	}
 
 	/**
@@ -73,25 +71,27 @@ public class Board extends ArrayList<Square> {
 	}
 
 	public Board move(Square from, Square to) {
-		Piece piece = from.getPiece();
 		Board newBoard = movePiece(from, to);
 
-		char fromFile = from.getFile();
-		int fromRank = from.getRank();
-		char toFile = to.getFile();
+		Piece piece = from.getPiece();
+		int x = Integer.signum(to.fileDiff(from));
+		Square adjacent = from.travel(this, x, 0);
 
-		// Capture opponent's pawn en passant
-		if (piece instanceof Pawn && piece.movedOneSquareDiagonallyForward(from, to) && !to.isOccupied()) {
-			Square square = newBoard.getSquare(toFile, fromRank);
-			newBoard.replace(square, square.clone());
-		}
-
-		// Castling
-		else if (piece instanceof King && piece.movedTwoSquaresLaterally(from, to)) {
-			int x = Integer.signum(toFile - fromFile);
-			Square rookFrom = piece.getPlayer().getRook(x).getStartSquare(this);
-			Square rookTo = from.travel(newBoard, x, 0);
-			newBoard = newBoard.movePiece(rookFrom, rookTo);
+		switch (piece.getType()) {
+		case PAWN:
+			// Capture opponent's pawn en passant
+			if (piece.movedOneSquareDiagonallyForward(from, to) && !to.isOccupied())
+				newBoard.replace(adjacent, adjacent.clone());
+			break;
+		case KING:
+			// Castling
+			if (piece.movedTwoSquaresLaterally(from, to)) {
+				Square rookFrom = piece.getPlayer().getRook(x).getStartSquare(this);
+				newBoard = newBoard.movePiece(rookFrom, adjacent);
+			}
+			break;
+		default:
+			break;
 		}
 
 		return newBoard;

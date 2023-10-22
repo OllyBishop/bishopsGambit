@@ -1,14 +1,11 @@
 package pieces;
 
-import java.awt.Image;
-import java.io.IOException;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import board.Board;
 import board.Square;
 import players.Player;
+import players.Player.Colour;
 import utils.StringUtils;
 
 public abstract class Piece {
@@ -25,7 +22,6 @@ public abstract class Piece {
 	private final Player player; // References the player this piece belongs to
 	private final char startFile;
 	private final int startRank;
-	private final Image image;
 
 	private boolean hasMoved;
 	private boolean isCaptured;
@@ -34,16 +30,20 @@ public abstract class Piece {
 		return this.player;
 	}
 
+	public Colour getColour() {
+		return getPlayer().getColour();
+	}
+
+	public int getDirection() {
+		return getPlayer().getDirection();
+	}
+
 	public char getStartFile() {
 		return this.startFile;
 	}
 
 	public int getStartRank() {
 		return this.startRank;
-	}
-
-	public Image getImage() {
-		return this.image;
 	}
 
 	public void setMoved(boolean hasMoved) {
@@ -67,17 +67,6 @@ public abstract class Piece {
 		this.startFile = startFile;
 		this.startRank = startRank;
 
-		Image image = null;
-		try {
-			String colourStr = getPlayer().getColour().toString();
-			String pieceStr = getClass().getSimpleName();
-			String imageURL = String.format("/img/%s_%s.png", colourStr, pieceStr);
-			image = ImageIO.read(getClass().getResource(imageURL));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		this.image = image;
-
 		setMoved(false);
 		setCaptured(false);
 
@@ -86,7 +75,7 @@ public abstract class Piece {
 
 	@Override
 	public String toString() {
-		return String.format("%s %s", getPlayer().getColour(), getType());
+		return String.format("%s %s", getColour(), getType());
 	}
 
 	public abstract Typ getType();
@@ -165,20 +154,20 @@ public abstract class Piece {
 	}
 
 	public boolean movedTwoSquaresForward(Square from, Square to) {
-		int fileDiff = to.getFile() - from.getFile();
-		int rankDiff = to.getRank() - from.getRank();
+		int fileDiff = to.fileDiff(from);
+		int rankDiff = to.rankDiff(from);
 		return fileDiff == 0 && rankDiff == 2 * getPlayer().getDirection();
 	}
 
 	public boolean movedOneSquareDiagonallyForward(Square from, Square to) {
-		int fileDiff = to.getFile() - from.getFile();
-		int rankDiff = to.getRank() - from.getRank();
+		int fileDiff = to.fileDiff(from);
+		int rankDiff = to.rankDiff(from);
 		return Math.abs(fileDiff) == 1 && rankDiff == getPlayer().getDirection();
 	}
 
 	public boolean movedTwoSquaresLaterally(Square from, Square to) {
-		int fileDiff = to.getFile() - from.getFile();
-		int rankDiff = to.getRank() - from.getRank();
+		int fileDiff = to.fileDiff(from);
+		int rankDiff = to.rankDiff(from);
 		return Math.abs(fileDiff) == 2 && rankDiff == 0;
 	}
 

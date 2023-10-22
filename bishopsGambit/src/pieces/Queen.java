@@ -1,11 +1,11 @@
 package pieces;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import board.Board;
 import board.Square;
 import players.Player;
+import utils.ListUtils;
 
 public class Queen extends Piece {
 
@@ -25,10 +25,9 @@ public class Queen extends Piece {
 
 	@Override
 	public List<Square> getTargets(Board board) {
-		List<Square> targets = new ArrayList<>();
-		targets.addAll(Bishop.getTargets(board, this));
-		targets.addAll(Rook.getTargets(board, this));
-		return targets;
+		List<Square> bishopTargets = Bishop.getTargets(board, this);
+		List<Square> rookTargets = Rook.getTargets(board, this);
+		return ListUtils.combine(bishopTargets, rookTargets);
 	}
 
 }

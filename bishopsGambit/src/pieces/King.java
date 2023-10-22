@@ -28,12 +28,10 @@ public class King extends Piece {
 		List<Square> targets = new ArrayList<>();
 
 		Square square = getSquare(board);
-		char file = square.getFile();
-		int rank = square.getRank();
 
 		for (int x : new int[] { -1, 0, 1 }) {
 			for (int y : new int[] { -1, 0, 1 }) {
-				Square s = board.getSquare((char) (file + x), rank + y);
+				Square s = square.travel(board, x, y);
 				if (s != null)
 					if (!s.isOccupiedBy(getPlayer()))
 						targets.add(s);

@@ -28,13 +28,11 @@ public class Knight extends Piece {
 		List<Square> targets = new ArrayList<>();
 
 		Square square = getSquare(board);
-		char file = square.getFile();
-		int rank = square.getRank();
 
 		for (int x : new int[] { -1, 1 }) {
 			for (int y : new int[] { -1, 1 }) {
 				for (int n : new int[] { 1, 2 }) {
-					Square s = board.getSquare((char) (file + n * x), rank + (3 - n) * y);
+					Square s = square.travel(board, n * x, (3 - n) * y);
 					if (s != null)
 						if (!s.isOccupiedBy(getPlayer()))
 							targets.add(s);

@@ -38,6 +38,8 @@ public class ChessGUI extends JFrame {
 	private final List<JLabel> ranks = new ArrayList<>();
 	private final List<SButton> buttons = new ArrayList<>();
 
+	private Graphics graphics = new Graphics();
+
 	private SButton from;
 	private SButton to;
 
@@ -223,7 +225,7 @@ public class ChessGUI extends JFrame {
 
 				// TODO: Can remove this once promotion previews are implemented
 				if (prom != null)
-					to.paintIcon(getBoard());
+					to.paintIcon(getBoard(), graphics);
 
 				from = from.deselect();
 				to = to.deselect();
@@ -337,7 +339,7 @@ public class ChessGUI extends JFrame {
 		else
 			board = getBoard();
 
-		buttons.forEach(b -> b.paintIcon(board));
+		buttons.forEach(b -> b.paintIcon(board, graphics));
 	}
 
 	private void clearCheckBorder() {

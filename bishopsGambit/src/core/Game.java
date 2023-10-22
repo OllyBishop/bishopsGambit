@@ -14,6 +14,7 @@ import pieces.Queen;
 import pieces.Rook;
 import players.Player;
 import players.Player.Colour;
+import utils.ListUtils;
 
 public class Game {
 
@@ -77,6 +78,17 @@ public class Game {
 		return n % 2 == 0 ? getWhite() : getBlack();
 	}
 
+	public void move(String fromStr, String toStr) {
+		move(fromStr, toStr, null);
+	}
+
+	public void move(String fromStr, String toStr, Typ prom) {
+		Board board = getBoard();
+		Square from = board.getSquare(fromStr);
+		Square to = board.getSquare(toStr);
+		move(from, to, prom);
+	}
+
 	public void move(Square from, Square to, Typ prom) {
 		if (!from.isOccupied())
 			throw new UnoccupiedSquareException(from);
@@ -127,11 +139,7 @@ public class Game {
 			}
 		}
 
-		List<Piece> pieces = new ArrayList<>();
-		pieces.addAll(getWhite().getPieces());
-		pieces.addAll(getBlack().getPieces());
-
-		for (Piece p : pieces) {
+		for (Piece p : getAllPieces()) {
 			Square square = p.getSquare(newBoard);
 
 			// If piece is not on the board, set it as captured
@@ -144,6 +152,10 @@ public class Game {
 		}
 
 		addBoard(newBoard);
+	}
+
+	private List<Piece> getAllPieces() {
+		return ListUtils.combine(getWhite().getPieces(), getBlack().getPieces());
 	}
 
 }

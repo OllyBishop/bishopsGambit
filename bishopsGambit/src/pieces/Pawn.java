@@ -38,14 +38,12 @@ public class Pawn extends Piece {
 		List<Square> targets = new ArrayList<>();
 
 		Square square = getSquare(board);
-		char file = square.getFile();
-		int rank = square.getRank();
 		int y = getPlayer().getDirection();
 
 		// Move forward one or two squares
 		for (int n : new int[] { 1, 2 }) {
 			if (n == 1 || !hasMoved()) {
-				Square s = board.getSquare(file, rank + n * y);
+				Square s = square.travel(board, 0, n * y);
 				if (s != null)
 					if (s.isOccupied())
 						break;
@@ -56,14 +54,14 @@ public class Pawn extends Piece {
 
 		// Capture diagonally
 		for (int x : new int[] { -1, 1 }) {
-			Square s1 = board.getSquare((char) (file + x), rank + y);
+			Square s1 = square.travel(board, x, y);
 			if (s1 != null && s1.isOccupiedByOpponent(getPlayer())) {
 				targets.add(s1);
 				continue;
 			}
 
 			// En passant
-			Square s0 = board.getSquare((char) (file + x), rank);
+			Square s0 = square.travel(board, x, 0);
 			if (s0 != null && s0.isOccupiedByOpponent(getPlayer())) {
 				Piece piece = s0.getPiece();
 				if (piece instanceof Pawn && ((Pawn) piece).canEnPassant())
