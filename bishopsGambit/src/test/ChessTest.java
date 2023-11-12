@@ -1,9 +1,13 @@
 package test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import board.Board;
 import core.Game;
@@ -78,10 +82,25 @@ class ChessTest {
 //	private static final String H7 = "h7";
 //	private static final String H8 = "h8";
 
+	private static Game game;
+
+	@BeforeEach
+	void printName(TestInfo testInfo) {
+		System.out.println("Running " + testInfo.getDisplayName());
+	}
+
+	@BeforeEach
+	void newGame() {
+		game = new Game();
+	}
+
+	@AfterEach
+	void printBoard() {
+		game.getBoard().print();
+	}
+
 	@Test
 	void unoccupiedSquare() {
-		Game game = new Game();
-
 		try {
 			game.move(E3, E4);
 		} catch (UnoccupiedSquareException e) {
@@ -94,8 +113,6 @@ class ChessTest {
 
 	@Test
 	void illegalMove() {
-		Game game = new Game();
-
 		try {
 			game.move(E1, E2);
 		} catch (IllegalMoveException e) {
@@ -108,8 +125,6 @@ class ChessTest {
 
 	@Test
 	void foolsMate() {
-		Game game = new Game();
-
 		game.move(F2, F3);
 		game.move(E7, E5);
 
@@ -118,14 +133,12 @@ class ChessTest {
 
 		Board board = game.getBoard();
 
-		assertTrue(game.getNumberOfTurns() == 4);
+		assertEquals(game.getNumberOfTurns(), 4);
 		assertTrue(game.getCurrentPlayer().inCheckmate(board));
 	}
 
 	@Test
 	void scholarsMate() {
-		Game game = new Game();
-
 		game.move(E2, E4);
 		game.move(E7, E5);
 
@@ -139,14 +152,12 @@ class ChessTest {
 
 		Board board = game.getBoard();
 
-		assertTrue(game.getNumberOfTurns() == 7);
+		assertEquals(game.getNumberOfTurns(), 7);
 		assertTrue(game.getCurrentPlayer().inCheckmate(board));
 	}
 
 	@Test
 	void kingsideCastling() {
-		Game game = new Game();
-
 		game.move(E2, E4);
 		game.move(E7, E5);
 
@@ -163,19 +174,17 @@ class ChessTest {
 		Player white = game.getWhite();
 		Player black = game.getBlack();
 
-		assertTrue(game.getNumberOfTurns() == 8);
+		assertEquals(game.getNumberOfTurns(), 8);
 
-		assertTrue(white.getKing() == board.getPiece(G1));
-		assertTrue(white.getKingsideRook() == board.getPiece(F1));
+		assertEquals(white.getKing(), board.getPiece(G1));
+		assertEquals(white.getKingsideRook(), board.getPiece(F1));
 
-		assertTrue(black.getKing() == board.getPiece(G8));
-		assertTrue(black.getKingsideRook() == board.getPiece(F8));
+		assertEquals(black.getKing(), board.getPiece(G8));
+		assertEquals(black.getKingsideRook(), board.getPiece(F8));
 	}
 
 	@Test
 	void queensideCastling() {
-		Game game = new Game();
-
 		game.move(D2, D4);
 		game.move(D7, D5);
 
@@ -195,19 +204,17 @@ class ChessTest {
 		Player white = game.getWhite();
 		Player black = game.getBlack();
 
-		assertTrue(game.getNumberOfTurns() == 10);
+		assertEquals(game.getNumberOfTurns(), 10);
 
-		assertTrue(white.getKing() == board.getPiece(C1));
-		assertTrue(white.getQueensideRook() == board.getPiece(D1));
+		assertEquals(white.getKing(), board.getPiece(C1));
+		assertEquals(white.getQueensideRook(), board.getPiece(D1));
 
-		assertTrue(black.getKing() == board.getPiece(C8));
-		assertTrue(black.getQueensideRook() == board.getPiece(D8));
+		assertEquals(black.getKing(), board.getPiece(C8));
+		assertEquals(black.getQueensideRook(), board.getPiece(D8));
 	}
 
 	@Test
 	void enPassantOnlyLegalMove() {
-		Game game = new Game();
-
 		game.move(E2, E4);
 		game.move(E7, E6);
 
@@ -225,8 +232,8 @@ class ChessTest {
 
 		Board board = game.getBoard();
 
-		assertTrue(game.getNumberOfTurns() == 10);
-		assertTrue(game.getCurrentPlayer().numberOfMoves(board) == 1);
+		assertEquals(game.getNumberOfTurns(), 10);
+		assertEquals(game.getCurrentPlayer().numberOfMoves(board), 1);
 	}
 
 }

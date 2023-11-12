@@ -36,6 +36,13 @@ public class Square {
 		return String.format("%s%s", getFile(), getRank());
 	}
 
+	public char toChar() {
+		if (isOccupied())
+			return getPiece().toChar();
+		else
+			return ' ';
+	}
+
 	/**
 	 * Creates a new square that has the same file and rank as {@code this}. No
 	 * piece is assigned to the new square; that is, the new square is unoccupied.

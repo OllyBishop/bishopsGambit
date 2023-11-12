@@ -26,13 +26,11 @@ public class ListUtils {
 	 *         <b>object</b> in <b>list2</b>
 	 */
 	public static <T, U> T get(List<T> list1, List<U> list2, U object) {
-		T element = null;
-
-		int index;
-		if (object != null && hasIndex(list1, index = list2.indexOf(object)))
-			element = list1.get(index);
-
-		return element;
+		int index = list2.indexOf(object);
+		if (hasIndex(list1, index))
+			return list1.get(index);
+		else
+			return null;
 	}
 
 }

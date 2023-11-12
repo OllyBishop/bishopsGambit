@@ -11,7 +11,6 @@ import pieces.Pawn;
 import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
-import utils.StringUtils;
 
 public class Player {
 
@@ -20,7 +19,7 @@ public class Player {
 
 		@Override
 		public String toString() {
-			return StringUtils.toUpperCamelCase(name());
+			return name().charAt(0) + name().substring(1).toLowerCase();
 		}
 	}
 
@@ -104,6 +103,11 @@ public class Player {
 		new Queen(this, 'd', backRank);
 
 		this.king = new King(this, 'e', backRank);
+	}
+
+	@Override
+	public String toString() {
+		return getColour().toString();
 	}
 
 	/**

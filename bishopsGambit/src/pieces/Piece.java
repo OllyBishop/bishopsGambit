@@ -6,20 +6,20 @@ import board.Board;
 import board.Square;
 import players.Player;
 import players.Player.Colour;
-import utils.StringUtils;
 
 public abstract class Piece {
 
 	public enum Typ {
-		PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING;
+		KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN;
 
 		@Override
 		public String toString() {
-			return StringUtils.toUpperCamelCase(name());
+			return name().charAt(0) + name().substring(1).toLowerCase();
 		}
 	}
 
 	private final Player player; // References the player this piece belongs to
+
 	private final char startFile;
 	private final int startRank;
 
@@ -76,6 +76,10 @@ public abstract class Piece {
 	@Override
 	public String toString() {
 		return String.format("%s %s", getColour(), getType());
+	}
+
+	public char toChar() {
+		return (char) ('\u2654' + 6 * getColour().ordinal() + getType().ordinal());
 	}
 
 	public abstract Typ getType();
