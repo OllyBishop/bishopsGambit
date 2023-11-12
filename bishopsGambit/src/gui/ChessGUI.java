@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,21 +35,24 @@ public class ChessGUI extends JFrame {
 
 	// Fields --------------------------------------------------------- //
 	private final JPanel contentPane = new JPanel();
-	private final List<JLabel> files = new ArrayList<>();
-	private final List<JLabel> ranks = new ArrayList<>();
+
 	private final List<SButton> buttons = new ArrayList<>();
 
-	private Graphics graphics = new Graphics();
-
-	private SButton from;
-	private SButton to;
+	private final List<JLabel> files = new ArrayList<>();
+	private final List<JLabel> ranks = new ArrayList<>();
 
 	private int xMid;
 	private int yMid;
 	private int scale;
+
 	private Border checkBorder;
+	private SButton checkButton;
+
+	private SButton from;
+	private SButton to;
 
 	private Game game;
+	private Board preview;
 	// ---------------------------------------------------------------- //
 
 	// Getters and setters -------------------------------------------- //
@@ -58,6 +62,14 @@ public class ChessGUI extends JFrame {
 
 	private Game getGame() {
 		return this.game;
+	}
+
+	private void setPreview(Board preview) {
+		this.preview = preview;
+	}
+
+	private Board getPreview() {
+		return this.preview;
 	}
 	// ---------------------------------------------------------------- //
 
@@ -86,16 +98,18 @@ public class ChessGUI extends JFrame {
 		return getGame().getCurrentPlayer();
 	}
 
-	private Player getLastPlayer() {
-		return getGame().getLastPlayer();
+	/**
+	 * Returns the opponent of the player whose turn it currently is, based on the
+	 * number of turns taken.
+	 * 
+	 * @return Black if the number of turns taken is even, White if it is odd
+	 */
+	private Player getCurrentOpponent() {
+		return getGame().getCurrentOpponent();
 	}
 
 	private List<Square> getMoves(SButton button) {
 		return getSquare(button).getPiece().getMoves(getBoard());
-	}
-
-	private SButton getKingButton(Player player) {
-		return getButton(player.getKing().getSquare(getBoard()));
 	}
 	// ---------------------------------------------------------------- //
 
@@ -104,6 +118,7 @@ public class ChessGUI extends JFrame {
 	 */
 	public ChessGUI(Game game) {
 		setGame(game);
+		updatePreview();
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -111,6 +126,13 @@ public class ChessGUI extends JFrame {
 
 		contentPane.setLayout(null);
 		setContentPane(contentPane);
+
+		// Create square buttons
+		for (Square square : getBoard()) {
+			SButton button = new SButton(square.getFile(), square.getRank());
+			buttons.add(button);
+			contentPane.add(button);
+		}
 
 		// Create file labels
 		for (char file = 'a'; file <= 'h'; file++) {
@@ -130,19 +152,13 @@ public class ChessGUI extends JFrame {
 			contentPane.add(label);
 		}
 
-		// Create square buttons
-		for (Square square : getBoard()) {
-			SButton button = new SButton(square.getFile(), square.getRank());
-			buttons.add(button);
-			contentPane.add(button);
-		}
-
 		for (SButton button : buttons) {
 			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (from != null && to == null)
-						buttons.forEach(b -> b.setText(null));
+						for (SButton btn : buttons)
+							btn.setText(null);
 
 					Square square = getSquare(button);
 
@@ -179,11 +195,14 @@ public class ChessGUI extends JFrame {
 						to = selectTo.select();
 
 					// If assignment of 'to' changed, repaint pieces
-					if (to != toBefore)
+					if (to != toBefore) {
+						updatePreview();
 						paintPieces();
+					}
 
 					if (from != null && to == null)
-						getMoves(from).forEach(s -> getButton(s).setText("●"));
+						for (Square sq : getMoves(from))
+							getButton(sq).setText("●");
 				}
 			});
 		}
@@ -193,13 +212,18 @@ public class ChessGUI extends JFrame {
 			public boolean dispatchKeyEvent(KeyEvent e) {
 				boolean enterKeyReleased = e.getKeyCode() == KeyEvent.VK_ENTER && e.getID() == KeyEvent.KEY_RELEASED;
 				boolean moveSelected = from != null && to != null;
+
 				if (enterKeyReleased && moveSelected) {
-					clearCheckBorder();
 					makeMove();
 					orientBoard();
+
+					clearCheckBorder();
+					updateCheckButton();
 					paintCheckBorder();
-					turnInfo();
+
+					checkGameOver();
 				}
+
 				return enterKeyReleased;
 			}
 
@@ -225,14 +249,30 @@ public class ChessGUI extends JFrame {
 
 				// TODO: Can remove this once promotion previews are implemented
 				if (prom != null)
-					to.paintIcon(getBoard(), graphics);
+					to.paintIcon(getBoard());
 
 				from = from.deselect();
 				to = to.deselect();
 			}
+
+			void clearCheckBorder() {
+				if (checkButton != null)
+					checkButton.clearBorder();
+			}
+
+			void updateCheckButton() {
+				Player player = getCurrentPlayer();
+				if (player.inCheck(getBoard()))
+					checkButton = getButton(player.getKing().getSquare(getBoard()));
+				else
+					checkButton = null;
+			}
 		});
 
 		addComponentListener(new ComponentAdapter() {
+			/**
+			 * This method is called when the frame is initialised.
+			 */
 			@Override
 			public void componentResized(ComponentEvent e) {
 				updateScale();
@@ -250,22 +290,25 @@ public class ChessGUI extends JFrame {
 				xMid = width / 2;
 				yMid = height / 2;
 				scale = Math.max(10, Math.min(width, height) / 10);
+
 				checkBorder = BorderFactory.createLineBorder(Color.red, Math.max(1, scale / 20));
 
-				for (int index = 0; index <= 7; index++) {
-					JLabel file = files.get(index);
-					JLabel rank = ranks.get(index);
-					file.setSize(scale, scale);
-					rank.setSize(scale, scale);
-					ComponentUtils.resizeFont(file, scale / 4);
-					ComponentUtils.resizeFont(rank, scale / 4);
+				for (SButton button : buttons) {
+					button.setSize(scale, scale);
+					ComponentUtils.resizeFont(button, scale);
 				}
 
-				buttons.forEach(b -> b.setScale(scale));
+				for (JLabel file : files) {
+					file.setSize(scale, scale);
+					ComponentUtils.resizeFont(file, scale / 4);
+				}
+
+				for (JLabel rank : ranks) {
+					rank.setSize(scale, scale);
+					ComponentUtils.resizeFont(rank, scale / 4);
+				}
 			}
 		});
-
-		turnInfo();
 	}
 
 	/**
@@ -283,6 +326,29 @@ public class ChessGUI extends JFrame {
 	 * @param perspective the player to whose perspective the board is oriented
 	 */
 	private void orientBoard(Player perspective) {
+		for (SButton button : buttons) {
+			Square square = getSquare(button);
+
+			int fileIndex = square.getFileIndex();
+			int rankIndex = square.getRankIndex();
+
+			int x = xMid;
+			int y = yMid;
+
+			switch (perspective.getColour()) {
+			case WHITE:
+				x -= (4 - fileIndex) * scale;
+				y += (3 - rankIndex) * scale;
+				break;
+			case BLACK:
+				x += (3 - fileIndex) * scale;
+				y -= (4 - rankIndex) * scale;
+				break;
+			}
+
+			button.setLocation(x, y);
+		}
+
 		for (int index = 0; index <= 7; index++) {
 			JLabel file = files.get(index);
 			JLabel rank = ranks.get(index);
@@ -306,66 +372,39 @@ public class ChessGUI extends JFrame {
 			file.setLocation(xFile, yFile);
 			rank.setLocation(xRank, yRank);
 		}
+	}
 
-		for (SButton button : buttons) {
-			Square square = getSquare(button);
-
-			int fileIndex = square.getFileIndex();
-			int rankIndex = square.getRankIndex();
-
-			int x = xMid;
-			int y = yMid;
-
-			switch (perspective.getColour()) {
-			case WHITE:
-				x -= (4 - fileIndex) * scale;
-				y += (3 - rankIndex) * scale;
-				break;
-			case BLACK:
-				x += (3 - fileIndex) * scale;
-				y -= (4 - rankIndex) * scale;
-				break;
-			}
-
-			button.setLocation(x, y);
-		}
+	private void updatePreview() {
+		Board preview;
+		if (to == null)
+			preview = getBoard();
+		else
+			preview = getBoard().move(getSquare(from), getSquare(to));
+		setPreview(preview);
 	}
 
 	private void paintPieces() {
-		Board board;
-
-		if (to != null)
-			board = getBoard().move(getSquare(from), getSquare(to));
-		else
-			board = getBoard();
-
-		buttons.forEach(b -> b.paintIcon(board, graphics));
-	}
-
-	private void clearCheckBorder() {
-		getKingButton(getCurrentPlayer()).clearBorder();
+		for (SButton button : buttons)
+			button.paintIcon(getPreview());
 	}
 
 	private void paintCheckBorder() {
-		Player currentPlayer = getCurrentPlayer();
-		if (currentPlayer.inCheck(getBoard()))
-			getKingButton(currentPlayer).setBorder(checkBorder);
+		if (checkButton != null)
+			checkButton.setBorder(checkBorder);
 	}
 
-	private void turnInfo() {
+	private void checkGameOver() {
 		Player currentPlayer = getCurrentPlayer();
 		int n = currentPlayer.numberOfMoves(getBoard());
-
-		System.out.printf("%s has %d legal move%s.\n", currentPlayer.getColour(), n, n == 1 ? "" : "s");
 
 		if (n == 0) {
 			String message;
 			Icon icon = null;
 
 			if (currentPlayer.inCheck(getBoard())) {
-				Player lastPlayer = getLastPlayer();
-				message = lastPlayer.getColour() + " wins by checkmate!";
-				icon = getKingButton(lastPlayer).getIcon();
+				Player currentOpponent = getCurrentOpponent();
+				message = currentOpponent.getColour() + " wins by checkmate!";
+				icon = new ImageIcon(Graphics.getImage(currentOpponent.getKing()));
 			} else {
 				message = "It's a stalemate!";
 			}

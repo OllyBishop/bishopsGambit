@@ -44,6 +44,19 @@ public class Game {
 
 	private void addBoard(Board board) {
 		getBoards().add(board);
+		printInfo(board);
+	}
+
+	private void printInfo(Board board) {
+		Player currentPlayer = getCurrentPlayer();
+		int n = currentPlayer.numberOfMoves(board);
+		System.out.printf("%s has %d legal move%s.", currentPlayer, n, n == 1 ? "" : "s");
+
+		int diff = board.getMaterialDiff();
+		if (diff != 0)
+			System.out.printf(" %s: +%d", getPlayerBySign(diff), Math.abs(diff));
+
+		System.out.println();
 	}
 
 	public int getNumberOfTurns() {
@@ -61,21 +74,31 @@ public class Game {
 	 * @return White if the number of turns taken is even, Black if it is odd
 	 */
 	public Player getCurrentPlayer() {
-		return getPlayer(getNumberOfTurns());
+		return getPlayerByParity(getNumberOfTurns());
 	}
 
 	/**
-	 * Returns the player whose turn it last was, based on the number of turns
-	 * taken.
+	 * Returns the opponent of the player whose turn it currently is, based on the
+	 * number of turns taken.
 	 * 
-	 * @return White if the number of turns taken is even, Black if it is odd
+	 * @return Black if the number of turns taken is even, White if it is odd
 	 */
-	public Player getLastPlayer() {
-		return getPlayer(getNumberOfTurns() - 1);
+	public Player getCurrentOpponent() {
+		return getPlayerByParity(getNumberOfTurns() + 1);
 	}
 
-	private Player getPlayer(int n) {
-		return n % 2 == 0 ? getWhite() : getBlack();
+	private Player getPlayerByParity(int n) {
+		if (n < 0)
+			return null;
+		else
+			return n % 2 == 0 ? getWhite() : getBlack();
+	}
+
+	private Player getPlayerBySign(int z) {
+		if (z == 0)
+			return null;
+		else
+			return z > 0 ? getWhite() : getBlack();
 	}
 
 	public void move(String fromStr, String toStr) {
@@ -99,9 +122,9 @@ public class Game {
 			throw new IllegalMoveException(from, to);
 
 		// Disable en passant capture of opponent's pawns
-		for (Piece p : getLastPlayer().getPieces())
-			if (p instanceof Pawn)
-				((Pawn) p).setEnPassant(false);
+		for (Piece pc : getCurrentOpponent().getPieces())
+			if (pc instanceof Pawn)
+				((Pawn) pc).setEnPassant(false);
 
 		Piece piece = from.getPiece();
 		Board newBoard = board.move(from, to);
@@ -139,16 +162,16 @@ public class Game {
 			}
 		}
 
-		for (Piece p : getAllPieces()) {
-			Square square = p.getSquare(newBoard);
+		for (Piece pc : getAllPieces()) {
+			Square square = pc.getSquare(newBoard);
 
 			// If piece is not on the board, set it as captured
 			if (square == null)
-				p.setCaptured(true);
+				pc.setCaptured(true);
 
 			// If piece is on the board but not on its starting square, set it as moved
-			else if (square != p.getStartSquare(newBoard))
-				p.setMoved(true);
+			else if (square != pc.getStartSquare(newBoard))
+				pc.setMoved(true);
 		}
 
 		addBoard(newBoard);

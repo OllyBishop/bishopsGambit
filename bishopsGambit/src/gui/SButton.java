@@ -11,7 +11,6 @@ import javax.swing.JButton;
 import board.Board;
 import board.Square;
 import utils.ColorUtils;
-import utils.ComponentUtils;
 
 public class SButton extends JButton {
 
@@ -80,16 +79,6 @@ public class SButton extends JButton {
 	}
 
 	/**
-	 * Sets the width, height and font size of this button to the given scale.
-	 * 
-	 * @param scale the new width, height and font size of this button
-	 */
-	public void setScale(int scale) {
-		setSize(scale, scale);
-		ComponentUtils.resizeFont(this, scale);
-	}
-
-	/**
 	 * Sets this button's icon to an image of the piece occupying its corresponding
 	 * square. The corresponding square is the square on the given <b>board</b> that
 	 * has the same file and rank as this button. If the square is not occupied by
@@ -97,12 +86,12 @@ public class SButton extends JButton {
 	 * 
 	 * @param board the board
 	 */
-	public void paintIcon(Board board, Graphics graphics) {
+	public void paintIcon(Board board) {
 		Icon icon = null;
 
 		Square square = board.getSquare(getFile(), getRank());
 		if (square.isOccupied()) {
-			Image imageFull = graphics.getImage(square.getPiece());
+			Image imageFull = Graphics.getImage(square.getPiece());
 			Image imageScaled = imageFull.getScaledInstance(getWidth(), getHeight(), Image.SCALE_SMOOTH);
 			icon = new ImageIcon(imageScaled);
 		}
