@@ -14,15 +14,6 @@ import pieces.Rook;
 
 public class Player {
 
-	public enum Colour {
-		WHITE, BLACK;
-
-		@Override
-		public String toString() {
-			return name().charAt(0) + name().substring(1).toLowerCase();
-		}
-	}
-
 	private final Colour colour;
 	private final int direction;
 
@@ -30,38 +21,6 @@ public class Player {
 	private final Rook queensideRook;
 	private final Rook kingsideRook;
 	private final King king;
-
-	public Colour getColour() {
-		return this.colour;
-	}
-
-	public int getDirection() {
-		return this.direction;
-	}
-
-	public List<Piece> getPieces() {
-		return this.pieces;
-	}
-
-	public Rook getRook(int x) {
-		if (x == -1)
-			return getQueensideRook();
-		if (x == 1)
-			return getKingsideRook();
-		return null;
-	}
-
-	public Rook getQueensideRook() {
-		return this.queensideRook;
-	}
-
-	public Rook getKingsideRook() {
-		return this.kingsideRook;
-	}
-
-	public King getKing() {
-		return this.king;
-	}
 
 	public Player(Colour colour) {
 		this.colour = colour;
@@ -105,6 +64,38 @@ public class Player {
 		this.king = new King(this, 'e', backRank);
 	}
 
+	public Colour getColour() {
+		return this.colour;
+	}
+
+	public int getDirection() {
+		return this.direction;
+	}
+
+	public List<Piece> getPieces() {
+		return this.pieces;
+	}
+
+	public Rook getQueensideRook() {
+		return this.queensideRook;
+	}
+
+	public Rook getKingsideRook() {
+		return this.kingsideRook;
+	}
+
+	public Rook getRook(int x) {
+		if (x == -1)
+			return getQueensideRook();
+		if (x == 1)
+			return getKingsideRook();
+		return null;
+	}
+
+	public King getKing() {
+		return this.king;
+	}
+
 	@Override
 	public String toString() {
 		return getColour().toString();
@@ -115,8 +106,8 @@ public class Player {
 	 * in check.
 	 * 
 	 * @param board the chess board
-	 * @return <code>true</code> if this player's king is currently in check,
-	 *         <code>false</code> otherwise
+	 * @return {@code true} if this player's king is currently in check,
+	 *         {@code false} otherwise
 	 */
 	public boolean inCheck(Board board) {
 		return getKing().isTargeted(board);
@@ -127,11 +118,11 @@ public class Player {
 	 * checkmate.
 	 * 
 	 * @param board the chess board
-	 * @return <code>true</code> if this player is currently in checkmate,
-	 *         <code>false</code> otherwise
+	 * @return {@code true} if this player is currently in checkmate, {@code false}
+	 *         otherwise
 	 */
 	public boolean inCheckmate(Board board) {
-		return inCheck(board) && noMoves(board);
+		return inCheck(board) && noLegalMoves(board);
 	}
 
 	/**
@@ -139,11 +130,11 @@ public class Player {
 	 * stalemate.
 	 * 
 	 * @param board the chess board
-	 * @return <code>true</code> if this player is currently in stalemate,
-	 *         <code>false</code> otherwise
+	 * @return {@code true} if this player is currently in stalemate, {@code false}
+	 *         otherwise
 	 */
 	public boolean inStalemate(Board board) {
-		return !inCheck(board) && noMoves(board);
+		return !inCheck(board) && noLegalMoves(board);
 	}
 
 	/**
@@ -152,7 +143,7 @@ public class Player {
 	 * @param board the chess board
 	 * @return the number of legal moves this player can make
 	 */
-	public int numberOfMoves(Board board) {
+	public int numberOfLegalMoves(Board board) {
 		int numberOfMoves = 0;
 		for (Piece piece : getPieces())
 			if (!piece.isCaptured())
@@ -164,11 +155,20 @@ public class Player {
 	 * Returns a boolean indicating whether or not this player has any legal moves.
 	 * 
 	 * @param board the chess board
-	 * @return <code>true</code> if this player has no legal moves,
-	 *         <code>false</code> otherwise
+	 * @return {@code true} if this player has no legal moves, {@code false}
+	 *         otherwise
 	 */
-	private boolean noMoves(Board board) {
-		return numberOfMoves(board) == 0;
+	private boolean noLegalMoves(Board board) {
+		return numberOfLegalMoves(board) == 0;
+	}
+
+	public enum Colour {
+		WHITE, BLACK;
+
+		@Override
+		public String toString() {
+			return name().charAt(0) + name().substring(1).toLowerCase();
+		}
 	}
 
 }

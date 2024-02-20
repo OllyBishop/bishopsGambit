@@ -395,7 +395,7 @@ public class ChessGUI extends JFrame {
 
 	private void checkGameOver() {
 		Player currentPlayer = getCurrentPlayer();
-		int n = currentPlayer.numberOfMoves(getBoard());
+		int n = currentPlayer.numberOfLegalMoves(getBoard());
 
 		if (n == 0) {
 			String message;

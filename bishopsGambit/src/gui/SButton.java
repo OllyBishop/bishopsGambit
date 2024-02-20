@@ -55,10 +55,10 @@ public class SButton extends JButton {
 	}
 
 	/**
-	 * Sets the selected state of this button to <code>true</code>. Changes the
+	 * Sets the selected state of this button to {@code true}. Changes the
 	 * background color of this button to indicate it is selected.
 	 * 
-	 * @return this button
+	 * @return {@code this}
 	 */
 	public SButton select() {
 		setSelected(true);
@@ -67,10 +67,10 @@ public class SButton extends JButton {
 	}
 
 	/**
-	 * Sets the selected state of this button to <code>false</code>. Changes the
+	 * Sets the selected state of this button to {@code false}. Changes the
 	 * background color of this button to its default color.
 	 * 
-	 * @return <code>null</code>
+	 * @return {@code null}
 	 */
 	public SButton deselect() {
 		setSelected(false);

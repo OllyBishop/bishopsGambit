@@ -33,40 +33,6 @@ public class Board extends ArrayList<Square> {
 	private static final String INNER_ROW = getRow(VERTICAL_RIGHT, VERTICAL_HORIZONTAL, VERTICAL_LEFT);
 	private static final String LOWER_ROW = getRow(UP_RIGHT, UP_HORIZONTAL, UP_LEFT);
 
-	private static String getRow(char right, char horizontal, char left) {
-		StringBuilder row = new StringBuilder();
-
-		row.append(right);
-		for (char file = 'a'; file <= 'h'; file++) {
-			for (int j = 0; j < 3; j++)
-				row.append(HORIZONTAL);
-			if (file < 'h')
-				row.append(horizontal);
-		}
-		row.append(left);
-
-		return row.toString();
-	}
-
-	public void print() {
-		System.out.println(UPPER_ROW);
-
-		for (int rank = 8; rank >= 1; rank--) {
-			StringBuilder pieceRow = new StringBuilder();
-
-			pieceRow.append(VERTICAL);
-			for (char file = 'a'; file <= 'h'; file++)
-				pieceRow.append(' ').append(getSquare(file, rank).toChar()).append(' ').append(VERTICAL);
-
-			System.out.println(pieceRow);
-
-			if (rank > 1)
-				System.out.println(INNER_ROW);
-		}
-
-		System.out.println(LOWER_ROW);
-	}
-
 	/**
 	 * Creates an ArrayList of 64 squares, comprising the chess board.
 	 */
@@ -74,16 +40,6 @@ public class Board extends ArrayList<Square> {
 		for (char file = 'a'; file <= 'h'; file++)
 			for (int rank = 1; rank <= 8; rank++)
 				add(new Square(file, rank));
-	}
-
-	/**
-	 * Assigns each of the given player's pieces to its start square.
-	 * 
-	 * @param player the player whose pieces are to be assigned
-	 */
-	public void assignPieces(Player player) {
-		for (Piece piece : player.getPieces())
-			piece.getStartSquare(this).setPiece(piece);
 	}
 
 	/**
@@ -95,9 +51,14 @@ public class Board extends ArrayList<Square> {
 		return stream().filter(Square::isOccupied).map(Square::getPiece).toList();
 	}
 
-	// TODO: Move method to ChessTest.java
-	public Piece getPiece(String squareStr) {
-		return getSquare(squareStr).getPiece();
+	/**
+	 * Assigns each of the given player's pieces to its start square.
+	 * 
+	 * @param player the player whose pieces are to be assigned
+	 */
+	public void assignPieces(Player player) {
+		for (Piece piece : player.getPieces())
+			piece.getStartSquare(this).setPiece(piece);
 	}
 
 	/**
@@ -118,8 +79,8 @@ public class Board extends ArrayList<Square> {
 	 * 
 	 * @param file the file of the square to be found
 	 * @param rank the rank of the square to be found
-	 * @return the square with the given file and rank (if it exists), otherwise
-	 *         <code>null</code>
+	 * @return the square with the given file and rank (if it exists), {@code null}
+	 *         otherwise
 	 */
 	public Square getSquare(char file, int rank) {
 		Square square = null;
@@ -193,6 +154,40 @@ public class Board extends ArrayList<Square> {
 
 	public int getMaterialDiff() {
 		return getPieces().stream().mapToInt(pc -> pc.getDirection() * pc.getValue()).sum();
+	}
+
+	public void print() {
+		System.out.println(UPPER_ROW);
+
+		for (int rank = 8; rank >= 1; rank--) {
+			StringBuilder pieceRow = new StringBuilder();
+
+			pieceRow.append(VERTICAL);
+			for (char file = 'a'; file <= 'h'; file++)
+				pieceRow.append(' ').append(getSquare(file, rank).toChar()).append(' ').append(VERTICAL);
+
+			System.out.println(pieceRow);
+
+			if (rank > 1)
+				System.out.println(INNER_ROW);
+		}
+
+		System.out.println(LOWER_ROW);
+	}
+
+	private static String getRow(char right, char horizontal, char left) {
+		StringBuilder row = new StringBuilder();
+
+		row.append(right);
+		for (char file = 'a'; file <= 'h'; file++) {
+			for (int j = 0; j < 3; j++)
+				row.append(HORIZONTAL);
+			if (file < 'h')
+				row.append(horizontal);
+		}
+		row.append(left);
+
+		return row.toString();
 	}
 
 }

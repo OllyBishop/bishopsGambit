@@ -10,6 +10,11 @@ public class Square {
 
 	private Piece piece;
 
+	public Square(char file, int rank) {
+		this.file = file;
+		this.rank = rank;
+	}
+
 	public char getFile() {
 		return this.file;
 	}
@@ -18,17 +23,12 @@ public class Square {
 		return this.rank;
 	}
 
-	public void setPiece(Piece piece) {
-		this.piece = piece;
-	}
-
 	public Piece getPiece() {
 		return this.piece;
 	}
 
-	public Square(char file, int rank) {
-		this.file = file;
-		this.rank = rank;
+	public void setPiece(Piece piece) {
+		this.piece = piece;
 	}
 
 	@Override
@@ -79,8 +79,7 @@ public class Square {
 	/**
 	 * Returns a boolean indicating whether or not this square is occupied.
 	 * 
-	 * @return <code>true</code> if this square contains a piece, <code>false</code>
-	 *         otherwise
+	 * @return {@code true} if this square contains a piece, {@code false} otherwise
 	 */
 	public boolean isOccupied() {
 		return getPiece() != null;
@@ -91,8 +90,8 @@ public class Square {
 	 * piece belonging to the given player.
 	 * 
 	 * @param player the player
-	 * @return <code>true</code> if this square contains a piece belonging to the
-	 *         given player, <code>false</code> otherwise
+	 * @return {@code true} if this square contains a piece belonging to the given
+	 *         player, {@code false} otherwise
 	 */
 	public boolean isOccupiedBy(Player player) {
 		return player.getPieces().contains(getPiece());
@@ -103,8 +102,8 @@ public class Square {
 	 * piece <i>not</i> belonging to the given player.
 	 * 
 	 * @param player the player
-	 * @return <code>true</code> if this square contains a piece <i>not</i>
-	 *         belonging to the given player, <code>false</code> otherwise
+	 * @return {@code true} if this square contains a piece <i>not</i> belonging to
+	 *         the given player, {@code false} otherwise
 	 */
 	public boolean isOccupiedByOpponent(Player player) {
 		return isOccupied() && !isOccupiedBy(player);
@@ -115,11 +114,11 @@ public class Square {
 	 * an enemy piece.
 	 * 
 	 * @param board the chess board
-	 * @return <code>true</code> if this square is being targeted,
-	 *         <code>false</code> otherwise
+	 * @return {@code true} if this square is being targeted, {@code false}
+	 *         otherwise
 	 */
 	public boolean isTargeted(Board board) {
-		return board.getPieces().stream().anyMatch(p -> p.isTargeting(board, this));
+		return board.getPieces().stream().anyMatch(pc -> pc.isTargeting(board, this));
 	}
 
 	public Square travel(Board board, int x, int y) {

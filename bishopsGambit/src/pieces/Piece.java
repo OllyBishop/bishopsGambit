@@ -9,15 +9,6 @@ import players.Player.Colour;
 
 public abstract class Piece {
 
-	public enum Typ {
-		KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN;
-
-		@Override
-		public String toString() {
-			return name().charAt(0) + name().substring(1).toLowerCase();
-		}
-	}
-
 	private final Player player; // References the player this piece belongs to
 
 	private final char startFile;
@@ -25,6 +16,17 @@ public abstract class Piece {
 
 	private boolean hasMoved;
 	private boolean isCaptured;
+
+	public Piece(Player player, char startFile, int startRank) {
+		this.player = player;
+		this.startFile = startFile;
+		this.startRank = startRank;
+
+		setMoved(false);
+		setCaptured(false);
+
+		player.getPieces().add(this);
+	}
 
 	public Player getPlayer() {
 		return this.player;
@@ -46,31 +48,20 @@ public abstract class Piece {
 		return this.startRank;
 	}
 
-	public void setMoved(boolean hasMoved) {
-		this.hasMoved = hasMoved;
-	}
-
 	public boolean hasMoved() {
 		return this.hasMoved;
 	}
 
-	public void setCaptured(boolean isCaptured) {
-		this.isCaptured = isCaptured;
+	public void setMoved(boolean hasMoved) {
+		this.hasMoved = hasMoved;
 	}
 
 	public boolean isCaptured() {
 		return this.isCaptured;
 	}
 
-	public Piece(Player player, char startFile, int startRank) {
-		this.player = player;
-		this.startFile = startFile;
-		this.startRank = startRank;
-
-		setMoved(false);
-		setCaptured(false);
-
-		player.getPieces().add(this);
+	public void setCaptured(boolean isCaptured) {
+		this.isCaptured = isCaptured;
 	}
 
 	@Override
@@ -121,8 +112,8 @@ public abstract class Piece {
 	 * Finds the square this piece is occupying.
 	 * 
 	 * @param board the chess board
-	 * @return the square this piece is occupying (if it exists), otherwise
-	 *         <code>null</code>
+	 * @return the square this piece is occupying (if it exists), {@code null}
+	 *         otherwise
 	 */
 	public Square getSquare(Board board) {
 		return board.stream().filter(s -> s.getPiece() == this).findAny().orElse(null);
@@ -133,8 +124,7 @@ public abstract class Piece {
 	 * piece is being targeted by an enemy piece.
 	 * 
 	 * @param board the chess board
-	 * @return <code>true</code> if this piece is being targeted, <code>false</code>
-	 *         otherwise
+	 * @return {@code true} if this piece is being targeted, {@code false} otherwise
 	 */
 	public boolean isTargeted(Board board) {
 		return getSquare(board).isTargeted(board);
@@ -146,8 +136,8 @@ public abstract class Piece {
 	 * 
 	 * @param board  the chess board
 	 * @param square the square
-	 * @return <code>true</code> if this piece is targeting the given square,
-	 *         <code>false</code> otherwise
+	 * @return {@code true} if this piece is targeting the given square,
+	 *         {@code false} otherwise
 	 */
 	public boolean isTargeting(Board board, Square square) {
 		return getTargets(board).contains(square);
@@ -173,6 +163,15 @@ public abstract class Piece {
 		int fileDiff = to.fileDiff(from);
 		int rankDiff = to.rankDiff(from);
 		return Math.abs(fileDiff) == 2 && rankDiff == 0;
+	}
+
+	public enum Typ {
+		KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN;
+
+		@Override
+		public String toString() {
+			return name().charAt(0) + name().substring(1).toLowerCase();
+		}
 	}
 
 }

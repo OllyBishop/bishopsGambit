@@ -23,6 +23,13 @@ public class Game {
 	private final Player white = new Player(Colour.WHITE);
 	private final Player black = new Player(Colour.BLACK);
 
+	public Game() {
+		Board board = new Board();
+		board.assignPieces(getWhite());
+		board.assignPieces(getBlack());
+		addBoard(board);
+	}
+
 	private List<Board> getBoards() {
 		return this.boards;
 	}
@@ -35,13 +42,6 @@ public class Game {
 		return this.black;
 	}
 
-	public Game() {
-		Board board = new Board();
-		board.assignPieces(getWhite());
-		board.assignPieces(getBlack());
-		addBoard(board);
-	}
-
 	private void addBoard(Board board) {
 		getBoards().add(board);
 		printInfo(board);
@@ -49,7 +49,7 @@ public class Game {
 
 	private void printInfo(Board board) {
 		Player currentPlayer = getCurrentPlayer();
-		int n = currentPlayer.numberOfMoves(board);
+		int n = currentPlayer.numberOfLegalMoves(board);
 		System.out.printf("%s has %d legal move%s.", currentPlayer, n, n == 1 ? "" : "s");
 
 		int diff = board.getMaterialDiff();
@@ -59,12 +59,12 @@ public class Game {
 		System.out.println();
 	}
 
-	public int getNumberOfTurns() {
+	public int numberOfTurnsTaken() {
 		return getBoards().size() - 1;
 	}
 
 	public Board getBoard() {
-		return getBoards().get(getNumberOfTurns());
+		return getBoards().get(numberOfTurnsTaken());
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class Game {
 	 * @return White if the number of turns taken is even, Black if it is odd
 	 */
 	public Player getCurrentPlayer() {
-		return getPlayerByParity(getNumberOfTurns());
+		return getPlayerByParity(numberOfTurnsTaken());
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class Game {
 	 * @return Black if the number of turns taken is even, White if it is odd
 	 */
 	public Player getCurrentOpponent() {
-		return getPlayerByParity(getNumberOfTurns() + 1);
+		return getPlayerByParity(numberOfTurnsTaken() + 1);
 	}
 
 	private Player getPlayerByParity(int n) {

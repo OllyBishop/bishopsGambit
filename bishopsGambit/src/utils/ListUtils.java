@@ -23,7 +23,7 @@ public class ListUtils {
 	 * @param list2  the list containing the given <b>object</b>
 	 * @param object the object whose index we are interested in
 	 * @return the element in <b>list1</b> that has the same index as the given
-	 *         <b>object</b> in <b>list2</b>
+	 *         <b>object</b> in <b>list2</b> (if it exists), {@code null} otherwise
 	 */
 	public static <T, U> T get(List<T> list1, List<U> list2, U object) {
 		int index = list2.indexOf(object);
