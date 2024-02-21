@@ -56,20 +56,20 @@ public class ChessGUI extends JFrame {
 	// ---------------------------------------------------------------- //
 
 	// Getters and setters -------------------------------------------- //
-	private void setGame(Game game) {
-		this.game = game;
-	}
-
 	private Game getGame() {
 		return this.game;
 	}
 
-	private void setPreview(Board preview) {
-		this.preview = preview;
+	private void setGame(Game game) {
+		this.game = game;
 	}
 
 	private Board getPreview() {
 		return this.preview;
+	}
+
+	private void setPreview(Board preview) {
+		this.preview = preview;
 	}
 	// ---------------------------------------------------------------- //
 

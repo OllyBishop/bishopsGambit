@@ -25,8 +25,10 @@ public class Game {
 
 	public Game() {
 		Board board = new Board();
+
 		board.assignPieces(getWhite());
 		board.assignPieces(getBlack());
+
 		addBoard(board);
 	}
 
@@ -54,7 +56,7 @@ public class Game {
 
 		int diff = board.getMaterialDiff();
 		if (diff != 0)
-			System.out.printf(" %s: +%d", getPlayerBySign(diff), Math.abs(diff));
+			System.out.printf(" %s: +%d", diff > 0 ? getWhite() : getBlack(), Math.abs(diff));
 
 		System.out.println();
 	}
@@ -74,7 +76,7 @@ public class Game {
 	 * @return White if the number of turns taken is even, Black if it is odd
 	 */
 	public Player getCurrentPlayer() {
-		return getPlayerByParity(numberOfTurnsTaken());
+		return numberOfTurnsTaken() % 2 == 0 ? getWhite() : getBlack();
 	}
 
 	/**
@@ -84,21 +86,7 @@ public class Game {
 	 * @return Black if the number of turns taken is even, White if it is odd
 	 */
 	public Player getCurrentOpponent() {
-		return getPlayerByParity(numberOfTurnsTaken() + 1);
-	}
-
-	private Player getPlayerByParity(int n) {
-		if (n < 0)
-			return null;
-		else
-			return n % 2 == 0 ? getWhite() : getBlack();
-	}
-
-	private Player getPlayerBySign(int z) {
-		if (z == 0)
-			return null;
-		else
-			return z > 0 ? getWhite() : getBlack();
+		return numberOfTurnsTaken() % 2 == 0 ? getBlack() : getWhite();
 	}
 
 	public void move(String fromStr, String toStr) {
@@ -107,8 +95,10 @@ public class Game {
 
 	public void move(String fromStr, String toStr, Typ prom) {
 		Board board = getBoard();
+
 		Square from = board.getSquare(fromStr);
 		Square to = board.getSquare(toStr);
+
 		move(from, to, prom);
 	}
 

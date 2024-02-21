@@ -23,22 +23,20 @@ public class Player {
 	private final King king;
 
 	public Player(Colour colour) {
-		this.colour = colour;
+		int backRank;
+		int pawnRank;
 
-		int backRank = 0;
-		int pawnRank = 0;
-
-		switch (colour) {
-		case WHITE:
+		if (colour == Colour.WHITE) {
 			backRank = 1;
 			pawnRank = 2;
-			break;
-		case BLACK:
+		} else if (colour == Colour.BLACK) {
 			backRank = 8;
 			pawnRank = 7;
-			break;
+		} else {
+			throw new IllegalArgumentException("Colour must be either 'WHITE' or 'BLACK'");
 		}
 
+		this.colour = colour;
 		this.direction = Integer.signum(pawnRank - backRank);
 
 		new Pawn(this, 'a', pawnRank);
@@ -122,7 +120,7 @@ public class Player {
 	 *         otherwise
 	 */
 	public boolean inCheckmate(Board board) {
-		return inCheck(board) && noLegalMoves(board);
+		return noLegalMoves(board) && inCheck(board);
 	}
 
 	/**
@@ -134,7 +132,7 @@ public class Player {
 	 *         otherwise
 	 */
 	public boolean inStalemate(Board board) {
-		return !inCheck(board) && noLegalMoves(board);
+		return noLegalMoves(board) && !inCheck(board);
 	}
 
 	/**
@@ -145,9 +143,11 @@ public class Player {
 	 */
 	public int numberOfLegalMoves(Board board) {
 		int numberOfMoves = 0;
+
 		for (Piece piece : getPieces())
 			if (!piece.isCaptured())
 				numberOfMoves += piece.getMoves(board).size();
+
 		return numberOfMoves;
 	}
 
