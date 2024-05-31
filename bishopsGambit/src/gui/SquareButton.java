@@ -1,24 +1,26 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Image;
 
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-import board.Board;
 import board.Square;
 import utils.ColorUtils;
 
-public class SButton extends JButton {
+public class SquareButton extends JButton {
 
 	private static final Color DARK = new Color(209, 139, 71);
 	private static final Color LIGHT = new Color(254, 206, 157);
 	private static final Color HIGHLIGHT = ColorUtils.blend(Color.yellow, Color.white);
 	private static final Color BLACK_SEMI_TRANSPARENT = ColorUtils.changeAlpha(Color.black, 85);
 
+	/*
+	 * New squares are created throughout the game (two with each move), but the
+	 * file and rank of a given square never change. For this reason, we use the
+	 * file and rank as identifiers for (rather than directly associate a square
+	 * with) each button.
+	 */
 	private final char file;
 	private final int rank;
 
@@ -30,16 +32,21 @@ public class SButton extends JButton {
 		return this.rank;
 	}
 
-	public SButton(char file, int rank) {
+	public SquareButton(char file, int rank) {
 		this.file = file;
 		this.rank = rank;
 
 		clearBorder();
 		resetBackground();
 
+		setFocusable(false);
 		setForeground(BLACK_SEMI_TRANSPARENT);
 		setHorizontalTextPosition(CENTER);
 		setOpaque(true);
+	}
+
+	public int getIndex() {
+		return Square.getIndex(getFile(), getRank());
 	}
 
 	private Color getDefaultBg() {
@@ -60,7 +67,7 @@ public class SButton extends JButton {
 	 * 
 	 * @return {@code this}
 	 */
-	public SButton select() {
+	public SquareButton select() {
 		setSelected(true);
 		setBackground(ColorUtils.blend(getDefaultBg(), HIGHLIGHT, 1, 3));
 		return this;
@@ -72,31 +79,10 @@ public class SButton extends JButton {
 	 * 
 	 * @return {@code null}
 	 */
-	public SButton deselect() {
+	public SquareButton deselect() {
 		setSelected(false);
 		resetBackground();
 		return null;
-	}
-
-	/**
-	 * Sets this button's icon to an image of the piece occupying its corresponding
-	 * square. The corresponding square is the square on the given <b>board</b> that
-	 * has the same file and rank as this button. If the square is not occupied by
-	 * any piece, an empty icon is set.
-	 * 
-	 * @param board the board
-	 */
-	public void paintIcon(Board board) {
-		Icon icon = null;
-
-		Square square = board.getSquare(getFile(), getRank());
-		if (square.isOccupied()) {
-			Image imageFull = Graphics.getImage(square.getPiece());
-			Image imageScaled = imageFull.getScaledInstance(getWidth(), getHeight(), Image.SCALE_SMOOTH);
-			icon = new ImageIcon(imageScaled);
-		}
-
-		setIcon(icon);
 	}
 
 }

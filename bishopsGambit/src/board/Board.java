@@ -37,6 +37,18 @@ public class Board extends ArrayList<Square> {
 	}
 
 	/**
+	 * Returns a boolean indicating whether this board contains the given piece;
+	 * i.e., whether the given piece is currently occupying any square on this
+	 * board.
+	 * 
+	 * @param piece the piece
+	 * @return a boolean indicating whether this board contains the given piece
+	 */
+	public boolean containsPiece(Piece piece) {
+		return stream().anyMatch(sq -> sq.getPiece() == piece);
+	}
+
+	/**
 	 * Finds the square whose coordinates match the given string. For example, an
 	 * input of "a1" finds the square with file 'a' and rank '1'.
 	 * 

@@ -68,12 +68,12 @@ public class Square {
 		return rank - 1;
 	}
 
-	public int getFileIndex() {
-		return getFileIndex(getFile());
+	public static int getIndex(char file, int rank) {
+		return getFileIndex(file) * 8 + getRankIndex(rank);
 	}
 
-	public int getRankIndex() {
-		return getRankIndex(getRank());
+	public int getIndex() {
+		return getIndex(getFile(), getRank());
 	}
 
 	/**
