@@ -26,13 +26,16 @@ public class Player {
 		int backRank;
 		int pawnRank;
 
-		if (colour == Colour.WHITE) {
+		switch (colour) {
+		case WHITE:
 			backRank = 1;
 			pawnRank = 2;
-		} else if (colour == Colour.BLACK) {
+			break;
+		case BLACK:
 			backRank = 8;
 			pawnRank = 7;
-		} else {
+			break;
+		default:
 			throw new IllegalArgumentException("Colour must be either 'WHITE' or 'BLACK'");
 		}
 
@@ -158,7 +161,7 @@ public class Player {
 	 * @return {@code true} if this player has no legal moves, {@code false}
 	 *         otherwise
 	 */
-	private boolean noLegalMoves(Board board) {
+	public boolean noLegalMoves(Board board) {
 		return numberOfLegalMoves(board) == 0;
 	}
 

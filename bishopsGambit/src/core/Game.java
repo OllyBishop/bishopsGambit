@@ -89,20 +89,20 @@ public class Game {
 		return numberOfTurnsTaken() % 2 == 0 ? getBlack() : getWhite();
 	}
 
-	public void move(String fromStr, String toStr) {
-		move(fromStr, toStr, null);
+	public Piece move(String fromStr, String toStr) {
+		return move(fromStr, toStr, null);
 	}
 
-	public void move(String fromStr, String toStr, Typ prom) {
+	public Piece move(String fromStr, String toStr, Typ type) {
 		Board board = getBoard();
 
 		Square from = board.getSquare(fromStr);
 		Square to = board.getSquare(toStr);
 
-		move(from, to, prom);
+		return move(from, to, type);
 	}
 
-	public void move(Square from, Square to, Typ prom) {
+	public Piece move(Square from, Square to, Typ type) {
 		if (!from.isOccupied())
 			throw new UnoccupiedSquareException(from);
 
@@ -119,36 +119,36 @@ public class Game {
 		Piece piece = from.getPiece();
 		Board newBoard = board.move(from, to);
 
+		Piece promotedPiece = null;
+
 		if (piece instanceof Pawn) {
 			// Enable en passant capture of this pawn
 			if (piece.movedTwoSquaresForward(from, to))
 				((Pawn) piece).setEnPassant(true);
 
 			// Promotion
-			else if (prom != null) {
-				Piece promotion;
-
+			else if (type != null) {
 				char toFile = to.getFile();
 				int toRank = to.getRank();
 
-				switch (prom) {
+				switch (type) {
 				case KNIGHT:
-					promotion = new Knight(getCurrentPlayer(), toFile, toRank);
+					promotedPiece = new Knight(getCurrentPlayer(), toFile, toRank);
 					break;
 				case BISHOP:
-					promotion = new Bishop(getCurrentPlayer(), toFile, toRank);
+					promotedPiece = new Bishop(getCurrentPlayer(), toFile, toRank);
 					break;
 				case ROOK:
-					promotion = new Rook(getCurrentPlayer(), toFile, toRank);
+					promotedPiece = new Rook(getCurrentPlayer(), toFile, toRank);
 					break;
 				case QUEEN:
-					promotion = new Queen(getCurrentPlayer(), toFile, toRank);
+					promotedPiece = new Queen(getCurrentPlayer(), toFile, toRank);
 					break;
 				default:
-					promotion = null;
+					promotedPiece = null;
 				}
 
-				newBoard.getSquare(toFile, toRank).setPiece(promotion);
+				newBoard.getSquare(toFile, toRank).setPiece(promotedPiece);
 			}
 		}
 
@@ -165,9 +165,11 @@ public class Game {
 		}
 
 		addBoard(newBoard);
+
+		return promotedPiece;
 	}
 
-	private List<Piece> getAllPieces() {
+	public List<Piece> getAllPieces() {
 		return ListUtils.combine(getWhite().getPieces(), getBlack().getPieces());
 	}
 
