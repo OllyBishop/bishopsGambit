@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 
 import board.Square;
 import utils.ColorUtils;
@@ -13,6 +14,8 @@ public class SquareButton extends JButton {
 	private static final Color DARK = new Color(209, 139, 71);
 	private static final Color LIGHT = new Color(254, 206, 157);
 	private static final Color HIGHLIGHT = ColorUtils.blend(Color.yellow, Color.white);
+
+	private static final Character BLACK_DOT_CHAR = '\u25cf';
 	private static final Color BLACK_SEMI_TRANSPARENT = ColorUtils.changeAlpha(Color.black, 85);
 
 	/*
@@ -24,12 +27,18 @@ public class SquareButton extends JButton {
 	private final char file;
 	private final int rank;
 
+	private final JLabel placeholder;
+
 	public char getFile() {
 		return this.file;
 	}
 
 	public int getRank() {
 		return this.rank;
+	}
+
+	public JLabel getPlaceholder() {
+		return this.placeholder;
 	}
 
 	public SquareButton(char file, int rank) {
@@ -40,9 +49,13 @@ public class SquareButton extends JButton {
 		resetBackground();
 
 		setFocusable(false);
-		setForeground(BLACK_SEMI_TRANSPARENT);
-		setHorizontalTextPosition(CENTER);
 		setOpaque(true);
+
+		JLabel placeholder = new JLabel(BLACK_DOT_CHAR.toString(), CENTER);
+		placeholder.setForeground(BLACK_SEMI_TRANSPARENT);
+		placeholder.setVisible(false);
+
+		this.placeholder = placeholder;
 	}
 
 	public int getIndex() {
@@ -83,6 +96,18 @@ public class SquareButton extends JButton {
 		setSelected(false);
 		resetBackground();
 		return null;
+	}
+
+	@Override
+	public void setSize(int width, int height) {
+		super.setSize(width, height);
+		getPlaceholder().setSize(width, height);
+	}
+
+	@Override
+	public void setLocation(int x, int y) {
+		super.setLocation(x, y);
+		getPlaceholder().setLocation(x, y);
 	}
 
 }

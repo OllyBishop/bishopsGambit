@@ -39,11 +39,12 @@ public class ChessGUI extends JFrame {
 	private static final int SQUARE_LAYER = 1;
 	private static final int FILE_RANK_LAYER = 2;
 	private static final int PIECE_LAYER = 3;
+	private static final int PLACEHOLDER_LAYER = 4;
 
 	// Fields --------------------------------------------------------- //
 	private final JLayeredPane contentPane = new JLayeredPane();
 
-	private final Map<PieceLabel, SquareButton> buttonLabelMap = new HashMap<>();
+	private final Map<PieceLabel, SquareButton> boardMap = new HashMap<>();
 
 	private final List<PieceLabel> pieceLbls = new ArrayList<>();
 	private final List<SquareButton> squareBtns = new ArrayList<>();
@@ -55,9 +56,9 @@ public class ChessGUI extends JFrame {
 	private int yMid;
 	private int scale;
 
+	private Border checkBorder;
 	private boolean inCheck;
 	private SquareButton kingSquareBtn;
-	private Border checkBorder;
 
 	private SquareButton from;
 	private SquareButton to;
@@ -84,7 +85,7 @@ public class ChessGUI extends JFrame {
 		return squareBtns.get(square.getIndex());
 	}
 
-	private void updateMap() {
+	private void updateBoardMap() {
 		Board board;
 		if (to == null)
 			board = getBoard();
@@ -94,9 +95,9 @@ public class ChessGUI extends JFrame {
 		for (PieceLabel pieceLbl : pieceLbls) {
 			Piece piece = pieceLbl.getPiece();
 			if (board.containsPiece(piece))
-				buttonLabelMap.put(pieceLbl, getSquareButton(piece.getSquare(board)));
+				boardMap.put(pieceLbl, getSquareButton(piece.getSquare(board)));
 			else
-				buttonLabelMap.put(pieceLbl, null);
+				boardMap.put(pieceLbl, null);
 		}
 	}
 	// ---------------------------------------------------------------- //
@@ -159,6 +160,7 @@ public class ChessGUI extends JFrame {
 			SquareButton squareBtn = new SquareButton(square.getFile(), square.getRank());
 			squareBtns.add(squareBtn);
 			addToLayer(squareBtn, SQUARE_LAYER);
+			addToLayer(squareBtn.getPlaceholder(), PLACEHOLDER_LAYER);
 		}
 
 		// Create file labels
@@ -184,7 +186,7 @@ public class ChessGUI extends JFrame {
 			createPieceLabel(piece);
 		}
 
-		updateMap();
+		updateBoardMap();
 
 		for (SquareButton squareBtn : squareBtns) {
 			squareBtn.addActionListener(new ActionListener() {
@@ -192,8 +194,9 @@ public class ChessGUI extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					if (from != null && to == null)
 						for (SquareButton sqBtn : squareBtns)
-							sqBtn.setText(null);
+							sqBtn.getPlaceholder().setVisible(false);
 
+					// The square of the button that was pressed
 					Square square = getSquare(squareBtn);
 
 					boolean deselectFrom = false;
@@ -230,13 +233,13 @@ public class ChessGUI extends JFrame {
 
 					// If assignment of 'to' changed, update map and reposition pieces
 					if (to != toBefore) {
-						updateMap();
+						updateBoardMap();
 						positionPieces();
 					}
 
 					if (from != null && to == null)
 						for (Square sq : getMoves(from))
-							getSquareButton(sq).setText("●");
+							getSquareButton(sq).getPlaceholder().setVisible(true);
 				}
 			});
 		}
@@ -256,7 +259,7 @@ public class ChessGUI extends JFrame {
 				return enterKeyReleased;
 			}
 
-			void makeMove() {
+			private void makeMove() {
 				Square fromSquare = getSquare(from);
 				Square toSquare = getSquare(to);
 
@@ -283,10 +286,10 @@ public class ChessGUI extends JFrame {
 				to = to.deselect();
 
 				// TODO: Can remove this once promotion previews are implemented
-				updateMap();
+				updateBoardMap();
 			}
 
-			void postMove() {
+			private void postMove() {
 				if (inCheck)
 					kingSquareBtn.clearBorder();
 
@@ -319,7 +322,38 @@ public class ChessGUI extends JFrame {
 			 */
 			@Override
 			public void componentResized(ComponentEvent e) {
+				updateScale();
 				refreshBoard();
+			}
+
+			private void updateScale() {
+				int width = contentPane.getWidth();
+				int height = contentPane.getHeight();
+
+				xMid = width / 2;
+				yMid = height / 2;
+				scale = Math.max(10, Math.min(width, height) / 10);
+
+				checkBorder = BorderFactory.createLineBorder(Color.red, Math.max(1, scale / 20));
+
+				for (SquareButton squareBtn : squareBtns) {
+					squareBtn.setSize(scale, scale);
+					ComponentUtils.resizeFont(squareBtn.getPlaceholder(), scale);
+				}
+
+				for (PieceLabel pieceLbl : pieceLbls) {
+					pieceLbl.setSize(scale, scale);
+				}
+
+				for (JLabel fileLbl : fileLbls) {
+					fileLbl.setSize(scale, scale);
+					ComponentUtils.resizeFont(fileLbl, scale / 4);
+				}
+
+				for (JLabel rankLbl : rankLbls) {
+					rankLbl.setSize(scale, scale);
+					ComponentUtils.resizeFont(rankLbl, scale / 4);
+				}
 			}
 		});
 	}
@@ -341,44 +375,12 @@ public class ChessGUI extends JFrame {
 	 * @param perspective the player to whose perspective the board is oriented
 	 */
 	private void refreshBoard(Player perspective) {
-		updateScale();
-
 		positionSquares(perspective);
 		positionFilesAndRanks(perspective);
 		positionPieces();
 
 		paintPieces();
 		paintCheckBorder();
-	}
-
-	private void updateScale() {
-		int width = contentPane.getWidth();
-		int height = contentPane.getHeight();
-
-		xMid = width / 2;
-		yMid = height / 2;
-		scale = Math.max(10, Math.min(width, height) / 10);
-
-		checkBorder = BorderFactory.createLineBorder(Color.red, Math.max(1, scale / 20));
-
-		for (SquareButton squareBtn : squareBtns) {
-			squareBtn.setSize(scale, scale);
-			ComponentUtils.resizeFont(squareBtn, scale);
-		}
-
-		for (PieceLabel pieceLbl : pieceLbls) {
-			pieceLbl.setSize(scale, scale);
-		}
-
-		for (JLabel fileLbl : fileLbls) {
-			fileLbl.setSize(scale, scale);
-			ComponentUtils.resizeFont(fileLbl, scale / 4);
-		}
-
-		for (JLabel rankLbl : rankLbls) {
-			rankLbl.setSize(scale, scale);
-			ComponentUtils.resizeFont(rankLbl, scale / 4);
-		}
 	}
 
 	private void positionSquares(Player perspective) {
@@ -431,8 +433,10 @@ public class ChessGUI extends JFrame {
 	}
 
 	private void positionPieces() {
-		for (PieceLabel pieceLbl : pieceLbls) {
-			SquareButton squareBtn = buttonLabelMap.get(pieceLbl);
+		for (var entry : boardMap.entrySet()) {
+			PieceLabel pieceLbl = entry.getKey();
+			SquareButton squareBtn = entry.getValue();
+
 			if (squareBtn == null) {
 				pieceLbl.setVisible(false);
 			} else {
