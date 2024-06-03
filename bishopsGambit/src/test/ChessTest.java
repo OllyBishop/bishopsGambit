@@ -1,6 +1,7 @@
 package test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import board.Board;
+import board.Square;
 import core.Game;
 import core.IllegalMoveException;
 import core.UnoccupiedSquareException;
@@ -40,8 +43,20 @@ class ChessTest {
 		return game.getBlack();
 	}
 
+	Board getBoard() {
+		return game.getBoard();
+	}
+
+	Square getSquare(String squareStr) {
+		return getBoard().getSquare(squareStr);
+	}
+
 	Piece getPiece(String squareStr) {
-		return game.getBoard().getSquare(squareStr).getPiece();
+		return getSquare(squareStr).getPiece();
+	}
+
+	boolean canMoveTo(Piece piece, String squareStr) {
+		return piece.getMoves(getBoard()).contains(getSquare(squareStr));
 	}
 
 	int numberOfTurnsTaken() {
@@ -72,7 +87,7 @@ class ChessTest {
 
 	@AfterEach
 	void printBoard() {
-		game.getBoard().print();
+		getBoard().print();
 	}
 
 	@Test
@@ -196,6 +211,41 @@ class ChessTest {
 
 		assertEquals(numberOfTurnsTaken(), 10);
 		assertEquals(numberOfLegalMoves(), 1);
+	}
+
+	@Test
+	void enemyKnightBlocksKingsideCastling() {
+		move(E2, E4);
+		move(G8, F6);
+
+		move(G1, F3);
+		move(F6, G4);
+
+		move(F1, C4);
+		move(G4, E3);
+
+		move(D2, D3);
+		move(E3, F1);
+
+		assertEquals(numberOfTurnsTaken(), 8);
+
+		assertFalse(canMoveTo(getWhite().getKing(), G1));
+	}
+
+	@Test
+	void enemyBishopBlocksKingsideCastling() {
+		move(E2, E4);
+		move(B7, B6);
+
+		move(G1, F3);
+		move(C8, A6);
+
+		move(D2, D4);
+		move(A6, F1);
+
+		assertEquals(numberOfTurnsTaken(), 6);
+
+		assertFalse(canMoveTo(getWhite().getKing(), G1));
 	}
 
 }

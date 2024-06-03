@@ -85,6 +85,10 @@ public class ChessGUI extends JFrame {
 		return squareBtns.get(square.getIndex());
 	}
 
+	private SquareButton getSquareButton(Board board, Piece piece) {
+		return getSquareButton(piece.getSquare(board));
+	}
+
 	private void updateBoardMap() {
 		Board board;
 		if (to == null)
@@ -95,7 +99,7 @@ public class ChessGUI extends JFrame {
 		for (PieceLabel pieceLbl : pieceLbls) {
 			Piece piece = pieceLbl.getPiece();
 			if (board.containsPiece(piece))
-				boardMap.put(pieceLbl, getSquareButton(piece.getSquare(board)));
+				boardMap.put(pieceLbl, getSquareButton(board, piece));
 			else
 				boardMap.put(pieceLbl, null);
 		}
@@ -111,7 +115,7 @@ public class ChessGUI extends JFrame {
 	 * Returns the player whose turn it currently is, based on the number of turns
 	 * taken.
 	 * 
-	 * @return White if the number of turns taken is even, Black if it is odd
+	 * @return White if the number of turns taken is even; Black if it is odd
 	 */
 	private Player getCurrentPlayer() {
 		return getGame().getCurrentPlayer();
@@ -121,7 +125,7 @@ public class ChessGUI extends JFrame {
 	 * Returns the opponent of the player whose turn it currently is, based on the
 	 * number of turns taken.
 	 * 
-	 * @return Black if the number of turns taken is even, White if it is odd
+	 * @return Black if the number of turns taken is even; White if it is odd
 	 */
 	private Player getCurrentOpponent() {
 		return getGame().getCurrentOpponent();
@@ -132,8 +136,8 @@ public class ChessGUI extends JFrame {
 	}
 	// ---------------------------------------------------------------- //
 
-	private void addToLayer(JComponent comp, int layer) {
-		contentPane.add(comp, layer, 0);
+	private void addToLayer(JComponent component, int layer) {
+		contentPane.add(component, layer, 0);
 	}
 
 	private void createPieceLabel(Piece piece) {
@@ -263,7 +267,7 @@ public class ChessGUI extends JFrame {
 				Square fromSquare = getSquare(from);
 				Square toSquare = getSquare(to);
 
-				Typ type = null;
+				Typ promotionType = null;
 
 				if (fromSquare.getPiece().canPromote(getBoard(), toSquare)) {
 					Typ[] options = new Typ[] { Typ.KNIGHT, Typ.BISHOP, Typ.ROOK, Typ.QUEEN };
@@ -272,12 +276,12 @@ public class ChessGUI extends JFrame {
 							JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, to.getIcon(), options, null);
 
 					if (i == JOptionPane.CLOSED_OPTION)
-						type = Typ.QUEEN;
+						promotionType = Typ.QUEEN;
 					else
-						type = options[i];
+						promotionType = options[i];
 				}
 
-				Piece promotedPiece = game.move(fromSquare, toSquare, type);
+				Piece promotedPiece = game.move(fromSquare, toSquare, promotionType);
 
 				if (promotedPiece != null)
 					createPieceLabel(promotedPiece);
@@ -295,7 +299,7 @@ public class ChessGUI extends JFrame {
 
 				Player currentPlayer = getCurrentPlayer();
 				inCheck = currentPlayer.inCheck(getBoard());
-				kingSquareBtn = getSquareButton(currentPlayer.getKing().getSquare(getBoard()));
+				kingSquareBtn = getSquareButton(getBoard(), currentPlayer.getKing());
 
 				if (currentPlayer.noLegalMoves(getBoard())) {
 					String message;

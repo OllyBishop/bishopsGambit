@@ -112,7 +112,7 @@ public abstract class Piece {
 	 * Finds the square this piece is occupying.
 	 * 
 	 * @param board the chess board
-	 * @return the square this piece is occupying (if it exists), {@code null}
+	 * @return the square this piece is occupying (if it exists); {@code null}
 	 *         otherwise
 	 */
 	public Square getSquare(Board board) {
@@ -124,10 +124,10 @@ public abstract class Piece {
 	 * piece is being targeted by an enemy piece.
 	 * 
 	 * @param board the chess board
-	 * @return {@code true} if this piece is being targeted, {@code false} otherwise
+	 * @return {@code true} if this piece is being targeted; {@code false} otherwise
 	 */
 	public boolean isTargeted(Board board) {
-		return getSquare(board).isTargeted(board);
+		return getSquare(board).isTargeted(board, getPlayer());
 	}
 
 	/**
@@ -136,7 +136,7 @@ public abstract class Piece {
 	 * 
 	 * @param board  the chess board
 	 * @param square the square
-	 * @return {@code true} if this piece is targeting the given square,
+	 * @return {@code true} if this piece is targeting the given square;
 	 *         {@code false} otherwise
 	 */
 	public boolean isTargeting(Board board, Square square) {

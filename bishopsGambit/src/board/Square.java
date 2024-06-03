@@ -79,7 +79,7 @@ public class Square {
 	/**
 	 * Returns a boolean indicating whether or not this square is occupied.
 	 * 
-	 * @return {@code true} if this square contains a piece, {@code false} otherwise
+	 * @return {@code true} if this square contains a piece; {@code false} otherwise
 	 */
 	public boolean isOccupied() {
 		return getPiece() != null;
@@ -91,7 +91,7 @@ public class Square {
 	 * 
 	 * @param player the player
 	 * @return {@code true} if this square contains a piece belonging to the given
-	 *         player, {@code false} otherwise
+	 *         player; {@code false} otherwise
 	 */
 	public boolean isOccupiedBy(Player player) {
 		return player.getPieces().contains(getPiece());
@@ -103,7 +103,7 @@ public class Square {
 	 * 
 	 * @param player the player
 	 * @return {@code true} if this square contains a piece <i>not</i> belonging to
-	 *         the given player, {@code false} otherwise
+	 *         the given player; {@code false} otherwise
 	 */
 	public boolean isOccupiedByOpponent(Player player) {
 		return isOccupied() && !isOccupiedBy(player);
@@ -111,14 +111,16 @@ public class Square {
 
 	/**
 	 * Returns a boolean indicating whether or not this square is being targeted by
-	 * an enemy piece.
+	 * a piece <i>not</i> belonging to the given player.
 	 * 
-	 * @param board the chess board
-	 * @return {@code true} if this square is being targeted, {@code false}
-	 *         otherwise
+	 * @param board  the chess board
+	 * @param player the player
+	 * @return {@code true} if this square is being targeted by a piece <i>not</i>
+	 *         belonging to the given player; {@code false} otherwise
 	 */
-	public boolean isTargeted(Board board) {
-		return board.getPieces().stream().anyMatch(pc -> pc.isTargeting(board, this));
+	public boolean isTargeted(Board board, Player player) {
+		return board.getPieces().stream().filter(pc -> pc.getPlayer() != player)
+				.anyMatch(pc -> pc.isTargeting(board, this));
 	}
 
 	public Square travel(Board board, int x, int y) {
