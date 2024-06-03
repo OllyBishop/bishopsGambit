@@ -66,7 +66,7 @@ public class Board extends ArrayList<Square> {
 	 * 
 	 * @param file the file of the square to be found
 	 * @param rank the rank of the square to be found
-	 * @return the square with the given file and rank (if it exists), {@code null}
+	 * @return the square with the given file and rank (if it exists); {@code null}
 	 *         otherwise
 	 */
 	public Square getSquare(char file, int rank) {

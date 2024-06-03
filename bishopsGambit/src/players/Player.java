@@ -36,7 +36,7 @@ public class Player {
 			pawnRank = 7;
 			break;
 		default:
-			throw new IllegalArgumentException("Colour must be either 'WHITE' or 'BLACK'");
+			throw new IllegalArgumentException("Colour must be either 'WHITE' or 'BLACK'.");
 		}
 
 		this.colour = colour;
@@ -107,7 +107,7 @@ public class Player {
 	 * in check.
 	 * 
 	 * @param board the chess board
-	 * @return {@code true} if this player's king is currently in check,
+	 * @return {@code true} if this player's king is currently in check;
 	 *         {@code false} otherwise
 	 */
 	public boolean inCheck(Board board) {
@@ -119,7 +119,7 @@ public class Player {
 	 * checkmate.
 	 * 
 	 * @param board the chess board
-	 * @return {@code true} if this player is currently in checkmate, {@code false}
+	 * @return {@code true} if this player is currently in checkmate; {@code false}
 	 *         otherwise
 	 */
 	public boolean inCheckmate(Board board) {
@@ -131,7 +131,7 @@ public class Player {
 	 * stalemate.
 	 * 
 	 * @param board the chess board
-	 * @return {@code true} if this player is currently in stalemate, {@code false}
+	 * @return {@code true} if this player is currently in stalemate; {@code false}
 	 *         otherwise
 	 */
 	public boolean inStalemate(Board board) {
@@ -146,11 +146,9 @@ public class Player {
 	 */
 	public int numberOfLegalMoves(Board board) {
 		int numberOfMoves = 0;
-
 		for (Piece piece : getPieces())
 			if (!piece.isCaptured())
 				numberOfMoves += piece.getMoves(board).size();
-
 		return numberOfMoves;
 	}
 
@@ -158,7 +156,7 @@ public class Player {
 	 * Returns a boolean indicating whether or not this player has any legal moves.
 	 * 
 	 * @param board the chess board
-	 * @return {@code true} if this player has no legal moves, {@code false}
+	 * @return {@code true} if this player has no legal moves; {@code false}
 	 *         otherwise
 	 */
 	public boolean noLegalMoves(Board board) {

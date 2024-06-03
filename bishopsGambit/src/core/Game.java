@@ -73,7 +73,7 @@ public class Game {
 	 * Returns the player whose turn it currently is, based on the number of turns
 	 * taken.
 	 * 
-	 * @return White if the number of turns taken is even, Black if it is odd
+	 * @return White if the number of turns taken is even; Black if it is odd
 	 */
 	public Player getCurrentPlayer() {
 		return numberOfTurnsTaken() % 2 == 0 ? getWhite() : getBlack();
@@ -83,7 +83,7 @@ public class Game {
 	 * Returns the opponent of the player whose turn it currently is, based on the
 	 * number of turns taken.
 	 * 
-	 * @return Black if the number of turns taken is even, White if it is odd
+	 * @return Black if the number of turns taken is even; White if it is odd
 	 */
 	public Player getCurrentOpponent() {
 		return numberOfTurnsTaken() % 2 == 0 ? getBlack() : getWhite();
@@ -93,16 +93,14 @@ public class Game {
 		return move(fromStr, toStr, null);
 	}
 
-	public Piece move(String fromStr, String toStr, Typ type) {
+	public Piece move(String fromStr, String toStr, Typ promotionType) {
 		Board board = getBoard();
-
 		Square from = board.getSquare(fromStr);
 		Square to = board.getSquare(toStr);
-
-		return move(from, to, type);
+		return move(from, to, promotionType);
 	}
 
-	public Piece move(Square from, Square to, Typ type) {
+	public Piece move(Square from, Square to, Typ promotionType) {
 		if (!from.isOccupied())
 			throw new UnoccupiedSquareException(from);
 
@@ -127,11 +125,11 @@ public class Game {
 				((Pawn) piece).setEnPassant(true);
 
 			// Promotion
-			else if (type != null) {
+			else if (promotionType != null) {
 				char toFile = to.getFile();
 				int toRank = to.getRank();
 
-				switch (type) {
+				switch (promotionType) {
 				case KNIGHT:
 					promotedPiece = new Knight(getCurrentPlayer(), toFile, toRank);
 					break;
@@ -145,7 +143,7 @@ public class Game {
 					promotedPiece = new Queen(getCurrentPlayer(), toFile, toRank);
 					break;
 				default:
-					promotedPiece = null;
+					throw new RuntimeException("Cannot promote to a piece of type '" + promotionType + "'.");
 				}
 
 				newBoard.getSquare(toFile, toRank).setPiece(promotedPiece);
