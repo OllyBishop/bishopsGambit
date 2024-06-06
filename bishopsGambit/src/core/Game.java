@@ -16,159 +16,173 @@ import players.Player;
 import players.Player.Colour;
 import utils.ListUtils;
 
-public class Game {
+public class Game
+{
+    private final List<Board> boards = new ArrayList<>();
 
-	private final List<Board> boards = new ArrayList<>();
+    private final Player white = new Player( Colour.WHITE );
+    private final Player black = new Player( Colour.BLACK );
 
-	private final Player white = new Player(Colour.WHITE);
-	private final Player black = new Player(Colour.BLACK);
+    public Game()
+    {
+        Board board = new Board();
+        board.assignPieces( getWhite() );
+        board.assignPieces( getBlack() );
+        addBoard( board );
+    }
 
-	public Game() {
-		Board board = new Board();
+    private List<Board> getBoards()
+    {
+        return this.boards;
+    }
 
-		board.assignPieces(getWhite());
-		board.assignPieces(getBlack());
+    public Player getWhite()
+    {
+        return this.white;
+    }
 
-		addBoard(board);
-	}
+    public Player getBlack()
+    {
+        return this.black;
+    }
 
-	private List<Board> getBoards() {
-		return this.boards;
-	}
+    private void addBoard( Board board )
+    {
+        getBoards().add( board );
+        printInfo( board );
+    }
 
-	public Player getWhite() {
-		return this.white;
-	}
+    private void printInfo( Board board )
+    {
+        Player currentPlayer = getCurrentPlayer();
+        int n = currentPlayer.numberOfLegalMoves( board );
+        System.out.printf( "%s has %d legal move%s.", currentPlayer, n, n == 1 ? "" : "s" );
 
-	public Player getBlack() {
-		return this.black;
-	}
+        int diff = board.getMaterialDiff();
+        if ( diff != 0 )
+            System.out.printf( " %s: +%d", diff > 0 ? getWhite() : getBlack(), Math.abs( diff ) );
 
-	private void addBoard(Board board) {
-		getBoards().add(board);
-		printInfo(board);
-	}
+        System.out.println();
+    }
 
-	private void printInfo(Board board) {
-		Player currentPlayer = getCurrentPlayer();
-		int n = currentPlayer.numberOfLegalMoves(board);
-		System.out.printf("%s has %d legal move%s.", currentPlayer, n, n == 1 ? "" : "s");
+    public int numberOfTurnsTaken()
+    {
+        return getBoards().size() - 1;
+    }
 
-		int diff = board.getMaterialDiff();
-		if (diff != 0)
-			System.out.printf(" %s: +%d", diff > 0 ? getWhite() : getBlack(), Math.abs(diff));
+    public Board getBoard()
+    {
+        return getBoards().get( numberOfTurnsTaken() );
+    }
 
-		System.out.println();
-	}
+    /**
+     * Returns the player whose turn it currently is, based on the number of turns taken.
+     * 
+     * @return White if the number of turns taken is even; Black if it is odd
+     */
+    public Player getCurrentPlayer()
+    {
+        return numberOfTurnsTaken() % 2 == 0 ? getWhite() : getBlack();
+    }
 
-	public int numberOfTurnsTaken() {
-		return getBoards().size() - 1;
-	}
+    /**
+     * Returns the opponent of the player whose turn it currently is, based on the number of turns
+     * taken.
+     * 
+     * @return Black if the number of turns taken is even; White if it is odd
+     */
+    public Player getCurrentOpponent()
+    {
+        return numberOfTurnsTaken() % 2 == 0 ? getBlack() : getWhite();
+    }
 
-	public Board getBoard() {
-		return getBoards().get(numberOfTurnsTaken());
-	}
+    public Piece move( String fromStr, String toStr )
+    {
+        return move( fromStr, toStr, null );
+    }
 
-	/**
-	 * Returns the player whose turn it currently is, based on the number of turns
-	 * taken.
-	 * 
-	 * @return White if the number of turns taken is even; Black if it is odd
-	 */
-	public Player getCurrentPlayer() {
-		return numberOfTurnsTaken() % 2 == 0 ? getWhite() : getBlack();
-	}
+    public Piece move( String fromStr, String toStr, Typ promotionType )
+    {
+        Board board = getBoard();
+        Square from = board.getSquare( fromStr );
+        Square to = board.getSquare( toStr );
+        return move( from, to, promotionType );
+    }
 
-	/**
-	 * Returns the opponent of the player whose turn it currently is, based on the
-	 * number of turns taken.
-	 * 
-	 * @return Black if the number of turns taken is even; White if it is odd
-	 */
-	public Player getCurrentOpponent() {
-		return numberOfTurnsTaken() % 2 == 0 ? getBlack() : getWhite();
-	}
+    public Piece move( Square from, Square to, Typ promotionType )
+    {
+        if ( !from.isOccupied() )
+            throw new UnoccupiedSquareException( from );
 
-	public Piece move(String fromStr, String toStr) {
-		return move(fromStr, toStr, null);
-	}
+        Board board = getBoard();
 
-	public Piece move(String fromStr, String toStr, Typ promotionType) {
-		Board board = getBoard();
-		Square from = board.getSquare(fromStr);
-		Square to = board.getSquare(toStr);
-		return move(from, to, promotionType);
-	}
+        if ( !board.isLegalMove( from, to ) )
+            throw new IllegalMoveException( from, to );
 
-	public Piece move(Square from, Square to, Typ promotionType) {
-		if (!from.isOccupied())
-			throw new UnoccupiedSquareException(from);
+        // Disable en passant capture of opponent's pawns
+        for ( Piece pc : getCurrentOpponent().getPieces() )
+            if ( pc instanceof Pawn )
+                ((Pawn) pc).setEnPassant( false );
 
-		Board board = getBoard();
+        Piece piece = from.getPiece();
+        Board newBoard = board.move( from, to );
 
-		if (!board.isLegalMove(from, to))
-			throw new IllegalMoveException(from, to);
+        Piece promotedPiece = null;
 
-		// Disable en passant capture of opponent's pawns
-		for (Piece pc : getCurrentOpponent().getPieces())
-			if (pc instanceof Pawn)
-				((Pawn) pc).setEnPassant(false);
+        if ( piece instanceof Pawn )
+        {
+            // Enable en passant capture of this pawn
+            if ( piece.movedTwoSquaresForward( from, to ) )
+                ((Pawn) piece).setEnPassant( true );
 
-		Piece piece = from.getPiece();
-		Board newBoard = board.move(from, to);
+            // Promotion
+            else if ( promotionType != null )
+            {
+                char toFile = to.getFile();
+                int toRank = to.getRank();
 
-		Piece promotedPiece = null;
+                switch ( promotionType )
+                {
+                    case KNIGHT:
+                        promotedPiece = new Knight( getCurrentPlayer(), toFile, toRank );
+                        break;
+                    case BISHOP:
+                        promotedPiece = new Bishop( getCurrentPlayer(), toFile, toRank );
+                        break;
+                    case ROOK:
+                        promotedPiece = new Rook( getCurrentPlayer(), toFile, toRank );
+                        break;
+                    case QUEEN:
+                        promotedPiece = new Queen( getCurrentPlayer(), toFile, toRank );
+                        break;
+                    default:
+                        throw new RuntimeException( "Cannot promote to a piece of type '" + promotionType + "'." );
+                }
 
-		if (piece instanceof Pawn) {
-			// Enable en passant capture of this pawn
-			if (piece.movedTwoSquaresForward(from, to))
-				((Pawn) piece).setEnPassant(true);
+                newBoard.getSquare( toFile, toRank ).setPiece( promotedPiece );
+            }
+        }
 
-			// Promotion
-			else if (promotionType != null) {
-				char toFile = to.getFile();
-				int toRank = to.getRank();
+        for ( Piece pc : getAllPieces() )
+        {
+            Square square = pc.getSquare( newBoard );
 
-				switch (promotionType) {
-				case KNIGHT:
-					promotedPiece = new Knight(getCurrentPlayer(), toFile, toRank);
-					break;
-				case BISHOP:
-					promotedPiece = new Bishop(getCurrentPlayer(), toFile, toRank);
-					break;
-				case ROOK:
-					promotedPiece = new Rook(getCurrentPlayer(), toFile, toRank);
-					break;
-				case QUEEN:
-					promotedPiece = new Queen(getCurrentPlayer(), toFile, toRank);
-					break;
-				default:
-					throw new RuntimeException("Cannot promote to a piece of type '" + promotionType + "'.");
-				}
+            // If piece is not on the board, set it as captured
+            if ( square == null )
+                pc.setCaptured( true );
 
-				newBoard.getSquare(toFile, toRank).setPiece(promotedPiece);
-			}
-		}
+            // If piece is on the board but not on its starting square, set it as moved
+            else if ( square != pc.getStartSquare( newBoard ) )
+                pc.setMoved( true );
+        }
 
-		for (Piece pc : getAllPieces()) {
-			Square square = pc.getSquare(newBoard);
+        addBoard( newBoard );
 
-			// If piece is not on the board, set it as captured
-			if (square == null)
-				pc.setCaptured(true);
+        return promotedPiece;
+    }
 
-			// If piece is on the board but not on its starting square, set it as moved
-			else if (square != pc.getStartSquare(newBoard))
-				pc.setMoved(true);
-		}
-
-		addBoard(newBoard);
-
-		return promotedPiece;
-	}
-
-	public List<Piece> getAllPieces() {
-		return ListUtils.combine(getWhite().getPieces(), getBlack().getPieces());
-	}
-
+    public List<Piece> getAllPieces()
+    {
+        return ListUtils.combine( getWhite().getPieces(), getBlack().getPieces() );
+    }
 }
