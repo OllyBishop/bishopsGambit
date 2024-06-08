@@ -1,6 +1,6 @@
-package core;
+package main.java.game;
 
-import board.Square;
+import main.java.board.Square;
 
 public class IllegalMoveException extends RuntimeException
 {

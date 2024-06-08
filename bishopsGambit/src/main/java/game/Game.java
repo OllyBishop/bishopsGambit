@@ -1,20 +1,20 @@
-package core;
+package main.java.game;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import board.Board;
-import board.Square;
-import pieces.Bishop;
-import pieces.Knight;
-import pieces.Pawn;
-import pieces.Piece;
-import pieces.Piece.Typ;
-import pieces.Queen;
-import pieces.Rook;
-import players.Player;
-import players.Player.Colour;
-import utils.ListUtils;
+import main.java.board.Board;
+import main.java.board.Square;
+import main.java.pieces.Bishop;
+import main.java.pieces.Knight;
+import main.java.pieces.Pawn;
+import main.java.pieces.Piece;
+import main.java.pieces.Queen;
+import main.java.pieces.Rook;
+import main.java.pieces.Piece.Typ;
+import main.java.player.Player;
+import main.java.player.Player.Colour;
+import main.java.util.ListUtils;
 
 public class Game
 {

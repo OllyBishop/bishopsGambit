@@ -1,11 +1,11 @@
-package pieces;
+package main.java.pieces;
 
 import java.util.List;
 
-import board.Board;
-import board.Square;
-import players.Player;
-import utils.ListUtils;
+import main.java.board.Board;
+import main.java.board.Square;
+import main.java.player.Player;
+import main.java.util.ListUtils;
 
 public class Queen extends Piece
 {

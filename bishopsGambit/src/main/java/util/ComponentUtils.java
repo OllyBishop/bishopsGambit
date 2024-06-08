@@ -1,4 +1,4 @@
-package utils;
+package main.java.util;
 
 import java.awt.Component;
 

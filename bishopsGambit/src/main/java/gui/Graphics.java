@@ -1,13 +1,13 @@
-package gui;
+package main.java.gui;
 
 import java.awt.Image;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import pieces.Piece;
-import pieces.Piece.Typ;
-import players.Player.Colour;
+import main.java.pieces.Piece;
+import main.java.pieces.Piece.Typ;
+import main.java.player.Player.Colour;
 
 public class Graphics
 {
@@ -31,7 +31,7 @@ public class Graphics
 
         try
         {
-            String imagePath = String.format( "/img/%s_%s.png", colour, type );
+            String imagePath = String.format( "/main/resources/img/%s_%s.png", colour, type );
             image = ImageIO.read( Graphics.class.getResource( imagePath ) );
         }
         catch ( IOException e )

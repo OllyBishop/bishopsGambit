@@ -1,10 +1,10 @@
-package board;
+package main.java.board;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import pieces.Piece;
-import players.Player;
+import main.java.pieces.Piece;
+import main.java.player.Player;
 
 public class Board extends ArrayList<Square>
 {

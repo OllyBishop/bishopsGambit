@@ -1,4 +1,4 @@
-package gui;
+package main.java.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -26,13 +26,13 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-import board.Board;
-import board.Square;
-import core.Game;
-import pieces.Piece;
-import pieces.Piece.Typ;
-import players.Player;
-import utils.ComponentUtils;
+import main.java.board.Board;
+import main.java.board.Square;
+import main.java.game.Game;
+import main.java.pieces.Piece;
+import main.java.pieces.Piece.Typ;
+import main.java.player.Player;
+import main.java.util.ComponentUtils;
 
 public class ChessGUI extends JFrame
 {

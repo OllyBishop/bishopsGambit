@@ -1,8 +1,9 @@
-package core;
+package main.java;
 
 import java.awt.EventQueue;
 
-import gui.ChessGUI;
+import main.java.game.Game;
+import main.java.gui.ChessGUI;
 
 public class BishopsGambit
 {

@@ -1,4 +1,4 @@
-package test;
+package test.java;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,13 +10,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-import board.Board;
-import board.Square;
-import core.Game;
-import core.IllegalMoveException;
-import core.UnoccupiedSquareException;
-import pieces.Piece;
-import players.Player;
+import main.java.board.Board;
+import main.java.board.Square;
+import main.java.game.Game;
+import main.java.game.IllegalMoveException;
+import main.java.game.UnoccupiedSquareException;
+import main.java.pieces.Piece;
+import main.java.player.Player;
 
 class ChessTest
 {

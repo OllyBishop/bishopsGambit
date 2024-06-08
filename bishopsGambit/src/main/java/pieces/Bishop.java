@@ -1,15 +1,15 @@
-package pieces;
+package main.java.pieces;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import board.Board;
-import board.Square;
-import players.Player;
+import main.java.board.Board;
+import main.java.board.Square;
+import main.java.player.Player;
 
-public class Rook extends Piece
+public class Bishop extends Piece
 {
-    public Rook( Player player, char startFile, int startRank )
+    public Bishop( Player player, char startFile, int startRank )
     {
         super( player, startFile, startRank );
     }
@@ -17,13 +17,13 @@ public class Rook extends Piece
     @Override
     public Typ getType()
     {
-        return Typ.ROOK;
+        return Typ.BISHOP;
     }
 
     @Override
     public int getValue()
     {
-        return 5;
+        return 3;
     }
 
     @Override
@@ -38,13 +38,13 @@ public class Rook extends Piece
 
         Square square = piece.getSquare( board );
 
-        for ( int x : new int[] { 0, 1 } )
+        for ( int x : new int[] { -1, 1 } )
         {
             for ( int y : new int[] { -1, 1 } )
             {
                 for ( int n = 1; n < 8; n++ )
                 {
-                    Square s = square.travel( board, n * x * y, n * (1 - x) * y );
+                    Square s = square.travel( board, n * x, n * y );
                     if ( s == null )
                     {
                         break;

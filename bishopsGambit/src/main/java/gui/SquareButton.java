@@ -1,4 +1,4 @@
-package gui;
+package main.java.gui;
 
 import java.awt.Color;
 
@@ -6,8 +6,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-import board.Square;
-import utils.ColorUtils;
+import main.java.board.Square;
+import main.java.util.ColorUtils;
 
 public class SquareButton extends JButton
 {

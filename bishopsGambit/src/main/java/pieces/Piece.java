@@ -1,11 +1,11 @@
-package pieces;
+package main.java.pieces;
 
 import java.util.List;
 
-import board.Board;
-import board.Square;
-import players.Player;
-import players.Player.Colour;
+import main.java.board.Board;
+import main.java.board.Square;
+import main.java.player.Player;
+import main.java.player.Player.Colour;
 
 public abstract class Piece
 {

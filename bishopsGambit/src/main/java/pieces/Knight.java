@@ -1,11 +1,11 @@
-package pieces;
+package main.java.pieces;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import board.Board;
-import board.Square;
-import players.Player;
+import main.java.board.Board;
+import main.java.board.Square;
+import main.java.player.Player;
 
 public class Knight extends Piece
 {

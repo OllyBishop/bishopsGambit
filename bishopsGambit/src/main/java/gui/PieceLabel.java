@@ -1,11 +1,11 @@
-package gui;
+package main.java.gui;
 
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import pieces.Piece;
+import main.java.pieces.Piece;
 
 public class PieceLabel extends JLabel
 {
