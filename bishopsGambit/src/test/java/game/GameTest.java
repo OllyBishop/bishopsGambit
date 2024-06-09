@@ -1,4 +1,4 @@
-package test.java;
+package test.java.game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,7 +18,7 @@ import main.java.game.UnoccupiedSquareException;
 import main.java.pieces.Piece;
 import main.java.player.Player;
 
-class ChessTest
+class GameTest
 {
     final String A1 = "a1", A2 = "a2", A3 = "a3", A4 = "a4", A5 = "a5", A6 = "a6", A7 = "a7", A8 = "a8";
     final String B1 = "b1", B2 = "b2", B3 = "b3", B4 = "b4", B5 = "b5", B6 = "b6", B7 = "b7", B8 = "b8";

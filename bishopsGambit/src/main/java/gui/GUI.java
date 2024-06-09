@@ -34,7 +34,7 @@ import main.java.pieces.Piece.Typ;
 import main.java.player.Player;
 import main.java.util.ComponentUtils;
 
-public class ChessGUI extends JFrame
+public class GUI extends JFrame
 {
     private static final int SQUARE_LAYER = 1;
     private static final int FILE_RANK_LAYER = 2;
@@ -161,7 +161,7 @@ public class ChessGUI extends JFrame
     /**
      * Create the frame.
      */
-    public ChessGUI( Game game )
+    public GUI( Game game )
     {
         setGame( game );
 
@@ -211,7 +211,8 @@ public class ChessGUI extends JFrame
 
         for ( SquareButton squareBtn : squareBtns )
         {
-            squareBtn.addActionListener( new ActionListener() {
+            squareBtn.addActionListener( new ActionListener()
+            {
                 @Override
                 public void actionPerformed( ActionEvent e )
                 {
@@ -270,7 +271,8 @@ public class ChessGUI extends JFrame
             } );
         }
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher( new KeyEventDispatcher() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher( new KeyEventDispatcher()
+        {
             @Override
             public boolean dispatchKeyEvent( KeyEvent e )
             {
@@ -351,7 +353,7 @@ public class ChessGUI extends JFrame
                         icon = null;
                     }
 
-                    JOptionPane.showMessageDialog( ChessGUI.this,
+                    JOptionPane.showMessageDialog( GUI.this,
                                                    message,
                                                    "Game over",
                                                    JOptionPane.PLAIN_MESSAGE,
@@ -360,7 +362,8 @@ public class ChessGUI extends JFrame
             }
         } );
 
-        addComponentListener( new ComponentAdapter() {
+        addComponentListener( new ComponentAdapter()
+        {
             /**
              * This method is called once when the frame is initialised, and each time the frame is resized
              * thereafter.

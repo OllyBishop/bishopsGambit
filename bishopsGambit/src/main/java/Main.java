@@ -3,9 +3,9 @@ package main.java;
 import java.awt.EventQueue;
 
 import main.java.game.Game;
-import main.java.gui.ChessGUI;
+import main.java.gui.GUI;
 
-public class BishopsGambit
+public class Main
 {
     /**
      * Launch the application.
@@ -14,13 +14,14 @@ public class BishopsGambit
     {
         Game game = new Game();
 
-        EventQueue.invokeLater( new Runnable() {
+        EventQueue.invokeLater( new Runnable()
+        {
             @Override
             public void run()
             {
                 try
                 {
-                    ChessGUI frame = new ChessGUI( game );
+                    GUI frame = new GUI( game );
                     frame.setVisible( true );
                 }
                 catch ( Exception e )

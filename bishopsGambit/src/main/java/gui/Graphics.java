@@ -60,6 +60,7 @@ public class Graphics
                 case QUEEN -> whiteQueen;
                 case KING -> whiteKing;
             };
+
             case BLACK -> switch ( type )
             {
                 case PAWN -> blackPawn;
