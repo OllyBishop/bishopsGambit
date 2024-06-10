@@ -114,36 +114,36 @@ public class Player
     }
 
     /**
-     * Returns a boolean indicating whether or not this player's king is currently in check.
+     * Returns a boolean indicating whether this player is currently in check.
      * 
      * @param board the chess board
-     * @return {@code true} if this player's king is currently in check; {@code false} otherwise
+     * @return {@code true} if this player is currently in check; {@code false} otherwise
      */
-    public boolean inCheck( Board board )
+    public boolean isInCheck( Board board )
     {
         return getKing().isTargeted( board );
     }
 
     /**
-     * Returns a boolean indicating whether or not this player is currently in checkmate.
+     * Returns a boolean indicating whether this player is currently in checkmate.
      * 
      * @param board the chess board
      * @return {@code true} if this player is currently in checkmate; {@code false} otherwise
      */
-    public boolean inCheckmate( Board board )
+    public boolean isInCheckmate( Board board )
     {
-        return noLegalMoves( board ) && inCheck( board );
+        return hasNoLegalMoves( board ) && isInCheck( board );
     }
 
     /**
-     * Returns a boolean indicating whether or not this player is currently in stalemate.
+     * Returns a boolean indicating whether this player is currently in stalemate.
      * 
      * @param board the chess board
      * @return {@code true} if this player is currently in stalemate; {@code false} otherwise
      */
-    public boolean inStalemate( Board board )
+    public boolean isInStalemate( Board board )
     {
-        return noLegalMoves( board ) && !inCheck( board );
+        return hasNoLegalMoves( board ) && !isInCheck( board );
     }
 
     /**
@@ -154,20 +154,19 @@ public class Player
      */
     public int numberOfLegalMoves( Board board )
     {
-        int numberOfMoves = 0;
-        for ( Piece piece : getPieces() )
-            if ( !piece.isCaptured() )
-                numberOfMoves += piece.getMoves( board ).size();
-        return numberOfMoves;
+        return getPieces().stream()
+                          .filter( pc -> board.containsPiece( pc ) )
+                          .mapToInt( pc -> pc.getMoves( board ).size() )
+                          .sum();
     }
 
     /**
-     * Returns a boolean indicating whether or not this player has any legal moves.
+     * Returns a boolean indicating whether this player has any legal moves.
      * 
      * @param board the chess board
      * @return {@code true} if this player has no legal moves; {@code false} otherwise
      */
-    public boolean noLegalMoves( Board board )
+    public boolean hasNoLegalMoves( Board board )
     {
         return numberOfLegalMoves( board ) == 0;
     }

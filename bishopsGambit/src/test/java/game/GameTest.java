@@ -78,12 +78,12 @@ class GameTest
 
     boolean checkmate()
     {
-        return game.getCurrentPlayer().inCheckmate( game.getBoard() );
+        return game.getCurrentPlayer().isInCheckmate( game.getBoard() );
     }
 
     boolean stalemate()
     {
-        return game.getCurrentPlayer().inStalemate( game.getBoard() );
+        return game.getCurrentPlayer().isInStalemate( game.getBoard() );
     }
 
     @BeforeEach

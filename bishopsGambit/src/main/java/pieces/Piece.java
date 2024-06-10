@@ -1,5 +1,6 @@
 package main.java.pieces;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import main.java.board.Board;
@@ -20,6 +21,7 @@ public abstract class Piece
     public Piece( Player player, char startFile, int startRank )
     {
         this.player = player;
+
         this.startFile = startFile;
         this.startRank = startRank;
 
@@ -113,10 +115,10 @@ public abstract class Piece
      */
     public List<Square> getMoves( Board board )
     {
+        List<Square> targets = new ArrayList<>( getTargets( board ) );
         Square from = getSquare( board );
-        return getTargets( board ).stream()
-                                  .filter( to -> !getPlayer().inCheck( board.move( from, to ) ) )
-                                  .toList();
+        targets.removeIf( to -> getPlayer().isInCheck( board.move( from, to ) ) );
+        return targets;
     }
 
     public Square getStartSquare( Board board )
@@ -139,8 +141,8 @@ public abstract class Piece
     }
 
     /**
-     * Returns a boolean indicating whether or not (the square occupied by) this piece is being
-     * targeted by an enemy piece.
+     * Returns a boolean indicating whether (the square occupied by) this piece is being targeted by
+     * an enemy piece.
      * 
      * @param board the chess board
      * @return {@code true} if this piece is being targeted; {@code false} otherwise
@@ -151,7 +153,7 @@ public abstract class Piece
     }
 
     /**
-     * Returns a boolean indicating whether or not this piece is targeting the given square.
+     * Returns a boolean indicating whether this piece is targeting the given square.
      * 
      * @param board  the chess board
      * @param square the square

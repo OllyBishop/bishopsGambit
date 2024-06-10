@@ -40,9 +40,11 @@ public class Knight extends Piece
                 for ( int n : new int[] { 1, 2 } )
                 {
                     Square s = square.travel( board, n * x, (3 - n) * y );
-                    if ( s != null )
-                        if ( !s.isOccupiedBy( getPlayer() ) )
-                            targets.add( s );
+
+                    if ( s != null && !s.isOccupiedBy( getPlayer() ) )
+                    {
+                        targets.add( s );
+                    }
                 }
             }
         }

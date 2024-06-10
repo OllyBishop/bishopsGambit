@@ -57,7 +57,7 @@ public class GUI extends JFrame
     private int scale;
 
     private Border checkBorder;
-    private boolean inCheck;
+    private boolean isInCheck;
     private SquareButton kingSquareBtn;
 
     private SquareButton from;
@@ -202,7 +202,7 @@ public class GUI extends JFrame
         }
 
         // Create piece labels
-        for ( Piece piece : game.getAllPieces() )
+        for ( Piece piece : getBoard().getPieces() )
         {
             createPieceLabel( piece );
         }
@@ -329,19 +329,19 @@ public class GUI extends JFrame
 
             private void postMove()
             {
-                if ( inCheck )
+                if ( isInCheck )
                     kingSquareBtn.clearBorder();
 
                 Player currentPlayer = getCurrentPlayer();
-                inCheck = currentPlayer.inCheck( getBoard() );
+                isInCheck = currentPlayer.isInCheck( getBoard() );
                 kingSquareBtn = getSquareButton( getBoard(), currentPlayer.getKing() );
 
-                if ( currentPlayer.noLegalMoves( getBoard() ) )
+                if ( currentPlayer.hasNoLegalMoves( getBoard() ) )
                 {
                     String message;
                     Icon icon;
 
-                    if ( inCheck )
+                    if ( isInCheck )
                     {
                         Player currentOpponent = getCurrentOpponent();
                         message = currentOpponent.getColour() + " wins by checkmate!";
@@ -519,7 +519,7 @@ public class GUI extends JFrame
 
     private void paintCheckBorder()
     {
-        if ( inCheck )
+        if ( isInCheck )
             kingSquareBtn.setBorder( checkBorder );
     }
 }

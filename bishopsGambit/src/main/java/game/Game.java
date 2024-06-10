@@ -9,12 +9,11 @@ import main.java.pieces.Bishop;
 import main.java.pieces.Knight;
 import main.java.pieces.Pawn;
 import main.java.pieces.Piece;
+import main.java.pieces.Piece.Typ;
 import main.java.pieces.Queen;
 import main.java.pieces.Rook;
-import main.java.pieces.Piece.Typ;
 import main.java.player.Player;
 import main.java.player.Player.Colour;
-import main.java.util.ListUtils;
 
 public class Game
 {
@@ -120,9 +119,10 @@ public class Game
             throw new IllegalMoveException( from, to );
 
         // Disable en passant capture of opponent's pawns
-        for ( Piece pc : getCurrentOpponent().getPieces() )
-            if ( pc instanceof Pawn )
-                ((Pawn) pc).setEnPassant( false );
+        getCurrentOpponent().getPieces()
+                            .stream()
+                            .filter( pc -> pc instanceof Pawn )
+                            .forEach( pc -> ((Pawn) pc).setEnPassant( false ) );
 
         Piece piece = from.getPiece();
         Board newBoard = board.move( from, to );
@@ -133,9 +133,11 @@ public class Game
         {
             // Enable en passant capture of this pawn
             if ( piece.movedTwoSquaresForward( from, to ) )
+            {
                 ((Pawn) piece).setEnPassant( true );
+            }
 
-            // Promotion
+            // Pawn promotion
             else if ( promotionType != null )
             {
                 char toFile = to.getFile();
@@ -146,15 +148,19 @@ public class Game
                     case KNIGHT:
                         promotedPiece = new Knight( getCurrentPlayer(), toFile, toRank );
                         break;
+
                     case BISHOP:
                         promotedPiece = new Bishop( getCurrentPlayer(), toFile, toRank );
                         break;
+
                     case ROOK:
                         promotedPiece = new Rook( getCurrentPlayer(), toFile, toRank );
                         break;
+
                     case QUEEN:
                         promotedPiece = new Queen( getCurrentPlayer(), toFile, toRank );
                         break;
+
                     default:
                         throw new RuntimeException( "Cannot promote to a piece of type '" + promotionType + "'." );
                 }
@@ -163,26 +169,22 @@ public class Game
             }
         }
 
-        for ( Piece pc : getAllPieces() )
+        for ( Piece pc : board.getPieces() )
         {
-            Square square = pc.getSquare( newBoard );
-
-            // If piece is not on the board, set it as captured
-            if ( square == null )
+            if ( !newBoard.containsPiece( pc ) )
+            {
+                // If piece is no longer on the board, set it as captured
                 pc.setCaptured( true );
-
-            // If piece is on the board but not on its starting square, set it as moved
-            else if ( square != pc.getStartSquare( newBoard ) )
+            }
+            else if ( pc.getSquare( newBoard ) != pc.getSquare( board ) )
+            {
+                // If piece is now on a different square, set it as moved
                 pc.setMoved( true );
+            }
         }
 
         addBoard( newBoard );
 
         return promotedPiece;
-    }
-
-    public List<Piece> getAllPieces()
-    {
-        return ListUtils.combine( getWhite().getPieces(), getBlack().getPieces() );
     }
 }

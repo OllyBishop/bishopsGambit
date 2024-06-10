@@ -101,6 +101,7 @@ public class Board extends ArrayList<Square>
                 if ( piece.movedOneSquareDiagonallyForward( from, to ) && !to.isOccupied() )
                     newBoard.replace( adjacent, adjacent.clone() );
                 break;
+
             case KING:
                 // Castling
                 if ( piece.movedTwoSquaresLaterally( from, to ) )
@@ -109,6 +110,7 @@ public class Board extends ArrayList<Square>
                     newBoard = newBoard.movePiece( rookFrom, adjacent );
                 }
                 break;
+
             default:
                 break;
         }

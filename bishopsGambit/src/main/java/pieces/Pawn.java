@@ -52,31 +52,40 @@ public class Pawn extends Piece
             if ( n == 1 || !hasMoved() )
             {
                 Square s = square.travel( board, 0, n * y );
+
                 if ( s != null )
+                {
                     if ( s.isOccupied() )
+                    {
                         break;
-                    else
-                        targets.add( s );
+                    }
+
+                    targets.add( s );
+                }
             }
         }
 
         // Capture diagonally
         for ( int x : new int[] { -1, 1 } )
         {
+            Square s0 = square.travel( board, x, 0 );
             Square s1 = square.travel( board, x, y );
+
+            // Regular capture
             if ( s1 != null && s1.isOccupiedByOpponent( getPlayer() ) )
             {
                 targets.add( s1 );
-                continue;
             }
 
-            // En passant
-            Square s0 = square.travel( board, x, 0 );
-            if ( s0 != null && s0.isOccupiedByOpponent( getPlayer() ) )
+            // En passant capture
+            else if ( s0 != null && s0.isOccupiedByOpponent( getPlayer() ) )
             {
                 Piece piece = s0.getPiece();
+
                 if ( piece instanceof Pawn && ((Pawn) piece).canEnPassant() )
+                {
                     targets.add( s1 );
+                }
             }
         }
 

@@ -38,9 +38,11 @@ public class King extends Piece
             for ( int y : new int[] { -1, 0, 1 } )
             {
                 Square s = square.travel( board, x, y );
-                if ( s != null )
-                    if ( !s.isOccupiedBy( getPlayer() ) )
-                        targets.add( s );
+
+                if ( s != null && !s.isOccupiedBy( getPlayer() ) )
+                {
+                    targets.add( s );
+                }
             }
         }
 
@@ -72,7 +74,9 @@ public class King extends Piece
                          !r1.isOccupied() &&
                          !k1.isTargeted( board, getPlayer() ) &&
                          !k2.isTargeted( board, getPlayer() ) )
+                    {
                         moves.add( k2 );
+                    }
                 }
             }
         }

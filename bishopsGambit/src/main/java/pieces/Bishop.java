@@ -45,23 +45,23 @@ public class Bishop extends Piece
                 for ( int n = 1; n < 8; n++ )
                 {
                     Square s = square.travel( board, n * x, n * y );
+
                     if ( s == null )
                     {
                         break;
                     }
-                    else
+
+                    if ( s.isOccupied() )
                     {
-                        if ( s.isOccupied() )
-                        {
-                            if ( s.isOccupiedByOpponent( piece.getPlayer() ) )
-                                targets.add( s );
-                            break;
-                        }
-                        else
+                        if ( s.isOccupiedByOpponent( piece.getPlayer() ) )
                         {
                             targets.add( s );
                         }
+
+                        break;
                     }
+
+                    targets.add( s );
                 }
             }
         }
