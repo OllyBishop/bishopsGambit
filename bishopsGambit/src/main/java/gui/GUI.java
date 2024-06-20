@@ -154,6 +154,7 @@ public class GUI extends JFrame
     private void createPieceLabel( Piece piece )
     {
         PieceLabel pieceLbl = new PieceLabel( piece );
+        pieceLbl.setSize( scale, scale );
         pieceLbls.add( pieceLbl );
         addToLayer( pieceLbl, PIECE_LAYER );
     }
