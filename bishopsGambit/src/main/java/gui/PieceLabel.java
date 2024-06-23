@@ -5,6 +5,7 @@ import java.awt.Image;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import main.java.io.Graphics;
 import main.java.pieces.Piece;
 
 public class PieceLabel extends JLabel
