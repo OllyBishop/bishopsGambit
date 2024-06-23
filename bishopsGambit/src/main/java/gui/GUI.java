@@ -17,13 +17,10 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 import main.java.board.Board;
@@ -36,10 +33,18 @@ import main.java.util.ComponentUtils;
 
 public class GUI extends JFrame
 {
-    private static final int SQUARE_LAYER = 1;
-    private static final int FILE_RANK_LAYER = 2;
-    private static final int PIECE_LAYER = 3;
-    private static final int PLACEHOLDER_LAYER = 4;
+    private enum Layer
+    {
+        LEGAL_MOVE_LABELS,
+        PIECE_LABELS,
+        COORDINATE_LABELS,
+        SQUARE_BUTTONS;
+
+        private int getZOrder()
+        {
+            return Layer.values().length - ordinal();
+        }
+    }
 
     // Fields --------------------------------------------------------- //
     private final JLayeredPane contentPane = new JLayeredPane();
@@ -49,19 +54,16 @@ public class GUI extends JFrame
     private final List<PieceLabel> pieceLbls = new ArrayList<>();
     private final List<SquareButton> squareBtns = new ArrayList<>();
 
-    private final List<JLabel> fileLbls = new ArrayList<>();
-    private final List<JLabel> rankLbls = new ArrayList<>();
-
     private int xMid;
     private int yMid;
     private int scale;
 
+    private Border paddedBorder;
     private Border checkBorder;
-    private boolean isInCheck;
-    private SquareButton kingSquareBtn;
 
     private SquareButton from;
     private SquareButton to;
+    private SquareButton check;
 
     private Game game;
     // ---------------------------------------------------------------- //
@@ -84,14 +86,14 @@ public class GUI extends JFrame
         return getBoard().get( squareBtn.getIndex() );
     }
 
-    private SquareButton getSquareButton( Square square )
+    private SquareButton getSquareBtn( Square square )
     {
         return squareBtns.get( square.getIndex() );
     }
 
-    private SquareButton getSquareButton( Board board, Piece piece )
+    private SquareButton getSquareBtn( Board board, Piece piece )
     {
-        return getSquareButton( piece.getSquare( board ) );
+        return getSquareBtn( piece.getSquare( board ) );
     }
 
     private void updateBoardMap()
@@ -106,7 +108,7 @@ public class GUI extends JFrame
         {
             Piece piece = pieceLbl.getPiece();
             if ( board.containsPiece( piece ) )
-                boardMap.put( pieceLbl, getSquareButton( board, piece ) );
+                boardMap.put( pieceLbl, getSquareBtn( board, piece ) );
             else
                 boardMap.put( pieceLbl, null );
         }
@@ -146,9 +148,9 @@ public class GUI extends JFrame
     }
     // ---------------------------------------------------------------- //
 
-    private void addToLayer( JComponent component, int layer )
+    private void addToLayer( JComponent component, Layer layer )
     {
-        contentPane.add( component, layer, 0 );
+        contentPane.add( component, layer.getZOrder(), 0 );
     }
 
     private void createPieceLabel( Piece piece )
@@ -156,7 +158,7 @@ public class GUI extends JFrame
         PieceLabel pieceLbl = new PieceLabel( piece );
         pieceLbl.setSize( scale, scale );
         pieceLbls.add( pieceLbl );
-        addToLayer( pieceLbl, PIECE_LAYER );
+        addToLayer( pieceLbl, Layer.PIECE_LABELS );
     }
 
     /**
@@ -176,30 +178,12 @@ public class GUI extends JFrame
         // Create square buttons
         for ( Square square : getBoard() )
         {
-            SquareButton squareBtn = new SquareButton( square.getFile(), square.getRank() );
+            SquareButton squareBtn = new SquareButton( square );
             squareBtns.add( squareBtn );
-            addToLayer( squareBtn, SQUARE_LAYER );
-            addToLayer( squareBtn.getPlaceholder(), PLACEHOLDER_LAYER );
-        }
-
-        // Create file labels
-        for ( char file = 'a'; file <= 'h'; file++ )
-        {
-            JLabel fileLbl = new JLabel( Character.toString( file ) );
-            fileLbl.setHorizontalAlignment( SwingConstants.CENTER );
-            fileLbl.setVerticalAlignment( SwingConstants.TOP );
-            fileLbls.add( fileLbl );
-            addToLayer( fileLbl, FILE_RANK_LAYER );
-        }
-
-        // Create rank labels
-        for ( int rank = 1; rank <= 8; rank++ )
-        {
-            JLabel rankLbl = new JLabel( Integer.toString( rank ) );
-            rankLbl.setHorizontalAlignment( SwingConstants.RIGHT );
-            rankLbl.setVerticalAlignment( SwingConstants.CENTER );
-            rankLbls.add( rankLbl );
-            addToLayer( rankLbl, FILE_RANK_LAYER );
+            addToLayer( squareBtn, Layer.SQUARE_BUTTONS );
+            addToLayer( squareBtn.getFileLbl(), Layer.COORDINATE_LABELS );
+            addToLayer( squareBtn.getRankLbl(), Layer.COORDINATE_LABELS );
+            addToLayer( squareBtn.getLegalMoveLbl(), Layer.LEGAL_MOVE_LABELS );
         }
 
         // Create piece labels
@@ -219,7 +203,7 @@ public class GUI extends JFrame
                 {
                     if ( from != null && to == null )
                         for ( SquareButton sqBtn : squareBtns )
-                            sqBtn.getPlaceholder().setVisible( false );
+                            sqBtn.getLegalMoveLbl().setVisible( false );
 
                     // The square of the button that was pressed
                     Square square = getSquare( squareBtn );
@@ -263,11 +247,12 @@ public class GUI extends JFrame
                     {
                         updateBoardMap();
                         positionPieces();
+                        updateCheckBorder();
                     }
 
                     if ( from != null && to == null )
                         for ( Square sq : getMoves( from ) )
-                            getSquareButton( sq ).getPlaceholder().setVisible( true );
+                            getSquareBtn( sq ).getLegalMoveLbl().setVisible( true );
                 }
             } );
         }
@@ -330,35 +315,39 @@ public class GUI extends JFrame
 
             private void postMove()
             {
-                if ( isInCheck )
-                    kingSquareBtn.clearBorder();
-
+                Board board = getBoard();
                 Player currentPlayer = getCurrentPlayer();
-                isInCheck = currentPlayer.isInCheck( getBoard() );
-                kingSquareBtn = getSquareButton( getBoard(), currentPlayer.getKing() );
 
-                if ( currentPlayer.hasNoLegalMoves( getBoard() ) )
+                if ( currentPlayer.isInCheck( board ) )
+                    check = getSquareBtn( board, currentPlayer.getKing() );
+                else
+                    check = null;
+
+                if ( currentPlayer.hasNoLegalMoves( board ) )
                 {
                     String message;
                     Icon icon;
 
-                    if ( isInCheck )
+                    if ( check != null )
                     {
                         Player currentOpponent = getCurrentOpponent();
-                        message = currentOpponent.getColour() + " wins by checkmate!";
-                        icon = new ImageIcon( Graphics.getImage( currentOpponent.getKing() ) );
+
+                        message = currentOpponent + " won by checkmate.";
+                        icon = getSquareBtn( board, currentOpponent.getKing() ).getIcon();
                     }
                     else
                     {
-                        message = "It's a stalemate!";
+                        message = "Game drawn by stalemate.";
                         icon = null;
                     }
 
                     JOptionPane.showMessageDialog( GUI.this,
                                                    message,
-                                                   "Game over",
+                                                   "Game Over",
                                                    JOptionPane.PLAIN_MESSAGE,
                                                    icon );
+
+                    System.out.println( message );
                 }
             }
         } );
@@ -383,31 +372,27 @@ public class GUI extends JFrame
 
                 xMid = width / 2;
                 yMid = height / 2;
-                scale = Math.max( 10, Math.min( width, height ) / 10 );
+                scale = Math.max( 10, Math.min( width, height ) / 8 );
 
+                paddedBorder = BorderFactory.createEmptyBorder( scale / 40, scale / 20, scale / 40, scale / 20 );
                 checkBorder = BorderFactory.createLineBorder( Color.red, Math.max( 1, scale / 20 ) );
 
                 for ( SquareButton squareBtn : squareBtns )
                 {
                     squareBtn.setSize( scale, scale );
-                    ComponentUtils.resizeFont( squareBtn.getPlaceholder(), scale );
+
+                    squareBtn.getFileLbl().setBorder( paddedBorder );
+                    squareBtn.getRankLbl().setBorder( paddedBorder );
+
+                    ComponentUtils.resizeFont( squareBtn, scale );
+                    ComponentUtils.resizeFont( squareBtn.getFileLbl(), scale / 5 );
+                    ComponentUtils.resizeFont( squareBtn.getRankLbl(), scale / 5 );
+                    ComponentUtils.resizeFont( squareBtn.getLegalMoveLbl(), scale );
                 }
 
                 for ( PieceLabel pieceLbl : pieceLbls )
                 {
                     pieceLbl.setSize( scale, scale );
-                }
-
-                for ( JLabel fileLbl : fileLbls )
-                {
-                    fileLbl.setSize( scale, scale );
-                    ComponentUtils.resizeFont( fileLbl, scale / 4 );
-                }
-
-                for ( JLabel rankLbl : rankLbls )
-                {
-                    rankLbl.setSize( scale, scale );
-                    ComponentUtils.resizeFont( rankLbl, scale / 4 );
                 }
             }
         } );
@@ -431,19 +416,20 @@ public class GUI extends JFrame
     private void refreshBoard( Player perspective )
     {
         positionSquares( perspective );
-        positionFilesAndRanks( perspective );
         positionPieces();
-
         paintPieces();
-        paintCheckBorder();
+        updateCheckBorder();
     }
 
     private void positionSquares( Player perspective )
     {
         for ( SquareButton squareBtn : squareBtns )
         {
-            int fileIndex = Square.getFileIndex( squareBtn.getFile() );
-            int rankIndex = Square.getRankIndex( squareBtn.getRank() );
+            char file = squareBtn.getFile();
+            int rank = squareBtn.getRank();
+
+            int fileIndex = Square.getFileIndex( file );
+            int rankIndex = Square.getRankIndex( rank );
 
             int x = xMid;
             int y = yMid;
@@ -453,43 +439,19 @@ public class GUI extends JFrame
                 case WHITE:
                     x -= (4 - fileIndex) * scale;
                     y += (3 - rankIndex) * scale;
+                    squareBtn.getRankLbl().setVisible( file == 'a' );
+                    squareBtn.getFileLbl().setVisible( rank == 1 );
                     break;
+
                 case BLACK:
                     x += (3 - fileIndex) * scale;
                     y -= (4 - rankIndex) * scale;
+                    squareBtn.getRankLbl().setVisible( file == 'h' );
+                    squareBtn.getFileLbl().setVisible( rank == 8 );
                     break;
             }
 
             squareBtn.setLocation( x, y );
-        }
-    }
-
-    private void positionFilesAndRanks( Player perspective )
-    {
-        for ( int index = 0; index <= 7; index++ )
-        {
-            JLabel fileLbl = fileLbls.get( index );
-            JLabel rankLbl = rankLbls.get( index );
-
-            int xFile = xMid;
-            int yFile = yMid + 4 * scale;
-            int xRank = xMid - 5 * scale;
-            int yRank = yMid;
-
-            switch ( perspective.getColour() )
-            {
-                case WHITE:
-                    xFile -= (4 - index) * scale;
-                    yRank += (3 - index) * scale;
-                    break;
-                case BLACK:
-                    xFile += (3 - index) * scale;
-                    yRank -= (4 - index) * scale;
-                    break;
-            }
-
-            fileLbl.setLocation( xFile, yFile );
-            rankLbl.setLocation( xRank, yRank );
         }
     }
 
@@ -518,9 +480,12 @@ public class GUI extends JFrame
             pieceLbl.paintIcon();
     }
 
-    private void paintCheckBorder()
+    private void updateCheckBorder()
     {
-        if ( isInCheck )
-            kingSquareBtn.setBorder( checkBorder );
+        if ( check != null )
+            if ( to == null )
+                check.setBorder( checkBorder );
+            else
+                check.clearBorder();
     }
 }

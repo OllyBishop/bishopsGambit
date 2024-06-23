@@ -1,4 +1,4 @@
-package main.java.gui;
+package main.java.io;
 
 import java.awt.Image;
 import java.io.IOException;

@@ -192,12 +192,24 @@ public abstract class Piece
 
     public enum Typ
     {
-        KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN;
+        KING( "King" ),
+        QUEEN( "Queen" ),
+        ROOK( "Rook" ),
+        BISHOP( "Bishop" ),
+        KNIGHT( "Knight" ),
+        PAWN( "Pawn" );
+
+        private final String value;
+
+        Typ( String value )
+        {
+            this.value = value;
+        }
 
         @Override
         public String toString()
         {
-            return name().charAt( 0 ) + name().substring( 1 ).toLowerCase();
+            return this.value;
         }
     }
 }

@@ -34,10 +34,12 @@ public class Player
                 backRank = 1;
                 pawnRank = 2;
                 break;
+
             case BLACK:
                 backRank = 8;
                 pawnRank = 7;
                 break;
+
             default:
                 throw new IllegalArgumentException( "Colour must be either 'WHITE' or 'BLACK'." );
         }
@@ -173,12 +175,20 @@ public class Player
 
     public enum Colour
     {
-        WHITE, BLACK;
+        WHITE( "White" ),
+        BLACK( "Black" );
+
+        private final String value;
+
+        Colour( String value )
+        {
+            this.value = value;
+        }
 
         @Override
         public String toString()
         {
-            return name().charAt( 0 ) + name().substring( 1 ).toLowerCase();
+            return this.value;
         }
     }
 }
