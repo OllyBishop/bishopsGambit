@@ -6,11 +6,11 @@ import main.java.player.Player;
 public class Square
 {
     private final char file;
-    private final int rank;
+    private final char rank;
 
     private Piece piece;
 
-    public Square( char file, int rank )
+    public Square( char file, char rank )
     {
         this.file = file;
         this.rank = rank;
@@ -21,7 +21,7 @@ public class Square
         return this.file;
     }
 
-    public int getRank()
+    public char getRank()
     {
         return this.rank;
     }
@@ -67,26 +67,6 @@ public class Square
         Square clone = clone();
         clone.setPiece( piece );
         return clone;
-    }
-
-    public static int getFileIndex( char file )
-    {
-        return file - 'a';
-    }
-
-    public static int getRankIndex( int rank )
-    {
-        return rank - 1;
-    }
-
-    public static int getIndex( char file, int rank )
-    {
-        return getFileIndex( file ) * 8 + getRankIndex( rank );
-    }
-
-    public int getIndex()
-    {
-        return getIndex( getFile(), getRank() );
     }
 
     /**
@@ -144,7 +124,7 @@ public class Square
 
     public Square travel( Board board, int x, int y )
     {
-        return board.getSquare( (char) (getFile() + x), getRank() + y );
+        return board.getSquare( (char) (getFile() + x), (char) (getRank() + y) );
     }
 
     public int fileDiff( Square square )
@@ -155,5 +135,25 @@ public class Square
     public int rankDiff( Square square )
     {
         return getRank() - square.getRank();
+    }
+
+    public int getIndex()
+    {
+        return getIndex( getFile(), getRank() );
+    }
+
+    public static int getIndex( char file, char rank )
+    {
+        return 8 * getFileIndex( file ) + getRankIndex( rank );
+    }
+
+    public static int getFileIndex( char file )
+    {
+        return file - 'a';
+    }
+
+    public static int getRankIndex( char rank )
+    {
+        return rank - '1';
     }
 }

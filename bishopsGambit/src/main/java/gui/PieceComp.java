@@ -8,7 +8,7 @@ import javax.swing.JLabel;
 import main.java.io.Graphics;
 import main.java.pieces.Piece;
 
-public class PieceLabel extends JLabel
+public class PieceComp extends JLabel
 {
     private final Piece piece;
 
@@ -17,15 +17,18 @@ public class PieceLabel extends JLabel
         return this.piece;
     }
 
-    public PieceLabel( Piece piece )
+    public PieceComp( Piece piece )
     {
         this.piece = piece;
     }
 
-    /**
-     * Sets this label's icon to a scaled image of its corresponding piece.
-     */
-    public void paintIcon()
+    public void setScale( int scale )
+    {
+        setSize( scale, scale );
+        paintIcon();
+    }
+
+    private void paintIcon()
     {
         Image imageFull = Graphics.getImage( getPiece() );
         Image imageScaled = imageFull.getScaledInstance( getWidth(), getHeight(), Image.SCALE_SMOOTH );

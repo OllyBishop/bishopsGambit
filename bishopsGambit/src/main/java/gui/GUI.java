@@ -1,26 +1,26 @@
 package main.java.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.border.Border;
 
 import main.java.board.Board;
@@ -29,46 +29,37 @@ import main.java.game.Game;
 import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
 import main.java.player.Player;
-import main.java.util.ComponentUtils;
 
 public class GUI extends JFrame
 {
-    private enum Layer
-    {
-        LEGAL_MOVE_LABELS,
-        PIECE_LABELS,
-        COORDINATE_LABELS,
-        SQUARE_BUTTONS;
+    // ============================================================================================
+    // Instance Variables
+    // ============================================================================================
 
-        private int getZOrder()
-        {
-            return Layer.values().length - ordinal();
-        }
-    }
+    private final JPanel contentPane = new JPanel();
+    private final JPanel chessBoardPane = new JPanel();
+    private final JPanel capturedPieces = new JPanel();
 
-    // Fields --------------------------------------------------------- //
-    private final JLayeredPane contentPane = new JLayeredPane();
+    private final GridBagLayout whiteBoardLayout = new GridBagLayout();
+    private final GridBagLayout blackBoardLayout = new GridBagLayout();
 
-    private final Map<PieceLabel, SquareButton> boardMap = new HashMap<>();
+    private final List<SquareComp> squareComps = new ArrayList<>();
+    private final List<PieceComp> pieceComps = new ArrayList<>();
 
-    private final List<PieceLabel> pieceLbls = new ArrayList<>();
-    private final List<SquareButton> squareBtns = new ArrayList<>();
-
-    private int xMid;
-    private int yMid;
     private int scale;
 
-    private Border paddedBorder;
-    private Border checkBorder;
+    private Border lineBorder;
 
-    private SquareButton from;
-    private SquareButton to;
-    private SquareButton check;
+    private SquareComp from;
+    private SquareComp to;
+    private SquareComp check;
 
     private Game game;
-    // ---------------------------------------------------------------- //
 
-    // Getters and setters -------------------------------------------- //
+    // ============================================================================================
+    // Getters and Setters
+    // ============================================================================================
+
     private Game getGame()
     {
         return this.game;
@@ -78,44 +69,35 @@ public class GUI extends JFrame
     {
         this.game = game;
     }
-    // ---------------------------------------------------------------- //
 
-    // Map methods ---------------------------------------------------- //
-    private Square getSquare( SquareButton squareBtn )
+    // ============================================================================================
+    // Map Methods
+    // ============================================================================================
+
+    private Square getSquare( SquareComp squareComp )
     {
-        return getBoard().get( squareBtn.getIndex() );
+        return getBoard().get( squareComp.getIndex() );
     }
 
-    private SquareButton getSquareBtn( Square square )
+    private SquareComp getSquareComp( Square square )
     {
-        return squareBtns.get( square.getIndex() );
+        return squareComps.get( square.getIndex() );
     }
 
-    private SquareButton getSquareBtn( Board board, Piece piece )
+    private SquareComp getSquareComp( Board board, Piece piece )
     {
-        return getSquareBtn( piece.getSquare( board ) );
+        Square square = piece.getSquare( board );
+
+        if ( square != null )
+            return getSquareComp( square );
+
+        return null;
     }
 
-    private void updateBoardMap()
-    {
-        Board board;
-        if ( to == null )
-            board = getBoard();
-        else
-            board = getBoard().move( getSquare( from ), getSquare( to ) );
+    // ============================================================================================
+    // Derived Methods
+    // ============================================================================================
 
-        for ( PieceLabel pieceLbl : pieceLbls )
-        {
-            Piece piece = pieceLbl.getPiece();
-            if ( board.containsPiece( piece ) )
-                boardMap.put( pieceLbl, getSquareBtn( board, piece ) );
-            else
-                boardMap.put( pieceLbl, null );
-        }
-    }
-    // ---------------------------------------------------------------- //
-
-    // Derived getters ------------------------------------------------ //
     private Board getBoard()
     {
         return getGame().getBoard();
@@ -142,216 +124,126 @@ public class GUI extends JFrame
         return getGame().getCurrentOpponent();
     }
 
-    private List<Square> getMoves( SquareButton squareBtn )
+    private List<Square> getMoves( SquareComp squareComp )
     {
-        return getSquare( squareBtn ).getPiece().getMoves( getBoard() );
-    }
-    // ---------------------------------------------------------------- //
-
-    private void addToLayer( JComponent component, Layer layer )
-    {
-        contentPane.add( component, layer.getZOrder(), 0 );
+        return getSquare( squareComp ).getPiece().getMoves( getBoard() );
     }
 
-    private void createPieceLabel( Piece piece )
-    {
-        PieceLabel pieceLbl = new PieceLabel( piece );
-        pieceLbl.setSize( scale, scale );
-        pieceLbls.add( pieceLbl );
-        addToLayer( pieceLbl, Layer.PIECE_LABELS );
-    }
+    // ============================================================================================
+    // Constructor and Associated Methods
+    // ============================================================================================
 
-    /**
-     * Create the frame.
-     */
     public GUI( Game game )
     {
         setGame( game );
 
         setDefaultCloseOperation( EXIT_ON_CLOSE );
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds( 0, 0, screenSize.width / 2, screenSize.height );
+        setSize( screenSize.width / 2, screenSize.height );
 
-        contentPane.setLayout( null );
-        setContentPane( contentPane );
+        initialiseComponents();
+        addComponentsToFrame();
+        createLayouts();
 
-        // Create square buttons
+        addSquareClickedListeners();
+        addKeyPressedListener();
+        addFrameResizedListener();
+
+        orientBoard();
+        positionPieces();
+    }
+
+    private void initialiseComponents()
+    {
         for ( Square square : getBoard() )
-        {
-            SquareButton squareBtn = new SquareButton( square );
-            squareBtns.add( squareBtn );
-            addToLayer( squareBtn, Layer.SQUARE_BUTTONS );
-            addToLayer( squareBtn.getFileLbl(), Layer.COORDINATE_LABELS );
-            addToLayer( squareBtn.getRankLbl(), Layer.COORDINATE_LABELS );
-            addToLayer( squareBtn.getLegalMoveLbl(), Layer.LEGAL_MOVE_LABELS );
-        }
+            squareComps.add( new SquareComp( square ) );
 
-        // Create piece labels
         for ( Piece piece : getBoard().getPieces() )
+            createPieceComp( piece );
+    }
+
+    private PieceComp createPieceComp( Piece piece )
+    {
+        PieceComp pieceComp = new PieceComp( piece );
+        pieceComps.add( pieceComp );
+        return pieceComp;
+    }
+
+    private void addComponentsToFrame()
+    {
+        add( contentPane );
+        contentPane.add( chessBoardPane );
+
+        for ( SquareComp squareComp : squareComps )
+            chessBoardPane.add( squareComp );
+    }
+
+    private void createLayouts()
+    {
+        BorderLayout borderLayout = new BorderLayout();
+        borderLayout.addLayoutComponent( chessBoardPane, BorderLayout.CENTER );
+        contentPane.setLayout( borderLayout );
+
+        for ( SquareComp squareComp : squareComps )
         {
-            createPieceLabel( piece );
+            GridBagConstraints whiteBoardConstraints = new GridBagConstraints();
+            GridBagConstraints blackBoardConstraints = new GridBagConstraints();
+
+            char file = squareComp.getFile();
+            char rank = squareComp.getRank();
+
+            whiteBoardConstraints.gridx = file - 'a';
+            whiteBoardConstraints.gridy = '8' - rank;
+
+            blackBoardConstraints.gridx = 'h' - file;
+            blackBoardConstraints.gridy = rank - '1';
+
+            whiteBoardLayout.setConstraints( squareComp, whiteBoardConstraints );
+            blackBoardLayout.setConstraints( squareComp, blackBoardConstraints );
         }
+    }
 
-        updateBoardMap();
-
-        for ( SquareButton squareBtn : squareBtns )
+    private void addSquareClickedListeners()
+    {
+        for ( SquareComp squareComp : squareComps )
         {
-            squareBtn.addActionListener( new ActionListener()
+            squareComp.addMouseListener( new MouseAdapter()
             {
                 @Override
-                public void actionPerformed( ActionEvent e )
+                public void mouseReleased( MouseEvent e )
                 {
-                    if ( from != null && to == null )
-                        for ( SquareButton sqBtn : squareBtns )
-                            sqBtn.getLegalMoveLbl().setVisible( false );
-
-                    // The square of the button that was pressed
-                    Square square = getSquare( squareBtn );
-
-                    boolean deselectFrom = false;
-                    boolean deselectTo = true;
-                    SquareButton selectFrom = null;
-                    SquareButton selectTo = null;
-
-                    if ( square.isOccupiedBy( getCurrentPlayer() ) )
-                    {
-                        deselectFrom = true;
-                        if ( from != squareBtn )
-                            selectFrom = squareBtn;
-                    }
-
-                    else if ( from != null )
-                    {
-                        if ( to == null )
-                            if ( getMoves( from ).contains( square ) )
-                                selectTo = squareBtn;
-                            else
-                                deselectFrom = true;
-                        else if ( to != squareBtn )
-                            deselectFrom = true;
-                    }
-
-                    SquareButton toBefore = to;
-
-                    if ( deselectFrom && from != null )
-                        from = from.deselect();
-                    if ( deselectTo && to != null )
-                        to = to.deselect();
-                    if ( selectFrom != null )
-                        from = selectFrom.select();
-                    if ( selectTo != null )
-                        to = selectTo.select();
-
-                    // If assignment of 'to' changed, update map and reposition pieces
-                    if ( to != toBefore )
-                    {
-                        updateBoardMap();
-                        positionPieces();
-                        updateCheckBorder();
-                    }
-
-                    if ( from != null && to == null )
-                        for ( Square sq : getMoves( from ) )
-                            getSquareBtn( sq ).getLegalMoveLbl().setVisible( true );
+                    if ( squareComp.contains( e.getPoint() ) )
+                        doClickAction( squareComp );
                 }
             } );
         }
+    }
 
+    private void addKeyPressedListener()
+    {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher( new KeyEventDispatcher()
         {
             @Override
             public boolean dispatchKeyEvent( KeyEvent e )
             {
-                boolean enterKeyReleased = e.getKeyCode() == KeyEvent.VK_SPACE && e.getID() == KeyEvent.KEY_RELEASED;
-                boolean moveSelected = from != null && to != null;
-
-                if ( enterKeyReleased && moveSelected )
+                if ( e.getKeyCode() == KeyEvent.VK_SPACE &&
+                     e.getID() == KeyEvent.KEY_RELEASED &&
+                     from != null &&
+                     to != null )
                 {
                     makeMove();
                     postMove();
-                    refreshBoard();
+                    orientBoard();
+                    updateCheckBorder();
                 }
 
-                return enterKeyReleased;
-            }
-
-            private void makeMove()
-            {
-                Square fromSquare = getSquare( from );
-                Square toSquare = getSquare( to );
-
-                Typ promotionType = null;
-
-                if ( fromSquare.getPiece().canPromote( getBoard(), toSquare ) )
-                {
-                    Typ[] options = new Typ[] { Typ.KNIGHT, Typ.BISHOP, Typ.ROOK, Typ.QUEEN };
-
-                    int i = JOptionPane.showOptionDialog( rootPane,
-                                                          "Select a piece to promote to.",
-                                                          "Promotion",
-                                                          JOptionPane.DEFAULT_OPTION,
-                                                          JOptionPane.PLAIN_MESSAGE,
-                                                          to.getIcon(),
-                                                          options,
-                                                          null );
-
-                    if ( i == JOptionPane.CLOSED_OPTION )
-                        promotionType = Typ.QUEEN;
-                    else
-                        promotionType = options[ i ];
-                }
-
-                Piece promotedPiece = game.move( fromSquare, toSquare, promotionType );
-
-                if ( promotedPiece != null )
-                    createPieceLabel( promotedPiece );
-
-                from = from.deselect();
-                to = to.deselect();
-
-                // TODO: Can remove this once promotion previews are implemented
-                updateBoardMap();
-            }
-
-            private void postMove()
-            {
-                Board board = getBoard();
-                Player currentPlayer = getCurrentPlayer();
-
-                if ( currentPlayer.isInCheck( board ) )
-                    check = getSquareBtn( board, currentPlayer.getKing() );
-                else
-                    check = null;
-
-                if ( currentPlayer.hasNoLegalMoves( board ) )
-                {
-                    String message;
-                    Icon icon;
-
-                    if ( check != null )
-                    {
-                        Player currentOpponent = getCurrentOpponent();
-
-                        message = currentOpponent + " won by checkmate.";
-                        icon = getSquareBtn( board, currentOpponent.getKing() ).getIcon();
-                    }
-                    else
-                    {
-                        message = "Game drawn by stalemate.";
-                        icon = null;
-                    }
-
-                    JOptionPane.showMessageDialog( GUI.this,
-                                                   message,
-                                                   "Game Over",
-                                                   JOptionPane.PLAIN_MESSAGE,
-                                                   icon );
-
-                    System.out.println( message );
-                }
+                return true;
             }
         } );
+    }
 
+    private void addFrameResizedListener()
+    {
         addComponentListener( new ComponentAdapter()
         {
             /**
@@ -362,130 +254,226 @@ public class GUI extends JFrame
             public void componentResized( ComponentEvent e )
             {
                 updateScale();
-                refreshBoard();
-            }
-
-            private void updateScale()
-            {
-                int width = contentPane.getWidth();
-                int height = contentPane.getHeight();
-
-                xMid = width / 2;
-                yMid = height / 2;
-                scale = Math.max( 10, Math.min( width, height ) / 8 );
-
-                paddedBorder = BorderFactory.createEmptyBorder( scale / 40, scale / 20, scale / 40, scale / 20 );
-                checkBorder = BorderFactory.createLineBorder( Color.red, Math.max( 1, scale / 20 ) );
-
-                for ( SquareButton squareBtn : squareBtns )
-                {
-                    squareBtn.setSize( scale, scale );
-
-                    squareBtn.getFileLbl().setBorder( paddedBorder );
-                    squareBtn.getRankLbl().setBorder( paddedBorder );
-
-                    ComponentUtils.resizeFont( squareBtn, scale );
-                    ComponentUtils.resizeFont( squareBtn.getFileLbl(), scale / 5 );
-                    ComponentUtils.resizeFont( squareBtn.getRankLbl(), scale / 5 );
-                    ComponentUtils.resizeFont( squareBtn.getLegalMoveLbl(), scale );
-                }
-
-                for ( PieceLabel pieceLbl : pieceLbls )
-                {
-                    pieceLbl.setSize( scale, scale );
-                }
+                updateCheckBorder();
             }
         } );
     }
 
-    /**
-     * Repositions the chess board (squares, files, ranks, and pieces) relative to the dimensions of
-     * the application window. The board is oriented to the current player's perspective.
-     */
-    private void refreshBoard()
-    {
-        refreshBoard( getCurrentPlayer() );
-    }
+    // ============================================================================================
+    // Methods
+    // ============================================================================================
 
-    /**
-     * Repositions the chess board (squares, files, ranks, and pieces) relative to the dimensions of
-     * the application window. The board is oriented to the given player's perspective.
-     * 
-     * @param perspective the player to whose perspective the board is oriented
-     */
-    private void refreshBoard( Player perspective )
+    private void doClickAction( SquareComp squareComp )
     {
-        positionSquares( perspective );
-        positionPieces();
-        paintPieces();
-        updateCheckBorder();
-    }
+        if ( from != null && to == null )
+            for ( SquareComp sqComp : squareComps )
+                sqComp.showCircle( false );
 
-    private void positionSquares( Player perspective )
-    {
-        for ( SquareButton squareBtn : squareBtns )
+        Square square = getSquare( squareComp );
+
+        boolean deselectFrom = false;
+        boolean deselectTo = true;
+        boolean selectFrom = false;
+        boolean selectTo = false;
+
+        if ( square.isOccupiedBy( getCurrentPlayer() ) )
         {
-            char file = squareBtn.getFile();
-            int rank = squareBtn.getRank();
+            deselectFrom = true;
 
-            int fileIndex = Square.getFileIndex( file );
-            int rankIndex = Square.getRankIndex( rank );
+            if ( from != squareComp )
+                selectFrom = true;
+        }
+        else if ( to != null )
+        {
+            if ( to != squareComp )
+                deselectFrom = true;
+        }
+        else if ( from != null )
+        {
+            if ( getMoves( from ).contains( square ) )
+                selectTo = true;
+            else
+                deselectFrom = true;
+        }
 
-            int x = xMid;
-            int y = yMid;
+        SquareComp toBefore = to;
 
-            switch ( perspective.getColour() )
+        if ( deselectFrom && from != null )
+            from = from.deselect();
+
+        if ( deselectTo && to != null )
+            to = to.deselect();
+
+        if ( selectFrom )
+            from = squareComp.select();
+
+        if ( selectTo )
+            to = squareComp.select();
+
+        // If 'to' was selected (or unselected), preview the selected move (or undo the preview)
+        if ( to != toBefore )
+        {
+            positionPieces();
+            updateCheckBorder();
+        }
+
+        if ( from != null && to == null )
+            for ( Square sq : getMoves( from ) )
+                getSquareComp( sq ).showCircle( true );
+    }
+
+    private void orientBoard()
+    {
+        switch ( getCurrentPlayer().getColour() )
+        {
+            case WHITE:
+                chessBoardPane.setLayout( whiteBoardLayout );
+                for ( SquareComp squareComp : squareComps )
+                {
+                    squareComp.showRank( 'a' );
+                    squareComp.showFile( '1' );
+                }
+                break;
+
+            case BLACK:
+                chessBoardPane.setLayout( blackBoardLayout );
+                for ( SquareComp squareComp : squareComps )
+                {
+                    squareComp.showRank( 'h' );
+                    squareComp.showFile( '8' );
+                }
+                break;
+        }
+
+    }
+
+    private void makeMove()
+    {
+        Square fromSquare = getSquare( from );
+        Square toSquare = getSquare( to );
+
+        Typ promType = null;
+
+        if ( fromSquare.getPiece().canPromote( getBoard(), toSquare ) )
+        {
+            Typ[] options = new Typ[] { Typ.KNIGHT, Typ.BISHOP, Typ.ROOK, Typ.QUEEN };
+
+            int i = JOptionPane.showOptionDialog( rootPane,
+                                                  "Select a piece to promote to.",
+                                                  "Promotion",
+                                                  JOptionPane.DEFAULT_OPTION,
+                                                  JOptionPane.PLAIN_MESSAGE,
+                                                  to.getIcon(),
+                                                  options,
+                                                  null );
+
+            if ( i == JOptionPane.CLOSED_OPTION )
+                promType = Typ.QUEEN;
+            else
+                promType = options[ i ];
+        }
+
+        Piece promPiece = getGame().move( fromSquare, toSquare, promType );
+
+        if ( promPiece != null )
+        {
+            PieceComp promPieceComp = createPieceComp( promPiece );
+            promPieceComp.setScale( scale );
+        }
+
+        from = from.deselect();
+        to = to.deselect();
+
+        // TODO: Can remove this once promotion previews are implemented
+        positionPieces();
+    }
+
+    private void postMove()
+    {
+        Board board = getBoard();
+        Player currentPlayer = getCurrentPlayer();
+
+        boolean currentPlayerIsInCheck = currentPlayer.isInCheck( board );
+
+        if ( currentPlayerIsInCheck )
+            check = getSquareComp( board, currentPlayer.getKing() );
+        else
+            check = null;
+
+        if ( currentPlayer.hasNoLegalMoves( board ) )
+        {
+            String message;
+            Icon icon;
+
+            if ( currentPlayerIsInCheck )
             {
-                case WHITE:
-                    x -= (4 - fileIndex) * scale;
-                    y += (3 - rankIndex) * scale;
-                    squareBtn.getRankLbl().setVisible( file == 'a' );
-                    squareBtn.getFileLbl().setVisible( rank == 1 );
-                    break;
+                Player currentOpponent = getCurrentOpponent();
 
-                case BLACK:
-                    x += (3 - fileIndex) * scale;
-                    y -= (4 - rankIndex) * scale;
-                    squareBtn.getRankLbl().setVisible( file == 'h' );
-                    squareBtn.getFileLbl().setVisible( rank == 8 );
-                    break;
+                message = currentOpponent + " wins by checkmate.";
+                icon = getSquareComp( board, currentOpponent.getKing() ).getIcon();
+            }
+            else
+            {
+                message = "Game drawn by stalemate.";
+                icon = null;
             }
 
-            squareBtn.setLocation( x, y );
+            JOptionPane.showMessageDialog( this,
+                                           message,
+                                           "Game Over",
+                                           JOptionPane.PLAIN_MESSAGE,
+                                           icon );
+
+            System.out.println( message );
         }
+    }
+
+    private void updateScale()
+    {
+        int width = contentPane.getWidth();
+        int height = contentPane.getHeight();
+
+        scale = Math.max( 10, Math.min( width, height ) / 8 );
+
+        lineBorder = BorderFactory.createLineBorder( Color.red, Math.max( 1, scale / 20 ) );
+
+        for ( SquareComp squareComp : squareComps )
+            squareComp.setScale( scale );
+
+        for ( PieceComp pieceComp : pieceComps )
+            pieceComp.setScale( scale );
     }
 
     private void positionPieces()
     {
-        for ( var entry : boardMap.entrySet() )
+        Board board;
+
+        if ( to == null )
+            board = getBoard();
+        else
+            board = getBoard().move( getSquare( from ), getSquare( to ) );
+
+        for ( PieceComp pieceComp : pieceComps )
         {
-            PieceLabel pieceLbl = entry.getKey();
-            SquareButton squareBtn = entry.getValue();
+            SquareComp squareComp = getSquareComp( board, pieceComp.getPiece() );
 
-            if ( squareBtn == null )
-            {
-                pieceLbl.setVisible( false );
-            }
+            if ( squareComp == null )
+                capturedPieces.add( pieceComp );
             else
-            {
-                pieceLbl.setVisible( true );
-                pieceLbl.setLocation( squareBtn.getLocation() );
-            }
+                squareComp.add( pieceComp );
         }
-    }
 
-    private void paintPieces()
-    {
-        for ( PieceLabel pieceLbl : pieceLbls )
-            pieceLbl.paintIcon();
+        chessBoardPane.repaint();
     }
 
     private void updateCheckBorder()
     {
         if ( check != null )
+        {
             if ( to == null )
-                check.setBorder( checkBorder );
+                check.setBorder( lineBorder );
             else
-                check.clearBorder();
+                check.setBorder( BorderFactory.createEmptyBorder() );
+        }
     }
 }
