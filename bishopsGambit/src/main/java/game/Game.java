@@ -55,9 +55,14 @@ public class Game
     {
         Player currentPlayer = getCurrentPlayer();
         int n = currentPlayer.numberOfLegalMoves( board );
-        System.out.printf( "%s has %d legal move%s.", currentPlayer, n, n == 1 ? "" : "s" );
+
+        if ( n == 1 )
+            System.out.printf( "%s has 1 legal move.", currentPlayer );
+        else
+            System.out.printf( "%s has %d legal moves.", currentPlayer, n );
 
         int diff = board.getMaterialDiff();
+
         if ( diff != 0 )
             System.out.printf( " %s: +%d", diff > 0 ? getWhite() : getBlack(), Math.abs( diff ) );
 
@@ -100,15 +105,15 @@ public class Game
         return move( fromStr, toStr, null );
     }
 
-    public Piece move( String fromStr, String toStr, Typ promotionType )
+    public Piece move( String fromStr, String toStr, Typ promType )
     {
         Board board = getBoard();
         Square from = board.getSquare( fromStr );
         Square to = board.getSquare( toStr );
-        return move( from, to, promotionType );
+        return move( from, to, promType );
     }
 
-    public Piece move( Square from, Square to, Typ promotionType )
+    public Piece move( Square from, Square to, Typ promType )
     {
         if ( !from.isOccupied() )
             throw new UnoccupiedSquareException( from );
@@ -127,7 +132,7 @@ public class Game
         Piece piece = from.getPiece();
         Board newBoard = board.move( from, to );
 
-        Piece promotedPiece = null;
+        Piece promPiece = null;
 
         if ( piece instanceof Pawn )
         {
@@ -138,34 +143,34 @@ public class Game
             }
 
             // Pawn promotion
-            else if ( promotionType != null )
+            else if ( promType != null )
             {
                 char toFile = to.getFile();
-                int toRank = to.getRank();
+                char toRank = to.getRank();
 
-                switch ( promotionType )
+                switch ( promType )
                 {
                     case KNIGHT:
-                        promotedPiece = new Knight( getCurrentPlayer(), toFile, toRank );
+                        promPiece = new Knight( getCurrentPlayer(), toFile, toRank );
                         break;
 
                     case BISHOP:
-                        promotedPiece = new Bishop( getCurrentPlayer(), toFile, toRank );
+                        promPiece = new Bishop( getCurrentPlayer(), toFile, toRank );
                         break;
 
                     case ROOK:
-                        promotedPiece = new Rook( getCurrentPlayer(), toFile, toRank );
+                        promPiece = new Rook( getCurrentPlayer(), toFile, toRank );
                         break;
 
                     case QUEEN:
-                        promotedPiece = new Queen( getCurrentPlayer(), toFile, toRank );
+                        promPiece = new Queen( getCurrentPlayer(), toFile, toRank );
                         break;
 
                     default:
-                        throw new RuntimeException( "Cannot promote to a piece of type '" + promotionType + "'." );
+                        throw new InvalidPromotionException( promType );
                 }
 
-                newBoard.getSquare( toFile, toRank ).setPiece( promotedPiece );
+                newBoard.getSquare( toFile, toRank ).setPiece( promPiece );
             }
         }
 
@@ -185,6 +190,6 @@ public class Game
 
         addBoard( newBoard );
 
-        return promotedPiece;
+        return promPiece;
     }
 }

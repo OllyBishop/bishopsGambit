@@ -9,7 +9,7 @@ import main.java.util.ListUtils;
 
 public class Queen extends Piece
 {
-    public Queen( Player player, char startFile, int startRank )
+    public Queen( Player player, char startFile, char startRank )
     {
         super( player, startFile, startRank );
     }

@@ -9,7 +9,7 @@ import main.java.player.Player;
 
 public class Rook extends Piece
 {
-    public Rook( Player player, char startFile, int startRank )
+    public Rook( Player player, char startFile, char startRank )
     {
         super( player, startFile, startRank );
     }

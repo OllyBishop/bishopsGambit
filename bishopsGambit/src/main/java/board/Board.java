@@ -3,6 +3,8 @@ package main.java.board;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.java.pieces.King;
+import main.java.pieces.Pawn;
 import main.java.pieces.Piece;
 import main.java.player.Player;
 
@@ -14,7 +16,7 @@ public class Board extends ArrayList<Square>
     public Board()
     {
         for ( char file = 'a'; file <= 'h'; file++ )
-            for ( int rank = 1; rank <= 8; rank++ )
+            for ( char rank = '1'; rank <= '8'; rank++ )
                 add( new Square( file, rank ) );
     }
 
@@ -63,7 +65,7 @@ public class Board extends ArrayList<Square>
     public Square getSquare( String string )
     {
         char file = string.charAt( 0 );
-        int rank = string.charAt( 1 ) - '0';
+        char rank = string.charAt( 1 );
         return getSquare( file, rank );
     }
 
@@ -74,16 +76,12 @@ public class Board extends ArrayList<Square>
      * @param rank the rank of the square to be found
      * @return the square with the given file and rank (if it exists); {@code null} otherwise
      */
-    public Square getSquare( char file, int rank )
+    public Square getSquare( char file, char rank )
     {
-        Square square = null;
-        if ( 'a' <= file && file <= 'h' && 1 <= rank && rank <= 8 )
-        {
-            int fileIndex = Square.getFileIndex( file );
-            int rankIndex = Square.getRankIndex( rank );
-            square = get( fileIndex * 8 + rankIndex );
-        }
-        return square;
+        if ( 'a' <= file && file <= 'h' && '1' <= rank && rank <= '8' )
+            return get( Square.getIndex( file, rank ) );
+
+        return null;
     }
 
     public Board move( Square from, Square to )
@@ -91,28 +89,26 @@ public class Board extends ArrayList<Square>
         Board newBoard = movePiece( from, to );
 
         Piece piece = from.getPiece();
+
         int x = Integer.signum( to.fileDiff( from ) );
-        Square adjacent = from.travel( this, x, 0 );
+        Square s1 = from.travel( this, x, 0 );
 
-        switch ( piece.getType() )
+        if ( piece instanceof Pawn )
         {
-            case PAWN:
-                // Capture opponent's pawn en passant
-                if ( piece.movedOneSquareDiagonallyForward( from, to ) && !to.isOccupied() )
-                    newBoard.replace( adjacent, adjacent.clone() );
-                break;
-
-            case KING:
-                // Castling
-                if ( piece.movedTwoSquaresLaterally( from, to ) )
-                {
-                    Square rookFrom = piece.getPlayer().getRook( x ).getStartSquare( this );
-                    newBoard = newBoard.movePiece( rookFrom, adjacent );
-                }
-                break;
-
-            default:
-                break;
+            // En passant
+            if ( piece.movedOneSquareDiagonallyForward( from, to ) && !to.isOccupied() )
+            {
+                newBoard.replace( s1, s1.clone() );
+            }
+        }
+        else if ( piece instanceof King )
+        {
+            // Castling
+            if ( piece.movedTwoSquaresLaterally( from, to ) )
+            {
+                Square r = piece.getPlayer().getRook( x ).getStartSquare( this );
+                newBoard = newBoard.movePiece( r, s1 );
+            }
         }
 
         return newBoard;
@@ -157,7 +153,7 @@ public class Board extends ArrayList<Square>
     public int getMaterialDiff()
     {
         return getPieces().stream()
-                          .mapToInt( pc -> pc.getDirection() * pc.getValue() )
+                          .mapToInt( pc -> pc.getRankSign() * pc.getValue() )
                           .sum();
     }
 
@@ -166,7 +162,7 @@ public class Board extends ArrayList<Square>
         Printer.print( this );
     }
 
-    private class Printer
+    private static class Printer
     {
         // For each box drawing char below, n is the number of "prongs" that char has
         // To convert box drawing chars from light to heavy, add (1 << n) - 1 to each
@@ -199,13 +195,16 @@ public class Board extends ArrayList<Square>
             StringBuilder row = new StringBuilder();
 
             row.append( right );
+
             for ( char file = 'a'; file <= 'h'; file++ )
             {
                 for ( int j = 0; j < 3; j++ )
                     row.append( HORIZONTAL );
+
                 if ( file < 'h' )
                     row.append( horizontal );
             }
+
             row.append( left );
 
             return row.toString();
@@ -215,11 +214,12 @@ public class Board extends ArrayList<Square>
         {
             System.out.println( UPPER_ROW );
 
-            for ( int rank = 8; rank >= 1; rank-- )
+            for ( char rank = '8'; rank >= '1'; rank-- )
             {
                 StringBuilder pieceRow = new StringBuilder();
 
                 pieceRow.append( VERTICAL );
+
                 for ( char file = 'a'; file <= 'h'; file++ )
                     pieceRow.append( ' ' )
                             .append( board.getSquare( file, rank ).toChar() )
@@ -228,7 +228,7 @@ public class Board extends ArrayList<Square>
 
                 System.out.println( pieceRow );
 
-                if ( rank > 1 )
+                if ( rank > '1' )
                     System.out.println( INNER_ROW );
             }
 

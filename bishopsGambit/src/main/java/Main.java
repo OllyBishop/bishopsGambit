@@ -22,6 +22,7 @@ public class Main
                 try
                 {
                     GUI frame = new GUI( game );
+                    frame.setTitle( "Bishop's Gambit" );
                     frame.setVisible( true );
                 }
                 catch ( Exception e )

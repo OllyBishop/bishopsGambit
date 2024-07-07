@@ -9,7 +9,7 @@ import main.java.player.Player;
 
 public class Knight extends Piece
 {
-    public Knight( Player player, char startFile, int startRank )
+    public Knight( Player player, char startFile, char startRank )
     {
         super( player, startFile, startRank );
     }

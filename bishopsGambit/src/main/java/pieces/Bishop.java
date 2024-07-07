@@ -9,7 +9,7 @@ import main.java.player.Player;
 
 public class Bishop extends Piece
 {
-    public Bishop( Player player, char startFile, int startRank )
+    public Bishop( Player player, char startFile, char startRank )
     {
         super( player, startFile, startRank );
     }

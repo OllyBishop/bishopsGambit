@@ -21,7 +21,7 @@ public class Pawn extends Piece
         return this.enPassant;
     }
 
-    public Pawn( Player player, char startFile, int startRank )
+    public Pawn( Player player, char startFile, char startRank )
     {
         super( player, startFile, startRank );
     }
@@ -44,7 +44,7 @@ public class Pawn extends Piece
         List<Square> targets = new ArrayList<>();
 
         Square square = getSquare( board );
-        int y = getPlayer().getDirection();
+        int y = getPlayer().getRankSign();
 
         // Move forward one or two squares
         for ( int n : new int[] { 1, 2 } )

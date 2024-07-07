@@ -15,7 +15,7 @@ import main.java.pieces.Rook;
 public class Player
 {
     private final Colour colour;
-    private final int direction;
+    private final int rankSign;
 
     private final List<Piece> pieces = new ArrayList<>();
 
@@ -25,27 +25,27 @@ public class Player
 
     public Player( Colour colour )
     {
-        int backRank;
-        int pawnRank;
+        char backRank;
+        char pawnRank;
 
         switch ( colour )
         {
             case WHITE:
-                backRank = 1;
-                pawnRank = 2;
+                backRank = '1';
+                pawnRank = '2';
                 break;
 
             case BLACK:
-                backRank = 8;
-                pawnRank = 7;
+                backRank = '8';
+                pawnRank = '7';
                 break;
 
             default:
-                throw new IllegalArgumentException( "Colour must be either 'WHITE' or 'BLACK'." );
+                throw new InvalidColourException();
         }
 
         this.colour = colour;
-        this.direction = Integer.signum( pawnRank - backRank );
+        this.rankSign = Integer.signum( pawnRank - backRank );
 
         new Pawn( this, 'a', pawnRank );
         new Pawn( this, 'b', pawnRank );
@@ -75,9 +75,9 @@ public class Player
         return this.colour;
     }
 
-    public int getDirection()
+    public int getRankSign()
     {
-        return this.direction;
+        return this.rankSign;
     }
 
     public List<Piece> getPieces()
@@ -95,12 +95,22 @@ public class Player
         return this.kingsideRook;
     }
 
+    /**
+     * Returns the queenside or kingside rook belonging this player.
+     * 
+     * @param x the direction along the x-axis of the rook's starting square (relative to the king's
+     *          starting square)
+     * @return the queenside rook if <b>x</b> is negative; the kingside rook if <b>x</b> is
+     *         positive; {@code null} otherwise
+     */
     public Rook getRook( int x )
     {
-        if ( x == -1 )
+        if ( x < 0 )
             return getQueensideRook();
-        if ( x == 1 )
+
+        if ( x > 0 )
             return getKingsideRook();
+
         return null;
     }
 

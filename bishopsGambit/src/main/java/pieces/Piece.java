@@ -13,12 +13,12 @@ public abstract class Piece
     private final Player player; // References the player this piece belongs to
 
     private final char startFile;
-    private final int startRank;
+    private final char startRank;
 
     private boolean hasMoved;
     private boolean isCaptured;
 
-    public Piece( Player player, char startFile, int startRank )
+    public Piece( Player player, char startFile, char startRank )
     {
         this.player = player;
 
@@ -41,9 +41,9 @@ public abstract class Piece
         return getPlayer().getColour();
     }
 
-    public int getDirection()
+    public int getRankSign()
     {
-        return getPlayer().getDirection();
+        return getPlayer().getRankSign();
     }
 
     public char getStartFile()
@@ -51,7 +51,7 @@ public abstract class Piece
         return this.startFile;
     }
 
-    public int getStartRank()
+    public char getStartRank()
     {
         return this.startRank;
     }
@@ -166,21 +166,21 @@ public abstract class Piece
 
     public boolean canPromote( Board board, Square square )
     {
-        return this instanceof Pawn && square.travel( board, 0, getPlayer().getDirection() ) == null;
+        return this instanceof Pawn && square.travel( board, 0, getPlayer().getRankSign() ) == null;
     }
 
     public boolean movedTwoSquaresForward( Square from, Square to )
     {
         int fileDiff = to.fileDiff( from );
         int rankDiff = to.rankDiff( from );
-        return fileDiff == 0 && rankDiff == 2 * getPlayer().getDirection();
+        return fileDiff == 0 && rankDiff == 2 * getPlayer().getRankSign();
     }
 
     public boolean movedOneSquareDiagonallyForward( Square from, Square to )
     {
         int fileDiff = to.fileDiff( from );
         int rankDiff = to.rankDiff( from );
-        return Math.abs( fileDiff ) == 1 && rankDiff == getPlayer().getDirection();
+        return Math.abs( fileDiff ) == 1 && rankDiff == getPlayer().getRankSign();
     }
 
     public boolean movedTwoSquaresLaterally( Square from, Square to )
