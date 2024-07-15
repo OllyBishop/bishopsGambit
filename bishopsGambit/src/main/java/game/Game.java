@@ -53,13 +53,13 @@ public class Game
 
     private void printInfo( Board board )
     {
-        Player currentPlayer = getCurrentPlayer();
-        int n = currentPlayer.numberOfLegalMoves( board );
+        Player activePlayer = getActivePlayer();
+        int n = activePlayer.numberOfLegalMoves( board );
 
         if ( n == 1 )
-            System.out.printf( "%s has 1 legal move.", currentPlayer );
+            System.out.printf( "%s has 1 legal move.", activePlayer );
         else
-            System.out.printf( "%s has %d legal moves.", currentPlayer, n );
+            System.out.printf( "%s has %d legal moves.", activePlayer, n );
 
         int diff = board.getMaterialDiff();
 
@@ -84,7 +84,7 @@ public class Game
      * 
      * @return White if the number of turns taken is even; Black if it is odd
      */
-    public Player getCurrentPlayer()
+    public Player getActivePlayer()
     {
         return numberOfTurnsTaken() % 2 == 0 ? getWhite() : getBlack();
     }
@@ -95,7 +95,7 @@ public class Game
      * 
      * @return Black if the number of turns taken is even; White if it is odd
      */
-    public Player getCurrentOpponent()
+    public Player getInactivePlayer()
     {
         return numberOfTurnsTaken() % 2 == 0 ? getBlack() : getWhite();
     }
@@ -123,11 +123,11 @@ public class Game
         if ( !board.isLegalMove( from, to ) )
             throw new IllegalMoveException( from, to );
 
-        // Disable en passant capture of opponent's pawns
-        getCurrentOpponent().getPieces()
-                            .stream()
-                            .filter( pc -> pc instanceof Pawn )
-                            .forEach( pc -> ((Pawn) pc).setEnPassant( false ) );
+        // Disable en passant capture of enemy pawns
+        getInactivePlayer().getPieces()
+                           .stream()
+                           .filter( pc -> pc instanceof Pawn )
+                           .forEach( pc -> ((Pawn) pc).setEnPassant( false ) );
 
         Piece piece = from.getPiece();
         Board newBoard = board.move( from, to );
@@ -151,19 +151,19 @@ public class Game
                 switch ( promType )
                 {
                     case KNIGHT:
-                        promPiece = new Knight( getCurrentPlayer(), toFile, toRank );
+                        promPiece = new Knight( getActivePlayer(), toFile, toRank );
                         break;
 
                     case BISHOP:
-                        promPiece = new Bishop( getCurrentPlayer(), toFile, toRank );
+                        promPiece = new Bishop( getActivePlayer(), toFile, toRank );
                         break;
 
                     case ROOK:
-                        promPiece = new Rook( getCurrentPlayer(), toFile, toRank );
+                        promPiece = new Rook( getActivePlayer(), toFile, toRank );
                         break;
 
                     case QUEEN:
-                        promPiece = new Queen( getCurrentPlayer(), toFile, toRank );
+                        promPiece = new Queen( getActivePlayer(), toFile, toRank );
                         break;
 
                     default:
