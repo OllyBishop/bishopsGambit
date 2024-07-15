@@ -3,11 +3,11 @@ package main.java.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
@@ -21,11 +21,11 @@ import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
 
 import main.java.board.Board;
 import main.java.board.Square;
 import main.java.game.Game;
+import main.java.io.Images;
 import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
 import main.java.player.Player;
@@ -37,18 +37,20 @@ public class GUI extends JFrame
     // ============================================================================================
 
     private final JPanel contentPane = new JPanel();
-    private final JPanel chessBoardPane = new JPanel();
-    private final JPanel capturedPieces = new JPanel();
+    private final BorderLayout contentLayoutWhite = new BorderLayout();
+    private final BorderLayout contentLayoutBlack = new BorderLayout();
 
-    private final GridBagLayout whiteBoardLayout = new GridBagLayout();
-    private final GridBagLayout blackBoardLayout = new GridBagLayout();
+    private final JPanel chessboardPane = new JPanel();
+    private final GridBagLayout chessboardLayoutWhite = new GridBagLayout();
+    private final GridBagLayout chessboardLayoutBlack = new GridBagLayout();
+
+    private final JPanel capturedPiecesPaneWhite = new OrderedJPanel();
+    private final JPanel capturedPiecesPaneBlack = new OrderedJPanel();
+    private final FlowLayout capturedPiecesLayoutWhite = new FlowLayout();
+    private final FlowLayout capturedPiecesLayoutBlack = new FlowLayout();
 
     private final List<SquareComp> squareComps = new ArrayList<>();
     private final List<PieceComp> pieceComps = new ArrayList<>();
-
-    private int scale;
-
-    private Border lineBorder;
 
     private SquareComp from;
     private SquareComp to;
@@ -108,9 +110,9 @@ public class GUI extends JFrame
      * 
      * @return White if the number of turns taken is even; Black if it is odd
      */
-    private Player getCurrentPlayer()
+    private Player getActivePlayer()
     {
-        return getGame().getCurrentPlayer();
+        return getGame().getActivePlayer();
     }
 
     /**
@@ -119,9 +121,9 @@ public class GUI extends JFrame
      * 
      * @return Black if the number of turns taken is even; White if it is odd
      */
-    private Player getCurrentOpponent()
+    private Player getInactivePlayer()
     {
-        return getGame().getCurrentOpponent();
+        return getGame().getInactivePlayer();
     }
 
     private List<Square> getMoves( SquareComp squareComp )
@@ -138,8 +140,7 @@ public class GUI extends JFrame
         setGame( game );
 
         setDefaultCloseOperation( EXIT_ON_CLOSE );
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize( screenSize.width / 2, screenSize.height );
+        setSize( 640, 960 );
 
         initialiseComponents();
         addComponentsToFrame();
@@ -172,35 +173,44 @@ public class GUI extends JFrame
     private void addComponentsToFrame()
     {
         add( contentPane );
-        contentPane.add( chessBoardPane );
+        contentPane.add( chessboardPane );
+        contentPane.add( capturedPiecesPaneWhite );
+        contentPane.add( capturedPiecesPaneBlack );
 
         for ( SquareComp squareComp : squareComps )
-            chessBoardPane.add( squareComp );
+            chessboardPane.add( squareComp );
     }
 
     private void createLayouts()
     {
-        BorderLayout borderLayout = new BorderLayout();
-        borderLayout.addLayoutComponent( chessBoardPane, BorderLayout.CENTER );
-        contentPane.setLayout( borderLayout );
+        contentLayoutWhite.addLayoutComponent( chessboardPane, BorderLayout.CENTER );
+        contentLayoutWhite.addLayoutComponent( capturedPiecesPaneWhite, BorderLayout.NORTH );
+        contentLayoutWhite.addLayoutComponent( capturedPiecesPaneBlack, BorderLayout.SOUTH );
+
+        contentLayoutBlack.addLayoutComponent( chessboardPane, BorderLayout.CENTER );
+        contentLayoutBlack.addLayoutComponent( capturedPiecesPaneWhite, BorderLayout.SOUTH );
+        contentLayoutBlack.addLayoutComponent( capturedPiecesPaneBlack, BorderLayout.NORTH );
 
         for ( SquareComp squareComp : squareComps )
         {
-            GridBagConstraints whiteBoardConstraints = new GridBagConstraints();
-            GridBagConstraints blackBoardConstraints = new GridBagConstraints();
+            GridBagConstraints chessboardConstraintsWhite = new GridBagConstraints();
+            GridBagConstraints chessboardConstraintsBlack = new GridBagConstraints();
 
             char file = squareComp.getFile();
             char rank = squareComp.getRank();
 
-            whiteBoardConstraints.gridx = file - 'a';
-            whiteBoardConstraints.gridy = '8' - rank;
+            chessboardConstraintsWhite.gridx = file - 'a';
+            chessboardConstraintsWhite.gridy = '8' - rank;
 
-            blackBoardConstraints.gridx = 'h' - file;
-            blackBoardConstraints.gridy = rank - '1';
+            chessboardConstraintsBlack.gridx = 'h' - file;
+            chessboardConstraintsBlack.gridy = rank - '1';
 
-            whiteBoardLayout.setConstraints( squareComp, whiteBoardConstraints );
-            blackBoardLayout.setConstraints( squareComp, blackBoardConstraints );
+            chessboardLayoutWhite.setConstraints( squareComp, chessboardConstraintsWhite );
+            chessboardLayoutBlack.setConstraints( squareComp, chessboardConstraintsBlack );
         }
+
+        capturedPiecesPaneWhite.setLayout( capturedPiecesLayoutWhite );
+        capturedPiecesPaneBlack.setLayout( capturedPiecesLayoutBlack );
     }
 
     private void addSquareClickedListeners()
@@ -247,8 +257,8 @@ public class GUI extends JFrame
         addComponentListener( new ComponentAdapter()
         {
             /**
-             * This method is called once when the frame is initialised, and each time the frame is resized
-             * thereafter.
+             * This method is called once when the frame is initialised (after the constructor) and each
+             * time the frame is resized thereafter.
              */
             @Override
             public void componentResized( ComponentEvent e )
@@ -276,7 +286,7 @@ public class GUI extends JFrame
         boolean selectFrom = false;
         boolean selectTo = false;
 
-        if ( square.isOccupiedBy( getCurrentPlayer() ) )
+        if ( square.isOccupiedBy( getActivePlayer() ) )
         {
             deselectFrom = true;
 
@@ -324,27 +334,32 @@ public class GUI extends JFrame
 
     private void orientBoard()
     {
-        switch ( getCurrentPlayer().getColour() )
+        switch ( getActivePlayer().getColour() )
         {
             case WHITE:
-                chessBoardPane.setLayout( whiteBoardLayout );
+                contentPane.setLayout( contentLayoutWhite );
+                chessboardPane.setLayout( chessboardLayoutWhite );
+
                 for ( SquareComp squareComp : squareComps )
                 {
                     squareComp.showRank( 'a' );
                     squareComp.showFile( '1' );
                 }
+
                 break;
 
             case BLACK:
-                chessBoardPane.setLayout( blackBoardLayout );
+                contentPane.setLayout( contentLayoutBlack );
+                chessboardPane.setLayout( chessboardLayoutBlack );
+
                 for ( SquareComp squareComp : squareComps )
                 {
                     squareComp.showRank( 'h' );
                     squareComp.showFile( '8' );
                 }
+
                 break;
         }
-
     }
 
     private void makeMove()
@@ -363,7 +378,7 @@ public class GUI extends JFrame
                                                   "Promotion",
                                                   JOptionPane.DEFAULT_OPTION,
                                                   JOptionPane.PLAIN_MESSAGE,
-                                                  to.getIcon(),
+                                                  Images.getIcon( getActivePlayer().getColour(), Typ.PAWN ),
                                                   options,
                                                   null );
 
@@ -376,10 +391,7 @@ public class GUI extends JFrame
         Piece promPiece = getGame().move( fromSquare, toSquare, promType );
 
         if ( promPiece != null )
-        {
-            PieceComp promPieceComp = createPieceComp( promPiece );
-            promPieceComp.setScale( scale );
-        }
+            createPieceComp( promPiece );
 
         from = from.deselect();
         to = to.deselect();
@@ -391,26 +403,26 @@ public class GUI extends JFrame
     private void postMove()
     {
         Board board = getBoard();
-        Player currentPlayer = getCurrentPlayer();
+        Player activePlayer = getActivePlayer();
 
-        boolean currentPlayerIsInCheck = currentPlayer.isInCheck( board );
+        boolean activePlayerIsInCheck = activePlayer.isInCheck( board );
 
-        if ( currentPlayerIsInCheck )
-            check = getSquareComp( board, currentPlayer.getKing() );
+        if ( activePlayerIsInCheck )
+            check = getSquareComp( board, activePlayer.getKing() );
         else
             check = null;
 
-        if ( currentPlayer.hasNoLegalMoves( board ) )
+        if ( activePlayer.hasNoLegalMoves( board ) )
         {
             String message;
             Icon icon;
 
-            if ( currentPlayerIsInCheck )
+            if ( activePlayerIsInCheck )
             {
-                Player currentOpponent = getCurrentOpponent();
+                Player inactivePlayer = getInactivePlayer();
 
-                message = currentOpponent + " wins by checkmate.";
-                icon = getSquareComp( board, currentOpponent.getKing() ).getIcon();
+                message = inactivePlayer + " wins by checkmate.";
+                icon = Images.getIcon( inactivePlayer.getColour(), Typ.KING );
             }
             else
             {
@@ -430,18 +442,50 @@ public class GUI extends JFrame
 
     private void updateScale()
     {
+        updateScale( false );
+    }
+
+    private void updateScale( boolean piecesOnly )
+    {
         int width = contentPane.getWidth();
         int height = contentPane.getHeight();
+        int min = Math.min( width, height );
 
-        scale = Math.max( 10, Math.min( width, height ) / 8 );
-
-        lineBorder = BorderFactory.createLineBorder( Color.red, Math.max( 1, scale / 20 ) );
-
-        for ( SquareComp squareComp : squareComps )
-            squareComp.setScale( scale );
+        int scale = Math.max( 10, min / 8 );
 
         for ( PieceComp pieceComp : pieceComps )
-            pieceComp.setScale( scale );
+        {
+            if ( pieceComp.getParent() instanceof SquareComp )
+                pieceComp.setScale( scale );
+            else
+                pieceComp.setScale( scale * 3 / 5 );
+        }
+
+        if ( piecesOnly )
+            return;
+
+        for ( SquareComp squareComp : squareComps )
+        {
+            squareComp.setScale( scale );
+        }
+
+        Dimension dimension = new Dimension( scale * 8, scale );
+
+        capturedPiecesPaneWhite.setPreferredSize( dimension );
+        capturedPiecesPaneBlack.setPreferredSize( dimension );
+
+        /*
+         * The FlowLayout class does not have an option to set the vertical alignment of its components.
+         * To achieve this, we set the vertical gap to half of the remaining vertical space in the pane.
+         * vgap = (paneHeight - compHeight) / 2 = (scale - scale * 3 / 5) / 2 = scale / 5
+         */
+        int gap = scale / 5;
+
+        capturedPiecesLayoutWhite.setVgap( gap );
+        capturedPiecesLayoutBlack.setVgap( gap );
+
+        capturedPiecesLayoutWhite.setHgap( -gap );
+        capturedPiecesLayoutBlack.setHgap( -gap );
     }
 
     private void positionPieces()
@@ -458,22 +502,46 @@ public class GUI extends JFrame
             SquareComp squareComp = getSquareComp( board, pieceComp.getPiece() );
 
             if ( squareComp == null )
-                capturedPieces.add( pieceComp );
+            {
+                switch ( pieceComp.getPiece().getPlayer().getColour() )
+                {
+                    case WHITE:
+                        capturedPiecesPaneWhite.add( pieceComp );
+                        break;
+
+                    case BLACK:
+                        capturedPiecesPaneBlack.add( pieceComp );
+                        break;
+                }
+            }
             else
-                squareComp.add( pieceComp );
+            {
+                squareComp.addPieceComp( pieceComp );
+            }
         }
 
-        chessBoardPane.repaint();
+        updateScale( true );
+
+        /*
+         * Necessary to prevent UI issues. The selected piece may appear on both the 'from' and 'to'
+         * square during move previews.
+         */
+        contentPane.repaint();
     }
 
     private void updateCheckBorder()
     {
-        if ( check != null )
+        if ( check == null )
+            return;
+
+        if ( to == null )
         {
-            if ( to == null )
-                check.setBorder( lineBorder );
-            else
-                check.setBorder( BorderFactory.createEmptyBorder() );
+            int thickness = Math.max( 1, check.getWidth() / 20 );
+            check.setBorder( BorderFactory.createLineBorder( Color.RED, thickness ) );
+        }
+        else
+        {
+            check.setBorder( BorderFactory.createEmptyBorder() );
         }
     }
 }

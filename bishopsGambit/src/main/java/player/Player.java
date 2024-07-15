@@ -188,17 +188,17 @@ public class Player
         WHITE( "White" ),
         BLACK( "Black" );
 
-        private final String value;
+        private final String str;
 
-        Colour( String value )
+        Colour( String str )
         {
-            this.value = value;
+            this.str = str;
         }
 
         @Override
         public String toString()
         {
-            return this.value;
+            return this.str;
         }
     }
 }

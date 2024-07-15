@@ -10,9 +10,7 @@ import java.util.List;
 
 public class Fonts
 {
-    public static final Font ROBOTO_MEDIUM = importFont( "Roboto", Weight.MEDIUM );
-
-    private static Font importFont( String name, Weight weight )
+    public static Font importFont( String name, Weight weight )
     {
         Font font = null;
 
@@ -52,17 +50,17 @@ public class Fonts
         BOLD_ITALIC( "BoldItalic" ),
         BLACK_ITALIC( "BlackItalic" );
 
-        private final String value;
+        private final String str;
 
-        Weight( String value )
+        Weight( String str )
         {
-            this.value = value;
+            this.str = str;
         }
 
         @Override
         public String toString()
         {
-            return this.value;
+            return this.str;
         }
     }
 }

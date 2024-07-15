@@ -4,12 +4,14 @@ import java.awt.Image;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
 import main.java.player.Player.Colour;
 
-public class Graphics
+public class Images
 {
     private static Image whitePawn = importImage( Colour.WHITE, Typ.PAWN );
     private static Image whiteKnight = importImage( Colour.WHITE, Typ.KNIGHT );
@@ -32,7 +34,7 @@ public class Graphics
         try
         {
             String imagePath = String.format( "/main/resources/img/%s_%s.png", colour, type );
-            image = ImageIO.read( Graphics.class.getResource( imagePath ) );
+            image = ImageIO.read( Images.class.getResource( imagePath ) );
         }
         catch ( IOException e )
         {
@@ -71,5 +73,10 @@ public class Graphics
                 case KING -> blackKing;
             };
         };
+    }
+
+    public static Icon getIcon( Colour colour, Typ type )
+    {
+        return new ImageIcon( getImage( colour, type ) );
     }
 }

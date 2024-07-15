@@ -73,17 +73,17 @@ class GameTest
 
     int numberOfLegalMoves()
     {
-        return game.getCurrentPlayer().numberOfLegalMoves( game.getBoard() );
+        return game.getActivePlayer().numberOfLegalMoves( game.getBoard() );
     }
 
     boolean checkmate()
     {
-        return game.getCurrentPlayer().isInCheckmate( game.getBoard() );
+        return game.getActivePlayer().isInCheckmate( game.getBoard() );
     }
 
     boolean stalemate()
     {
-        return game.getCurrentPlayer().isInStalemate( game.getBoard() );
+        return game.getActivePlayer().isInStalemate( game.getBoard() );
     }
 
     @BeforeEach

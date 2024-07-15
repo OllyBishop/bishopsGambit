@@ -2,9 +2,9 @@ package main.java.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 
 import main.java.board.Square;
 import main.java.io.Fonts;
+import main.java.io.Fonts.Weight;
 import main.java.util.ColorUtils;
 import main.java.util.ComponentUtils;
 
@@ -20,6 +21,8 @@ public class SquareComp extends JLayeredPane
     private static final Color DARK = new Color( 209, 139, 71 );
     private static final Color LIGHT = new Color( 254, 206, 157 );
     private static final Color HIGHLIGHT = ColorUtils.blend( Color.yellow, Color.white );
+
+    private static final Font ROBOTO_MEDIUM = Fonts.importFont( "Roboto", Weight.MEDIUM );
 
     /*
      * New squares are created throughout the game, but the file and rank of a given square never
@@ -35,8 +38,6 @@ public class SquareComp extends JLayeredPane
     private final JLabel fileLbl;
     private final JLabel rankLbl;
     private final CircleComp circleComp;
-
-    private PieceComp pieceComp;
 
     public char getFile()
     {
@@ -65,13 +66,13 @@ public class SquareComp extends JLayeredPane
         fileLbl.setVerticalAlignment( SwingConstants.BOTTOM );
         fileLbl.setHorizontalAlignment( SwingConstants.RIGHT );
         fileLbl.setForeground( defaultFg );
-        fileLbl.setFont( Fonts.ROBOTO_MEDIUM );
+        fileLbl.setFont( ROBOTO_MEDIUM );
 
         this.rankLbl = new JLabel( String.valueOf( rank ) );
         rankLbl.setVerticalAlignment( SwingConstants.TOP );
         rankLbl.setHorizontalAlignment( SwingConstants.LEFT );
         rankLbl.setForeground( defaultFg );
-        rankLbl.setFont( Fonts.ROBOTO_MEDIUM );
+        rankLbl.setFont( ROBOTO_MEDIUM );
 
         this.circleComp = new CircleComp();
 
@@ -85,9 +86,15 @@ public class SquareComp extends JLayeredPane
         setOpaque( true );
     }
 
-    public void add( PieceComp pieceComp )
+    public void addPieceComp( PieceComp pieceComp )
     {
         add( pieceComp, PALETTE_LAYER );
+
+        /*
+         * Necessary to prevent UI issues. The selected piece may be positioned outside the bounds of
+         * the square it occupies when a move preview is undone.
+         */
+        pieceComp.setLocation( 0, 0 );
     }
 
     private void resetBackground()
@@ -151,17 +158,6 @@ public class SquareComp extends JLayeredPane
 
         ComponentUtils.resizeFont( fileLbl, scale / 5 );
         ComponentUtils.resizeFont( rankLbl, scale / 5 );
-
-        if ( pieceComp != null )
-            pieceComp.setScale( scale );
-    }
-
-    public Icon getIcon()
-    {
-        if ( pieceComp != null )
-            return pieceComp.getIcon();
-
-        return null;
     }
 
     public int getIndex()
@@ -179,7 +175,7 @@ public class SquareComp extends JLayeredPane
         }
 
         @Override
-        public void paintComponent( Graphics g )
+        protected void paintComponent( Graphics g )
         {
             super.paintComponent( g );
 
