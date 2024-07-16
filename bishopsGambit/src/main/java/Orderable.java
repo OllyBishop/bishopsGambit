@@ -1,6 +1,6 @@
 package main.java;
 
-public interface Orderable extends Comparable<Object>
+public interface Orderable extends Comparable<Orderable>
 {
-    int getOrder();
+    int ordinal();
 }

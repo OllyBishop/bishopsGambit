@@ -33,16 +33,16 @@ public class PieceComp extends JLabel implements Orderable
     }
 
     @Override
-    public int compareTo( Object o )
+    public int compareTo( Orderable o )
     {
         if ( !(o instanceof PieceComp) )
-            throw new RuntimeException( "The object being compared must be an instance of PieceComp." );
+            throw new IllegalArgumentException( "The object being compared must be an instance of PieceComp." );
 
-        return Integer.compare( getOrder(), ((PieceComp) o).getOrder() );
+        return Integer.compare( ordinal(), o.ordinal() );
     }
 
     @Override
-    public int getOrder()
+    public int ordinal()
     {
         return getPiece().getType().ordinal();
     }

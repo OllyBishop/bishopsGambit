@@ -163,11 +163,9 @@ public class GUI extends JFrame
             createPieceComp( piece );
     }
 
-    private PieceComp createPieceComp( Piece piece )
+    private void createPieceComp( Piece piece )
     {
-        PieceComp pieceComp = new PieceComp( piece );
-        pieceComps.add( pieceComp );
-        return pieceComp;
+        pieceComps.add( new PieceComp( piece ) );
     }
 
     private void addComponentsToFrame()
@@ -503,7 +501,7 @@ public class GUI extends JFrame
 
             if ( squareComp == null )
             {
-                switch ( pieceComp.getPiece().getPlayer().getColour() )
+                switch ( pieceComp.getPiece().getColour() )
                 {
                     case WHITE:
                         capturedPiecesPaneWhite.add( pieceComp );
