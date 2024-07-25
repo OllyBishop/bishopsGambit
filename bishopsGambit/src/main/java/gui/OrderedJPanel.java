@@ -12,7 +12,7 @@ import main.java.Orderable;
 public class OrderedJPanel extends JPanel
 {
     @Override
-    protected void addImpl( Component comp, Object constraints, int index )
+    protected final void addImpl( Component comp, Object constraints, int index )
     {
         if ( !(comp instanceof Orderable) )
             throw new IllegalArgumentException( "The component being added must be an instance of Orderable." );
@@ -33,11 +33,5 @@ public class OrderedJPanel extends JPanel
                              .orElse( -1 );
 
         super.addImpl( comp, constraints, index );
-    }
-
-    @Override
-    public void remove( int index )
-    {
-        super.remove( index );
     }
 }

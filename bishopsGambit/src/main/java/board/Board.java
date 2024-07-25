@@ -59,14 +59,12 @@ public class Board extends ArrayList<Square>
      * Finds the square whose coordinates match the given string. For example, an input of "a1"
      * finds the square with file 'a' and rank '1'.
      * 
-     * @param string the coordinates of the desired square as a string
+     * @param coords the coordinates of the desired square as a string
      * @return the square whose coordinates match the given string
      */
-    public Square getSquare( String string )
+    public Square getSquare( String coords )
     {
-        char file = string.charAt( 0 );
-        char rank = string.charAt( 1 );
-        return getSquare( file, rank );
+        return getSquare( coords.charAt( 0 ), coords.charAt( 1 ) );
     }
 
     /**
@@ -78,10 +76,20 @@ public class Board extends ArrayList<Square>
      */
     public Square getSquare( char file, char rank )
     {
-        if ( 'a' <= file && file <= 'h' && '1' <= rank && rank <= '8' )
+        if ( isValidSquare( file, rank ) )
             return get( Square.getIndex( file, rank ) );
 
         return null;
+    }
+
+    public static boolean isValidSquare( String coords )
+    {
+        return isValidSquare( coords.charAt( 0 ), coords.charAt( 1 ) );
+    }
+
+    private static boolean isValidSquare( char file, char rank )
+    {
+        return 'a' <= file && file <= 'h' && '1' <= rank && rank <= '8';
     }
 
     public Board move( Square from, Square to )

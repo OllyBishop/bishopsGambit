@@ -1,6 +1,7 @@
 package main.java.game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import main.java.board.Board;
@@ -100,16 +101,53 @@ public class Game
         return numberOfTurnsTaken() % 2 == 0 ? getBlack() : getWhite();
     }
 
-    public Piece move( String fromStr, String toStr )
+    private String[] validateUCI( String uci )
     {
-        return move( fromStr, toStr, null );
+        if ( uci == null )
+            throw new IllegalArgumentException( "String cannot be null." );
+
+        if ( uci.length() < 4 || uci.length() > 5 )
+            throw new IllegalArgumentException( "String must be 4 or 5 characters in length." );
+
+        String value1 = uci.substring( 0, 2 );
+        String value2 = uci.substring( 2, 4 );
+        String value3 = uci.substring( 4 );
+
+        if ( !Board.isValidSquare( value1 ) )
+            throw new IllegalArgumentException( "First pair of characters '" + value1 + "' must represent a valid square." );
+
+        if ( !Board.isValidSquare( value2 ) )
+            throw new IllegalArgumentException( "Second pair of characters '" + value2 + "' must represent a valid square." );
+
+        if ( !Arrays.asList( "", "n", "b", "r", "q" ).contains( value3 ) )
+            throw new IllegalArgumentException( "Fifth character '" + value3 + "' must be empty or represent a valid piece." );
+
+        return new String[] { value1, value2, value3 };
     }
 
-    public Piece move( String fromStr, String toStr, Typ promType )
+    /**
+     * @param uci a string representing the move in Universal Chess Interface (UCI) notation
+     * @return the promoted piece (if applicable); otherwise {@code null}
+     */
+    public Piece move( String uci )
     {
+        String[] values = validateUCI( uci );
+
         Board board = getBoard();
-        Square from = board.getSquare( fromStr );
-        Square to = board.getSquare( toStr );
+
+        Square from = board.getSquare( values[ 0 ] );
+        Square to = board.getSquare( values[ 1 ] );
+
+        Typ promType = switch ( values[ 2 ] )
+        {
+            case "n" -> Typ.KNIGHT;
+            case "b" -> Typ.BISHOP;
+            case "r" -> Typ.ROOK;
+            case "q" -> Typ.QUEEN;
+
+            default -> null;
+        };
+
         return move( from, to, promType );
     }
 
@@ -123,11 +161,11 @@ public class Game
         if ( !board.isLegalMove( from, to ) )
             throw new IllegalMoveException( from, to );
 
-        // Disable en passant capture of enemy pawns
+        // If an opponent's pawn was capturable en passant, revoke this on the player's next turn
         getInactivePlayer().getPieces()
                            .stream()
                            .filter( pc -> pc instanceof Pawn )
-                           .forEach( pc -> ((Pawn) pc).setEnPassant( false ) );
+                           .forEach( pc -> ((Pawn) pc).setCapturableEnPassant( false ) );
 
         Piece piece = from.getPiece();
         Board newBoard = board.move( from, to );
@@ -136,10 +174,10 @@ public class Game
 
         if ( piece instanceof Pawn )
         {
-            // Enable en passant capture of this pawn
+            // Allow this pawn to be captured en passant on the opponent's next turn
             if ( piece.movedTwoSquaresForward( from, to ) )
             {
-                ((Pawn) piece).setEnPassant( true );
+                ((Pawn) piece).setCapturableEnPassant( true );
             }
 
             // Pawn promotion
@@ -148,27 +186,15 @@ public class Game
                 char toFile = to.getFile();
                 char toRank = to.getRank();
 
-                switch ( promType )
+                promPiece = switch ( promType )
                 {
-                    case KNIGHT:
-                        promPiece = new Knight( getActivePlayer(), toFile, toRank );
-                        break;
+                    case KNIGHT -> new Knight( getActivePlayer(), toFile, toRank );
+                    case BISHOP -> new Bishop( getActivePlayer(), toFile, toRank );
+                    case ROOK -> new Rook( getActivePlayer(), toFile, toRank );
+                    case QUEEN -> new Queen( getActivePlayer(), toFile, toRank );
 
-                    case BISHOP:
-                        promPiece = new Bishop( getActivePlayer(), toFile, toRank );
-                        break;
-
-                    case ROOK:
-                        promPiece = new Rook( getActivePlayer(), toFile, toRank );
-                        break;
-
-                    case QUEEN:
-                        promPiece = new Queen( getActivePlayer(), toFile, toRank );
-                        break;
-
-                    default:
-                        throw new InvalidPromotionException( promType );
-                }
+                    default -> throw new InvalidPromotionException( promType );
+                };
 
                 newBoard.getSquare( toFile, toRank ).setPiece( promPiece );
             }
@@ -176,16 +202,13 @@ public class Game
 
         for ( Piece pc : board.getPieces() )
         {
+            // If piece is no longer on the board, set it as captured
             if ( !newBoard.containsPiece( pc ) )
-            {
-                // If piece is no longer on the board, set it as captured
                 pc.setCaptured( true );
-            }
+
+            // If piece is now on a different square, set it as moved
             else if ( pc.getSquare( newBoard ) != pc.getSquare( board ) )
-            {
-                // If piece is now on a different square, set it as moved
                 pc.setMoved( true );
-            }
         }
 
         addBoard( newBoard );

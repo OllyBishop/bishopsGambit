@@ -9,6 +9,7 @@ import javax.swing.ImageIcon;
 
 import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
+import main.java.player.Player;
 import main.java.player.Player.Colour;
 
 public class Images
@@ -75,8 +76,8 @@ public class Images
         };
     }
 
-    public static Icon getIcon( Colour colour, Typ type )
+    public static Icon getIcon( Player player, Typ type )
     {
-        return new ImageIcon( getImage( colour, type ) );
+        return new ImageIcon( getImage( player.getColour(), type ) );
     }
 }

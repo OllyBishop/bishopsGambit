@@ -369,21 +369,19 @@ public class GUI extends JFrame
 
         if ( fromSquare.getPiece().canPromote( getBoard(), toSquare ) )
         {
-            Typ[] options = new Typ[] { Typ.KNIGHT, Typ.BISHOP, Typ.ROOK, Typ.QUEEN };
-
             int i = JOptionPane.showOptionDialog( rootPane,
                                                   "Select a piece to promote to.",
                                                   "Promotion",
                                                   JOptionPane.DEFAULT_OPTION,
                                                   JOptionPane.PLAIN_MESSAGE,
-                                                  Images.getIcon( getActivePlayer().getColour(), Typ.PAWN ),
-                                                  options,
+                                                  Images.getIcon( getActivePlayer(), Typ.PAWN ),
+                                                  Typ.PROMOTION_OPTIONS,
                                                   null );
 
             if ( i == JOptionPane.CLOSED_OPTION )
                 promType = Typ.QUEEN;
             else
-                promType = options[ i ];
+                promType = Typ.PROMOTION_OPTIONS[ i ];
         }
 
         Piece promPiece = getGame().move( fromSquare, toSquare, promType );
@@ -420,7 +418,7 @@ public class GUI extends JFrame
                 Player inactivePlayer = getInactivePlayer();
 
                 message = inactivePlayer + " wins by checkmate.";
-                icon = Images.getIcon( inactivePlayer.getColour(), Typ.KING );
+                icon = Images.getIcon( inactivePlayer, Typ.KING );
             }
             else
             {

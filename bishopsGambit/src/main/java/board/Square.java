@@ -46,8 +46,8 @@ public class Square
     {
         if ( isOccupied() )
             return getPiece().toChar();
-        else
-            return ' ';
+
+        return ' ';
     }
 
     /**
@@ -135,6 +135,11 @@ public class Square
     public int rankDiff( Square square )
     {
         return getRank() - square.getRank();
+    }
+
+    public int getParity()
+    {
+        return getIndex() % 2;
     }
 
     public int getIndex()

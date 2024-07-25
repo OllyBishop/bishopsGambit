@@ -51,16 +51,11 @@ public class SquareComp extends JLayeredPane
 
     public SquareComp( Square square )
     {
-        this( square.getFile(), square.getRank() );
-    }
+        this.file = square.getFile();
+        this.rank = square.getRank();
 
-    private SquareComp( char file, char rank )
-    {
-        this.file = file;
-        this.rank = rank;
-
-        this.defaultBg = (file + rank) % 2 == 0 ? DARK : LIGHT;
-        this.defaultFg = (file + rank) % 2 == 0 ? LIGHT : DARK;
+        this.defaultBg = square.getParity() == 0 ? DARK : LIGHT;
+        this.defaultFg = square.getParity() == 0 ? LIGHT : DARK;
 
         this.fileLbl = new JLabel( String.valueOf( file ) );
         fileLbl.setVerticalAlignment( SwingConstants.BOTTOM );

@@ -45,7 +45,7 @@ public class Player
         }
 
         this.colour = colour;
-        this.rankSign = Integer.signum( pawnRank - backRank );
+        this.rankSign = Integer.compare( pawnRank, backRank );
 
         new Pawn( this, 'a', pawnRank );
         new Pawn( this, 'b', pawnRank );

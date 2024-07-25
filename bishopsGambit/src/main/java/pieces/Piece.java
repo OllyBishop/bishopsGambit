@@ -190,7 +190,7 @@ public abstract class Piece
         return Math.abs( fileDiff ) == 2 && rankDiff == 0;
     }
 
-    public enum Typ
+    public static enum Typ
     {
         KING( "King" ),
         PAWN( "Pawn" ),
@@ -198,6 +198,8 @@ public abstract class Piece
         BISHOP( "Bishop" ),
         ROOK( "Rook" ),
         QUEEN( "Queen" );
+
+        public static final Typ[] PROMOTION_OPTIONS = new Typ[] { KNIGHT, BISHOP, ROOK, QUEEN };
 
         private final String str;
 

@@ -9,16 +9,16 @@ import main.java.player.Player;
 
 public class Pawn extends Piece
 {
-    private boolean enPassant;
+    private boolean capturableEnPassant;
 
-    public void setEnPassant( boolean enPassant )
+    public void setCapturableEnPassant( boolean bool )
     {
-        this.enPassant = enPassant;
+        this.capturableEnPassant = bool;
     }
 
-    public boolean canEnPassant()
+    public boolean isCapturableEnPassant()
     {
-        return this.enPassant;
+        return this.capturableEnPassant;
     }
 
     public Pawn( Player player, char startFile, char startRank )
@@ -82,7 +82,7 @@ public class Pawn extends Piece
             {
                 Piece piece = s0.getPiece();
 
-                if ( piece instanceof Pawn && ((Pawn) piece).canEnPassant() )
+                if ( piece instanceof Pawn && ((Pawn) piece).isCapturableEnPassant() )
                 {
                     targets.add( s1 );
                 }
