@@ -139,7 +139,7 @@ public class Square
 
     public int getParity()
     {
-        return getIndex() % 2;
+        return (getFile() + getRank()) % 2;
     }
 
     public int getIndex()
