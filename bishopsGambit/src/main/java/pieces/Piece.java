@@ -193,11 +193,11 @@ public abstract class Piece
     public static enum Typ
     {
         KING( "King" ),
-        PAWN( "Pawn" ),
-        KNIGHT( "Knight" ),
-        BISHOP( "Bishop" ),
+        QUEEN( "Queen" ),
         ROOK( "Rook" ),
-        QUEEN( "Queen" );
+        BISHOP( "Bishop" ),
+        KNIGHT( "Knight" ),
+        PAWN( "Pawn" );
 
         public static final Typ[] PROMOTION_OPTIONS = new Typ[] { KNIGHT, BISHOP, ROOK, QUEEN };
 

@@ -38,7 +38,7 @@ public class PieceComp extends JLabel implements Orderable
         if ( !(o instanceof PieceComp) )
             throw new IllegalArgumentException( "The object being compared must be an instance of PieceComp." );
 
-        return Integer.compare( ordinal(), o.ordinal() );
+        return Integer.compare( o.ordinal(), ordinal() );
     }
 
     @Override
