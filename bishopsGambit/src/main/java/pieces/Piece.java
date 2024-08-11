@@ -1,6 +1,7 @@
 package main.java.pieces;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import main.java.board.Board;
@@ -18,19 +19,6 @@ public abstract class Piece
     private boolean hasMoved;
     private boolean isCaptured;
 
-    public Piece( Player player, char startFile, char startRank )
-    {
-        this.player = player;
-
-        this.startFile = startFile;
-        this.startRank = startRank;
-
-        setMoved( false );
-        setCaptured( false );
-
-        player.getPieces().add( this );
-    }
-
     public Player getPlayer()
     {
         return this.player;
@@ -41,19 +29,9 @@ public abstract class Piece
         return getPlayer().getColour();
     }
 
-    public int getRankSign()
+    public int getSign()
     {
-        return getPlayer().getRankSign();
-    }
-
-    public char getStartFile()
-    {
-        return this.startFile;
-    }
-
-    public char getStartRank()
-    {
-        return this.startRank;
+        return getPlayer().getSign();
     }
 
     public boolean hasMoved()
@@ -74,6 +52,19 @@ public abstract class Piece
     public void setCaptured( boolean isCaptured )
     {
         this.isCaptured = isCaptured;
+    }
+
+    public Piece( Player player, char startFile, char startRank )
+    {
+        this.player = player;
+
+        this.startFile = startFile;
+        this.startRank = startRank;
+
+        setMoved( false );
+        setCaptured( false );
+
+        getPlayer().getPieces().add( this );
     }
 
     @Override
@@ -123,7 +114,7 @@ public abstract class Piece
 
     public Square getStartSquare( Board board )
     {
-        return board.getSquare( getStartFile(), getStartRank() );
+        return board.getSquare( startFile, startRank );
     }
 
     /**
@@ -166,21 +157,21 @@ public abstract class Piece
 
     public boolean canPromote( Board board, Square square )
     {
-        return this instanceof Pawn && square.travel( board, 0, getPlayer().getRankSign() ) == null;
+        return this instanceof Pawn && square.travel( board, 0, getSign() ) == null;
     }
 
     public boolean movedTwoSquaresForward( Square from, Square to )
     {
         int fileDiff = to.fileDiff( from );
         int rankDiff = to.rankDiff( from );
-        return fileDiff == 0 && rankDiff == 2 * getPlayer().getRankSign();
+        return fileDiff == 0 && rankDiff == 2 * getSign();
     }
 
     public boolean movedOneSquareDiagonallyForward( Square from, Square to )
     {
         int fileDiff = to.fileDiff( from );
         int rankDiff = to.rankDiff( from );
-        return Math.abs( fileDiff ) == 1 && rankDiff == getPlayer().getRankSign();
+        return Math.abs( fileDiff ) == 1 && rankDiff == getSign();
     }
 
     public boolean movedTwoSquaresLaterally( Square from, Square to )
@@ -190,7 +181,12 @@ public abstract class Piece
         return Math.abs( fileDiff ) == 2 && rankDiff == 0;
     }
 
-    public static enum Typ
+    public boolean isType( Typ... types )
+    {
+        return Arrays.asList( types ).contains( getType() );
+    }
+
+    public enum Typ
     {
         KING( "King" ),
         QUEEN( "Queen" ),

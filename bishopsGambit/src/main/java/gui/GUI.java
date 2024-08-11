@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import main.java.board.Board;
 import main.java.board.Square;
 import main.java.game.Game;
+import main.java.game.Game.Status;
 import main.java.io.Images;
 import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
@@ -106,9 +107,9 @@ public class GUI extends JFrame
     }
 
     /**
-     * Returns the player whose turn it currently is, based on the number of turns taken.
+     * Returns the player whose turn it is.
      * 
-     * @return White if the number of turns taken is even; Black if it is odd
+     * @return White if the number of moves made is even; Black if it is odd
      */
     private Player getActivePlayer()
     {
@@ -116,10 +117,9 @@ public class GUI extends JFrame
     }
 
     /**
-     * Returns the opponent of the player whose turn it currently is, based on the number of turns
-     * taken.
+     * Returns the opponent of the player whose turn it is.
      * 
-     * @return Black if the number of turns taken is even; White if it is odd
+     * @return Black if the number of moves made is even; White if it is odd
      */
     private Player getInactivePlayer()
     {
@@ -384,7 +384,7 @@ public class GUI extends JFrame
                 promType = Typ.PROMOTION_OPTIONS[ i ];
         }
 
-        Piece promPiece = getGame().move( fromSquare, toSquare, promType );
+        Piece promPiece = getGame().makeMove( fromSquare, toSquare, promType );
 
         if ( promPiece != null )
             createPieceComp( promPiece );
@@ -398,56 +398,39 @@ public class GUI extends JFrame
 
     private void postMove()
     {
-        Board board = getBoard();
-        Player activePlayer = getActivePlayer();
+        Status status = getGame().getStatus();
 
-        boolean activePlayerIsInCheck = activePlayer.isInCheck( board );
-
-        if ( activePlayerIsInCheck )
-            check = getSquareComp( board, activePlayer.getKing() );
+        if ( status == Status.CHECK ||
+             status == Status.CHECKMATE )
+            check = getSquareComp( getBoard(), getActivePlayer().getKing() );
         else
             check = null;
 
-        if ( activePlayer.hasNoLegalMoves( board ) )
+        if ( getGame().isGameOver() )
         {
-            String message;
-            Icon icon;
-
-            if ( activePlayerIsInCheck )
-            {
-                Player inactivePlayer = getInactivePlayer();
-
-                message = inactivePlayer + " wins by checkmate.";
-                icon = Images.getIcon( inactivePlayer, Typ.KING );
-            }
-            else
-            {
-                message = "Game drawn by stalemate.";
-                icon = null;
-            }
-
-            JOptionPane.showMessageDialog( this,
-                                           message,
-                                           "Game Over",
-                                           JOptionPane.PLAIN_MESSAGE,
-                                           icon );
-
-            System.out.println( message );
+            Icon icon = status == Status.CHECKMATE ? Images.getIcon( getInactivePlayer(), Typ.KING ) : null;
+            JOptionPane.showMessageDialog( this, getGame().getGameOverMessage(), "Game Over", JOptionPane.PLAIN_MESSAGE, icon );
         }
     }
 
-    private void updateScale()
-    {
-        updateScale( false );
-    }
-
-    private void updateScale( boolean piecesOnly )
+    private int getScale()
     {
         int width = contentPane.getWidth();
         int height = contentPane.getHeight();
         int min = Math.min( width, height );
 
-        int scale = Math.max( 10, min / 8 );
+        return Math.max( 10, min / 8 );
+    }
+
+    private void updateScale()
+    {
+        updatePiecesScale();
+        updateContainerScale();
+    }
+
+    private void updatePiecesScale()
+    {
+        int scale = getScale();
 
         for ( PieceComp pieceComp : pieceComps )
         {
@@ -456,14 +439,14 @@ public class GUI extends JFrame
             else
                 pieceComp.setScale( scale * 3 / 5 );
         }
+    }
 
-        if ( piecesOnly )
-            return;
+    private void updateContainerScale()
+    {
+        int scale = getScale();
 
         for ( SquareComp squareComp : squareComps )
-        {
             squareComp.setScale( scale );
-        }
 
         Dimension dimension = new Dimension( scale * 8, scale );
 
@@ -516,7 +499,7 @@ public class GUI extends JFrame
             }
         }
 
-        updateScale( true );
+        updatePiecesScale();
 
         /*
          * Necessary to prevent UI issues. The selected piece may appear on both the 'from' and 'to'

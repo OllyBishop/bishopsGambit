@@ -62,8 +62,8 @@ public class King extends Piece
 
                 if ( !rook.hasMoved() && !rook.isCaptured() )
                 {
-                    Square k = getStartSquare( board );
-                    Square r = rook.getStartSquare( board );
+                    Square k = getSquare( board );
+                    Square r = rook.getSquare( board );
 
                     Square k1 = k.travel( board, x, 0 ); // One square adjacent to king (rook moves here)
                     Square k2 = k.travel( board, 2 * x, 0 ); // Two squares adjacent to king (king moves here)

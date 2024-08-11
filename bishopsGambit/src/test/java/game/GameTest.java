@@ -1,9 +1,11 @@
 package test.java.game;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static test.java.Assertions.assertSameNotNull;
+import static test.java.Assertions.assertThrowsWithMessage;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,99 +22,71 @@ import main.java.player.Player;
 
 class GameTest
 {
-    Game game;
+    private Game game;
 
-    // ============================================================================================
-
-    void move( String str )
+    private void makeMove( String... ucis )
     {
-        game.move( str );
-    }
-
-    void move( String str1, String str2 )
-    {
-        move( str1 );
-        move( str2 );
+        for ( String uci : ucis )
+            game.makeMove( uci );
     }
 
     // ============================================================================================
 
-    Player getWhite()
-    {
-        return game.getWhite();
-    }
-
-    Player getBlack()
-    {
-        return game.getBlack();
-    }
-
-    Board getBoard()
+    private Board getBoard()
     {
         return game.getBoard();
     }
 
-    Square getSquare( String squareStr )
+    private Player getActivePlayer()
     {
-        return getBoard().getSquare( squareStr );
+        return game.getActivePlayer();
+    }
+
+    private Square getSquare( String coords )
+    {
+        return getBoard().getSquare( coords );
+    }
+
+    private Piece getPiece( String coords )
+    {
+        return getSquare( coords ).getPiece();
     }
 
     // ============================================================================================
 
-    boolean pieceIsOccupying( Piece piece, String coords )
+    private int numberOfMovesMade()
     {
-        return piece == getSquare( coords ).getPiece();
+        return game.getNumberOfMovesMade();
     }
 
-    void assertPieceIsOccupying( Piece piece, String coords )
+    private int numberOfLegalMoves()
     {
-        assertTrue( pieceIsOccupying( piece, coords ) );
+        return getActivePlayer().getNumberOfLegalMoves( getBoard() );
     }
 
-    void assertPieceIsNotOccupying( Piece piece, String coords )
+    private int materialDifference()
     {
-        assertFalse( pieceIsOccupying( piece, coords ) );
+        return getBoard().getMaterialDifference();
     }
 
-    // ============================================================================================
-
-    boolean pieceCanMoveTo( Piece piece, String coords )
+    private boolean inCheck()
     {
-        return piece.getMoves( getBoard() ).contains( getSquare( coords ) );
+        return getActivePlayer().isInCheck( getBoard() );
     }
 
-    void assertPieceCanMoveTo( Piece piece, String coords )
+    private boolean inCheckmate()
     {
-        assertTrue( pieceCanMoveTo( piece, coords ) );
+        return getActivePlayer().isInCheckmate( getBoard() );
     }
 
-    void assertPieceCannotMoveTo( Piece piece, String coords )
+    private boolean inStalemate()
     {
-        assertFalse( pieceCanMoveTo( piece, coords ) );
+        return getActivePlayer().isInStalemate( getBoard() );
     }
 
-    // ============================================================================================
-
-    void assertNumberOfTurnsTaken( int n )
+    private boolean insufficientMaterial()
     {
-        assertEquals( game.numberOfTurnsTaken(), n );
-    }
-
-    void assertNumberOfLegalMoves( int n )
-    {
-        assertEquals( game.getActivePlayer().numberOfLegalMoves( getBoard() ), n );
-    }
-
-    // ============================================================================================
-
-    void assertCheckmate()
-    {
-        assertTrue( game.getActivePlayer().isInCheckmate( getBoard() ) );
-    }
-
-    void assertStalemate()
-    {
-        assertTrue( game.getActivePlayer().isInStalemate( getBoard() ) );
+        return getBoard().hasInsufficientMaterial();
     }
 
     // ============================================================================================
@@ -140,130 +114,277 @@ class GameTest
     @Test
     void unoccupiedSquare()
     {
-        try
-        {
-            move( "e3e4" );
-        }
-        catch ( UnoccupiedSquareException e )
-        {
-            System.out.println( e.getMessage() );
-            return;
-        }
-
-        fail();
+        assertThrowsWithMessage( UnoccupiedSquareException.class,
+                                 () -> makeMove( "e3e4" ),
+                                 "Cannot make a move from the unoccupied square e3." );
     }
 
     @Test
     void illegalMove()
     {
-        try
-        {
-            move( "e1e2" );
-        }
-        catch ( IllegalMoveException e )
-        {
-            System.out.println( e.getMessage() );
-            return;
-        }
-
-        fail();
+        assertThrowsWithMessage( IllegalMoveException.class,
+                                 () -> makeMove( "e1e2" ),
+                                 "The White King occupying e1 cannot legally move to e2." );
     }
 
     @Test
     void foolsMate()
     {
-        move( "f2f3", "e7e5" );
-        move( "g2g4", "d8h4" );
+        makeMove( "f2f3", "e7e5" );
+        makeMove( "g2g4", "d8h4" );
 
-        assertNumberOfTurnsTaken( 4 );
+        assertEquals( numberOfMovesMade(), 4 );
+        assertEquals( numberOfLegalMoves(), 0 );
+        assertEquals( materialDifference(), 0 );
 
-        assertCheckmate();
+        assertTrue( inCheck() );
+        assertTrue( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertFalse( insufficientMaterial() );
     }
 
     @Test
     void scholarsMate()
     {
-        move( "e2e4", "e7e5" );
-        move( "d1h5", "b8c6" );
-        move( "f1c4", "g8f6" );
-        move( "h5f7" );
+        makeMove( "e2e4", "e7e5" );
+        makeMove( "d1h5", "b8c6" );
+        makeMove( "f1c4", "g8f6" );
+        makeMove( "h5f7" );
 
-        assertNumberOfTurnsTaken( 7 );
+        assertEquals( numberOfMovesMade(), 7 );
+        assertEquals( numberOfLegalMoves(), 0 );
+        assertEquals( materialDifference(), 1 );
 
-        assertCheckmate();
+        assertTrue( inCheck() );
+        assertTrue( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertFalse( insufficientMaterial() );
     }
 
     @Test
     void kingsideCastling()
     {
-        move( "e2e4", "e7e5" );
-        move( "g1f3", "g8f6" );
-        move( "f1c4", "f8c5" );
-        move( "e1g1", "e8g8" );
+        Piece whiteKing = getPiece( "e1" );
+        Piece blackKing = getPiece( "e8" );
+        Piece whiteKingsideRook = getPiece( "h1" );
+        Piece blackKingsideRook = getPiece( "h8" );
 
-        assertNumberOfTurnsTaken( 8 );
+        makeMove( "e2e4", "e7e5" );
+        makeMove( "g1f3", "g8f6" );
+        makeMove( "f1c4", "f8c5" );
+        makeMove( "e1g1", "e8g8" );
 
-        assertPieceIsOccupying( getWhite().getKing(), "g1" );
-        assertPieceIsOccupying( getWhite().getKingsideRook(), "f1" );
+        assertEquals( numberOfMovesMade(), 8 );
+        assertEquals( numberOfLegalMoves(), 30 );
+        assertEquals( materialDifference(), 0 );
 
-        assertPieceIsOccupying( getBlack().getKing(), "g8" );
-        assertPieceIsOccupying( getBlack().getKingsideRook(), "f8" );
+        assertFalse( inCheck() );
+        assertFalse( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertFalse( insufficientMaterial() );
+
+        assertSameNotNull( whiteKing, getPiece( "g1" ) );
+        assertSameNotNull( blackKing, getPiece( "g8" ) );
+        assertSameNotNull( whiteKingsideRook, getPiece( "f1" ) );
+        assertSameNotNull( blackKingsideRook, getPiece( "f8" ) );
     }
 
     @Test
     void queensideCastling()
     {
-        move( "d2d4", "d7d5" );
-        move( "b1c3", "b8c6" );
-        move( "c1f4", "c8f5" );
-        move( "d1d2", "d8d7" );
-        move( "e1c1", "e8c8" );
+        Piece whiteKing = getPiece( "e1" );
+        Piece blackKing = getPiece( "e8" );
+        Piece whiteQueensideRook = getPiece( "a1" );
+        Piece blackQueensideRook = getPiece( "a8" );
 
-        assertNumberOfTurnsTaken( 10 );
+        makeMove( "d2d4", "d7d5" );
+        makeMove( "b1c3", "b8c6" );
+        makeMove( "c1f4", "c8f5" );
+        makeMove( "d1d2", "d8d7" );
+        makeMove( "e1c1", "e8c8" );
 
-        assertPieceIsOccupying( getWhite().getKing(), "c1" );
-        assertPieceIsOccupying( getWhite().getQueensideRook(), "d1" );
+        assertEquals( numberOfMovesMade(), 10 );
+        assertEquals( numberOfLegalMoves(), 30 );
+        assertEquals( materialDifference(), 0 );
 
-        assertPieceIsOccupying( getBlack().getKing(), "c8" );
-        assertPieceIsOccupying( getBlack().getQueensideRook(), "d8" );
+        assertFalse( inCheck() );
+        assertFalse( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertFalse( insufficientMaterial() );
+
+        assertSameNotNull( whiteKing, getPiece( "c1" ) );
+        assertSameNotNull( blackKing, getPiece( "c8" ) );
+        assertSameNotNull( whiteQueensideRook, getPiece( "d1" ) );
+        assertSameNotNull( blackQueensideRook, getPiece( "d8" ) );
     }
 
     @Test
-    void enPassantOnlyLegalMove()
+    void enPassantIllegalMove()
     {
-        move( "e2e4", "e7e6" );
-        move( "e4e5", "d8h4" );
-        move( "e1e2", "b8c6" );
-        move( "e2e3", "h4g3" );
-        move( "e3e4", "d7d5" );
+        makeMove( "d2d4", "e7e6" );
+        makeMove( "d4d5", "e6e5" );
 
-        assertNumberOfTurnsTaken( 10 );
+        assertEquals( numberOfMovesMade(), 4 );
+        assertEquals( numberOfLegalMoves(), 29 );
+        assertEquals( materialDifference(), 0 );
 
-        assertNumberOfLegalMoves( 1 );
+        assertFalse( inCheck() );
+        assertFalse( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertFalse( insufficientMaterial() );
+
+        assertThrowsWithMessage( IllegalMoveException.class,
+                                 () -> makeMove( "d5e6" ),
+                                 "The White Pawn occupying d5 cannot legally move to e6." );
+    }
+
+    @Test
+    void enPassantOnlyLegalMoveToEscapeCheck()
+    {
+        makeMove( "e2e4", "e7e6" );
+        makeMove( "e4e5", "d8h4" );
+        makeMove( "e1e2", "b8c6" );
+        makeMove( "e2e3", "h4g3" );
+        makeMove( "e3e4", "d7d5" );
+
+        assertEquals( numberOfMovesMade(), 10 );
+        assertEquals( numberOfLegalMoves(), 1 );
+        assertEquals( materialDifference(), 0 );
+
+        assertTrue( inCheck() );
+        assertFalse( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertFalse( insufficientMaterial() );
+
+        assertDoesNotThrow( () -> makeMove( "e5d6" ) );
     }
 
     @Test
     void enemyKnightBlocksKingsideCastling()
     {
-        move( "e2e4", "g8f6" );
-        move( "g1f3", "f6g4" );
-        move( "f1c4", "g4e3" );
-        move( "d2d3", "e3f1" );
+        makeMove( "e2e4", "g8f6" );
+        makeMove( "g1f3", "f6g4" );
+        makeMove( "f1c4", "g4e3" );
+        makeMove( "d2d3", "e3f1" );
 
-        assertNumberOfTurnsTaken( 8 );
+        assertEquals( numberOfMovesMade(), 8 );
+        assertEquals( numberOfLegalMoves(), 37 );
+        assertEquals( materialDifference(), 0 );
 
-        assertPieceCannotMoveTo( getWhite().getKing(), "g1" );
+        assertFalse( inCheck() );
+        assertFalse( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertFalse( insufficientMaterial() );
+
+        assertThrowsWithMessage( IllegalMoveException.class,
+                                 () -> makeMove( "e1g1" ),
+                                 "The White King occupying e1 cannot legally move to g1." );
     }
 
     @Test
     void enemyBishopBlocksKingsideCastling()
     {
-        move( "e2e4", "b7b6" );
-        move( "g1f3", "c8a6" );
-        move( "d2d4", "a6f1" );
+        makeMove( "e2e4", "b7b6" );
+        makeMove( "g1f3", "c8a6" );
+        makeMove( "d2d4", "a6f1" );
 
-        assertNumberOfTurnsTaken( 6 );
+        assertEquals( numberOfMovesMade(), 6 );
+        assertEquals( numberOfLegalMoves(), 32 );
+        assertEquals( materialDifference(), -3 );
 
-        assertPieceCannotMoveTo( getWhite().getKing(), "g1" );
+        assertFalse( inCheck() );
+        assertFalse( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertFalse( insufficientMaterial() );
+
+        assertThrowsWithMessage( IllegalMoveException.class,
+                                 () -> makeMove( "e1g1" ),
+                                 "The White King occupying e1 cannot legally move to g1." );
+    }
+
+    @Test
+    void shortestStalemate()
+    {
+        makeMove( "e2e3", "a7a5" );
+        makeMove( "d1h5", "a8a6" );
+        makeMove( "h5a5", "h7h5" );
+        makeMove( "h2h4", "a6h6" );
+        makeMove( "a5c7", "f7f6" );
+        makeMove( "c7d7", "e8f7" );
+        makeMove( "d7b7", "d8d3" );
+        makeMove( "b7b8", "d3h7" );
+        makeMove( "b8c8", "f7g6" );
+        makeMove( "c8e6" );
+
+        assertEquals( numberOfMovesMade(), 19 );
+        assertEquals( numberOfLegalMoves(), 0 );
+        assertEquals( materialDifference(), 10 );
+
+        assertFalse( inCheck() );
+        assertFalse( inCheckmate() );
+        assertTrue( inStalemate() );
+        assertFalse( insufficientMaterial() );
+    }
+
+    @Test
+    void insufficientMaterialKingVersusKing()
+    {
+        makeMove( "e2e4", "d7d5" );
+        makeMove( "e4d5", "d8d5" );
+        makeMove( "f1d3", "d5a2" );
+        makeMove( "d3h7", "a2b1" );
+        makeMove( "h7g8", "b1c2" );
+        makeMove( "g8f7", "e8f7" );
+        makeMove( "a1a7", "c2c1" );
+        makeMove( "a7b7", "h8h2" );
+        makeMove( "b7b8", "h2g2" );
+        makeMove( "d1c1", "g2g1" );
+        makeMove( "h1g1", "a8b8" );
+        makeMove( "c1c7", "b8b2" );
+        makeMove( "c7c8", "b2d2" );
+        makeMove( "c8f8", "f7f8" );
+        makeMove( "g1g7", "d2f2" );
+        makeMove( "g7e7", "f8e7" );
+        makeMove( "e1f2" );
+
+        assertEquals( numberOfMovesMade(), 33 );
+        assertEquals( numberOfLegalMoves(), 8 );
+        assertEquals( materialDifference(), 0 );
+
+        assertFalse( inCheck() );
+        assertFalse( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertTrue( insufficientMaterial() );
+    }
+
+    @Test
+    void insufficientMaterialKingAndBishopVersusKingAndBishopWithBishopsOnSameColour()
+    {
+        makeMove( "e2e4", "d7d5" );
+        makeMove( "e4d5", "d8d5" );
+        makeMove( "f1d3", "d5a2" );
+        makeMove( "d3h7", "a2b1" );
+        makeMove( "h7g8", "b1c2" );
+        makeMove( "g8f7", "e8f7" );
+        makeMove( "a1a7", "h8h2" );
+        makeMove( "a7b7", "h2g2" );
+        makeMove( "b7b8", "g2g1" );
+        makeMove( "h1g1", "a8b8" );
+        makeMove( "d1c2", "b8b2" );
+        makeMove( "c2c7", "b2d2" );
+        makeMove( "c7c8", "d2f2" );
+        makeMove( "g1g7", "f7g7" );
+        makeMove( "e1f2", "g7f6" );
+        makeMove( "c8d7", "f6e5" );
+        makeMove( "d7e7", "f8e7" );
+
+        assertEquals( numberOfMovesMade(), 34 );
+        assertEquals( numberOfLegalMoves(), 15 );
+        assertEquals( materialDifference(), 0 );
+
+        assertFalse( inCheck() );
+        assertFalse( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertTrue( insufficientMaterial() );
     }
 }

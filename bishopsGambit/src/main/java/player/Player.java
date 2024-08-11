@@ -15,7 +15,7 @@ import main.java.pieces.Rook;
 public class Player
 {
     private final Colour colour;
-    private final int rankSign;
+    private final int sign;
 
     private final List<Piece> pieces = new ArrayList<>();
 
@@ -25,27 +25,19 @@ public class Player
 
     public Player( Colour colour )
     {
-        char backRank;
-        char pawnRank;
-
-        switch ( colour )
+        char backRank = switch ( colour )
         {
-            case WHITE:
-                backRank = '1';
-                pawnRank = '2';
-                break;
-
-            case BLACK:
-                backRank = '8';
-                pawnRank = '7';
-                break;
-
-            default:
-                throw new InvalidColourException();
-        }
+            case WHITE -> '1';
+            case BLACK -> '8';
+        };
+        char pawnRank = switch ( colour )
+        {
+            case WHITE -> '2';
+            case BLACK -> '7';
+        };
 
         this.colour = colour;
-        this.rankSign = Integer.compare( pawnRank, backRank );
+        this.sign = Integer.signum( pawnRank - backRank );
 
         new Pawn( this, 'a', pawnRank );
         new Pawn( this, 'b', pawnRank );
@@ -75,9 +67,9 @@ public class Player
         return this.colour;
     }
 
-    public int getRankSign()
+    public int getSign()
     {
-        return this.rankSign;
+        return this.sign;
     }
 
     public List<Piece> getPieces()
@@ -100,8 +92,8 @@ public class Player
      * 
      * @param x the direction along the x-axis of the rook's starting square (relative to the king's
      *          starting square)
-     * @return the queenside rook if <b>x</b> is negative; the kingside rook if <b>x</b> is
-     *         positive; {@code null} otherwise
+     * @return the queenside rook if <b>x</b> is negative; the kingside rook if <b>x</b> is positive
+     * @throws IllegalArgumentException if <b>x</b> is zero
      */
     public Rook getRook( int x )
     {
@@ -111,7 +103,7 @@ public class Player
         if ( x > 0 )
             return getKingsideRook();
 
-        return null;
+        throw new IllegalArgumentException( "The value 'x' must be non-zero." );
     }
 
     public King getKing()
@@ -164,7 +156,7 @@ public class Player
      * @param board the chess board
      * @return the number of legal moves this player can make
      */
-    public int numberOfLegalMoves( Board board )
+    public int getNumberOfLegalMoves( Board board )
     {
         return getPieces().stream()
                           .filter( pc -> board.containsPiece( pc ) )
@@ -178,9 +170,9 @@ public class Player
      * @param board the chess board
      * @return {@code true} if this player has no legal moves; {@code false} otherwise
      */
-    public boolean hasNoLegalMoves( Board board )
+    private boolean hasNoLegalMoves( Board board )
     {
-        return numberOfLegalMoves( board ) == 0;
+        return getNumberOfLegalMoves( board ) == 0;
     }
 
     public enum Colour

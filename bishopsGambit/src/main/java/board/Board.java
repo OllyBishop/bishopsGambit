@@ -6,6 +6,7 @@ import java.util.List;
 import main.java.pieces.King;
 import main.java.pieces.Pawn;
 import main.java.pieces.Piece;
+import main.java.pieces.Piece.Typ;
 import main.java.player.Player;
 
 public class Board extends ArrayList<Square>
@@ -94,9 +95,9 @@ public class Board extends ArrayList<Square>
 
     public Board move( Square from, Square to )
     {
-        Board newBoard = movePiece( from, to );
-
         Piece piece = from.getPiece();
+
+        Board newBoard = movePiece( piece, to );
 
         int x = Integer.signum( to.fileDiff( from ) );
         Square s1 = from.travel( this, x, 0 );
@@ -114,8 +115,8 @@ public class Board extends ArrayList<Square>
             // Castling
             if ( piece.movedTwoSquaresLaterally( from, to ) )
             {
-                Square r = piece.getPlayer().getRook( x ).getStartSquare( this );
-                newBoard = newBoard.movePiece( r, s1 );
+                Piece rook = piece.getPlayer().getRook( x );
+                newBoard = newBoard.movePiece( rook, s1 );
             }
         }
 
@@ -123,20 +124,22 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Creates a clone of this board where the piece occupying the <i>from</i> square has been moved
-     * to the <i>to</i> square. This is achieved by cloning the squares and assigning the piece
-     * accordingly.
+     * Clones this board and moves the given piece to the given square. The piece's <i>from</i> and
+     * <i>to</i> squares are cloned, then the piece is unassigned from the new <i>from</i> square
+     * and assigned to the new <i>to</i> square.
      * 
-     * @param from the square containing the piece to be moved
-     * @param to   the destination square for the piece
-     * @return a clone of this board where the piece occupying the <i>from</i> square has been moved
-     *         to the <i>to</i> square
+     * @param piece the piece to be moved
+     * @param to    the destination square for the piece
+     * @return a clone of this board where the given piece has been moved to the given square
      */
-    private Board movePiece( Square from, Square to )
+    private Board movePiece( Piece piece, Square to )
     {
+        Square from = piece.getSquare( this );
+
         Board newBoard = (Board) clone();
         newBoard.replace( from, from.clone() );
-        newBoard.replace( to, to.clone( from.getPiece() ) );
+        newBoard.replace( to, to.clone( piece ) );
+
         return newBoard;
     }
 
@@ -158,11 +161,33 @@ public class Board extends ArrayList<Square>
         return from.getPiece().getMoves( this ).contains( to );
     }
 
-    public int getMaterialDiff()
+    public int getMaterialDifference()
     {
         return getPieces().stream()
-                          .mapToInt( pc -> pc.getRankSign() * pc.getValue() )
+                          .mapToInt( pc -> pc.getSign() * pc.getValue() )
                           .sum();
+    }
+
+    public boolean hasInsufficientMaterial()
+    {
+        // All pieces currently on the board (excluding the Kings)
+        List<Piece> pieces = getPieces().stream().filter( pc -> !pc.isType( Typ.KING ) ).toList();
+
+        return switch ( pieces.size() )
+        {
+            // King versus King
+            case 0 -> true;
+
+            // King and Bishop versus King, King and Knight versus King
+            case 1 -> pieces.stream().allMatch( pc -> pc.isType( Typ.BISHOP, Typ.KNIGHT ) );
+
+            // King and Bishop versus King and Bishop with the Bishops on the same colour
+            case 2 -> pieces.stream().allMatch( pc -> pc.isType( Typ.BISHOP ) ) &&
+                      pieces.stream().map( Piece::getPlayer ).distinct().count() > 1 &&
+                      pieces.stream().map( pc -> pc.getSquare( this ).getParity() ).distinct().count() == 1;
+
+            default -> false;
+        };
     }
 
     public void print()

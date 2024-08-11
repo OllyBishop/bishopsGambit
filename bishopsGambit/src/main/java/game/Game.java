@@ -23,85 +23,107 @@ public class Game
     private final Player white = new Player( Colour.WHITE );
     private final Player black = new Player( Colour.BLACK );
 
+    private Status status;
+
+    public Status getStatus()
+    {
+        return this.status;
+    }
+
+    private void setStatus( Status status )
+    {
+        this.status = status;
+    }
+
     public Game()
     {
         Board board = new Board();
-        board.assignPieces( getWhite() );
-        board.assignPieces( getBlack() );
+        board.assignPieces( white );
+        board.assignPieces( black );
         addBoard( board );
-    }
-
-    private List<Board> getBoards()
-    {
-        return this.boards;
-    }
-
-    public Player getWhite()
-    {
-        return this.white;
-    }
-
-    public Player getBlack()
-    {
-        return this.black;
     }
 
     private void addBoard( Board board )
     {
-        getBoards().add( board );
-        printInfo( board );
+        boards.add( board );
+        updateStatus( board );
+        printBoardInfo( board );
     }
 
-    private void printInfo( Board board )
+    private void updateStatus( Board board )
     {
         Player activePlayer = getActivePlayer();
-        int n = activePlayer.numberOfLegalMoves( board );
+
+        if ( activePlayer.isInCheckmate( board ) )
+            setStatus( Status.CHECKMATE );
+
+        else if ( activePlayer.isInStalemate( board ) )
+            setStatus( Status.STALEMATE );
+
+        else if ( board.hasInsufficientMaterial() )
+            setStatus( Status.INSUFFICIENT_MATERIAL );
+
+        else if ( activePlayer.isInCheck( board ) )
+            setStatus( Status.CHECK );
+
+        else
+            setStatus( Status.DEFAULT );
+    }
+
+    private void printBoardInfo( Board board )
+    {
+        Player activePlayer = getActivePlayer();
+        int n = activePlayer.getNumberOfLegalMoves( board );
 
         if ( n == 1 )
             System.out.printf( "%s has 1 legal move.", activePlayer );
         else
             System.out.printf( "%s has %d legal moves.", activePlayer, n );
 
-        int diff = board.getMaterialDiff();
+        int diff = board.getMaterialDifference();
 
         if ( diff != 0 )
-            System.out.printf( " %s: +%d", diff > 0 ? getWhite() : getBlack(), Math.abs( diff ) );
+            System.out.printf( " %s: +%d", diff > 0 ? white : black, Math.abs( diff ) );
 
         System.out.println();
     }
 
-    public int numberOfTurnsTaken()
-    {
-        return getBoards().size() - 1;
-    }
-
+    /**
+     * Returns the current board.
+     * 
+     * @return the current board
+     */
     public Board getBoard()
     {
-        return getBoards().get( numberOfTurnsTaken() );
+        return boards.get( getNumberOfMovesMade() );
+    }
+
+    public int getNumberOfMovesMade()
+    {
+        return boards.size() - 1;
     }
 
     /**
-     * Returns the player whose turn it currently is, based on the number of turns taken.
+     * Returns the player whose turn it is.
      * 
-     * @return White if the number of turns taken is even; Black if it is odd
+     * @return White if the number of moves made is even; Black if it is odd
      */
     public Player getActivePlayer()
     {
-        return numberOfTurnsTaken() % 2 == 0 ? getWhite() : getBlack();
+        return getNumberOfMovesMade() % 2 == 0 ? white : black;
     }
 
     /**
-     * Returns the opponent of the player whose turn it currently is, based on the number of turns
-     * taken.
+     * Returns the opponent of the player whose turn it is.
      * 
-     * @return Black if the number of turns taken is even; White if it is odd
+     * @return Black if the number of moves made is even; White if it is odd
      */
     public Player getInactivePlayer()
     {
-        return numberOfTurnsTaken() % 2 == 0 ? getBlack() : getWhite();
+        return getNumberOfMovesMade() % 2 == 0 ? black : white;
     }
 
-    private String[] validateUCI( String uci )
+    private String[] parseUCI( String uci )
     {
         if ( uci == null )
             throw new IllegalArgumentException( "String cannot be null." );
@@ -129,37 +151,51 @@ public class Game
      * @param uci a string representing the move in Universal Chess Interface (UCI) notation
      * @return the promoted piece (if applicable); otherwise {@code null}
      */
-    public Piece move( String uci )
+    public Piece makeMove( String uci )
     {
-        String[] values = validateUCI( uci );
+        String[] values = parseUCI( uci );
 
         Board board = getBoard();
 
-        Square from = board.getSquare( values[ 0 ] );
-        Square to = board.getSquare( values[ 1 ] );
+        Square fromSquare = board.getSquare( values[ 0 ] );
+        Square toSquare = board.getSquare( values[ 1 ] );
 
         Typ promType = switch ( values[ 2 ] )
         {
+            case "" -> null;
             case "n" -> Typ.KNIGHT;
             case "b" -> Typ.BISHOP;
             case "r" -> Typ.ROOK;
             case "q" -> Typ.QUEEN;
 
-            default -> null;
+            default -> throw new InvalidPromotionException( values[ 2 ] );
         };
 
-        return move( from, to, promType );
+        return makeMove( fromSquare, toSquare, promType );
     }
 
-    public Piece move( Square from, Square to, Typ promType )
+    public Piece makeMove( Square fromSquare, Square toSquare, Typ promType )
     {
-        if ( !from.isOccupied() )
-            throw new UnoccupiedSquareException( from );
+        Board newBoard = move( fromSquare, toSquare );
+        Piece promPiece = promote( newBoard, toSquare, promType );
+
+        addBoard( newBoard );
+
+        if ( isGameOver() )
+            System.out.println( getGameOverMessage() );
+
+        return promPiece;
+    }
+
+    private Board move( Square fromSquare, Square toSquare )
+    {
+        if ( !fromSquare.isOccupied() )
+            throw new UnoccupiedSquareException( fromSquare );
 
         Board board = getBoard();
 
-        if ( !board.isLegalMove( from, to ) )
-            throw new IllegalMoveException( from, to );
+        if ( !board.isLegalMove( fromSquare, toSquare ) )
+            throw new IllegalMoveException( fromSquare, toSquare );
 
         // If an opponent's pawn was capturable en passant, revoke this on the player's next turn
         getInactivePlayer().getPieces()
@@ -167,37 +203,15 @@ public class Game
                            .filter( pc -> pc instanceof Pawn )
                            .forEach( pc -> ((Pawn) pc).setCapturableEnPassant( false ) );
 
-        Piece piece = from.getPiece();
-        Board newBoard = board.move( from, to );
+        Board newBoard = board.move( fromSquare, toSquare );
 
-        Piece promPiece = null;
+        Piece piece = fromSquare.getPiece();
 
-        if ( piece instanceof Pawn )
+        if ( piece instanceof Pawn &&
+             piece.movedTwoSquaresForward( fromSquare, toSquare ) )
         {
             // Allow this pawn to be captured en passant on the opponent's next turn
-            if ( piece.movedTwoSquaresForward( from, to ) )
-            {
-                ((Pawn) piece).setCapturableEnPassant( true );
-            }
-
-            // Pawn promotion
-            else if ( promType != null )
-            {
-                char toFile = to.getFile();
-                char toRank = to.getRank();
-
-                promPiece = switch ( promType )
-                {
-                    case KNIGHT -> new Knight( getActivePlayer(), toFile, toRank );
-                    case BISHOP -> new Bishop( getActivePlayer(), toFile, toRank );
-                    case ROOK -> new Rook( getActivePlayer(), toFile, toRank );
-                    case QUEEN -> new Queen( getActivePlayer(), toFile, toRank );
-
-                    default -> throw new InvalidPromotionException( promType );
-                };
-
-                newBoard.getSquare( toFile, toRank ).setPiece( promPiece );
-            }
+            ((Pawn) piece).setCapturableEnPassant( true );
         }
 
         for ( Piece pc : board.getPieces() )
@@ -207,12 +221,57 @@ public class Game
                 pc.setCaptured( true );
 
             // If piece is now on a different square, set it as moved
-            else if ( pc.getSquare( newBoard ) != pc.getSquare( board ) )
+            if ( pc.getSquare( newBoard ) != pc.getSquare( board ) )
                 pc.setMoved( true );
         }
 
-        addBoard( newBoard );
+        return newBoard;
+    }
+
+    private Piece promote( Board newBoard, Square toSquare, Typ promType )
+    {
+        if ( promType == null )
+            return null;
+
+        char file = toSquare.getFile();
+        char rank = toSquare.getRank();
+
+        Piece promPiece = switch ( promType )
+        {
+            case KNIGHT -> new Knight( getActivePlayer(), file, rank );
+            case BISHOP -> new Bishop( getActivePlayer(), file, rank );
+            case ROOK -> new Rook( getActivePlayer(), file, rank );
+            case QUEEN -> new Queen( getActivePlayer(), file, rank );
+
+            default -> throw new InvalidPromotionException( promType );
+        };
+
+        newBoard.getSquare( file, rank ).setPiece( promPiece );
 
         return promPiece;
+    }
+
+    public boolean isGameOver()
+    {
+        return getStatus() == Status.CHECKMATE ||
+               getStatus() == Status.STALEMATE ||
+               getStatus() == Status.INSUFFICIENT_MATERIAL;
+    }
+
+    public String getGameOverMessage()
+    {
+        return switch ( getStatus() )
+        {
+            case CHECKMATE -> getInactivePlayer() + " wins by checkmate.";
+            case STALEMATE -> "Game drawn by stalemate.";
+            case INSUFFICIENT_MATERIAL -> "Game drawn by insufficient material.";
+
+            default -> null;
+        };
+    }
+
+    public enum Status
+    {
+        DEFAULT, CHECK, CHECKMATE, STALEMATE, INSUFFICIENT_MATERIAL;
     }
 }
