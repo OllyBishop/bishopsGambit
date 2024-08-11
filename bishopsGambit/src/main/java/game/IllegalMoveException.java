@@ -6,6 +6,6 @@ public class IllegalMoveException extends RuntimeException
 {
     public IllegalMoveException( Square from, Square to )
     {
-        super( String.format( "Cannot move %s from %s to %s because it is an illegal move.", from.getPiece(), from, to ) );
+        super( String.format( "The %s occupying %s cannot legally move to %s.", from.getPiece(), from, to ) );
     }
 }

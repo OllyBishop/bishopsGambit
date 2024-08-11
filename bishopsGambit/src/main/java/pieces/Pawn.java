@@ -44,7 +44,7 @@ public class Pawn extends Piece
         List<Square> targets = new ArrayList<>();
 
         Square square = getSquare( board );
-        int y = getPlayer().getRankSign();
+        int y = getSign();
 
         // Move forward one or two squares
         for ( int n : new int[] { 1, 2 } )
