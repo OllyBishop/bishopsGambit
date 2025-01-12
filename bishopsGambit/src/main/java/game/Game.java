@@ -8,7 +8,6 @@ import main.java.board.Board;
 import main.java.board.Square;
 import main.java.pieces.Bishop;
 import main.java.pieces.Knight;
-import main.java.pieces.Pawn;
 import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
 import main.java.pieces.Queen;
@@ -197,35 +196,7 @@ public class Game
         if ( !board.isLegalMove( fromSquare, toSquare ) )
             throw new IllegalMoveException( fromSquare, toSquare );
 
-        // If an opponent's pawn was capturable en passant, revoke this on the player's next turn
-        getInactivePlayer().getPieces()
-                           .stream()
-                           .filter( pc -> pc instanceof Pawn )
-                           .forEach( pc -> ((Pawn) pc).setCapturableEnPassant( false ) );
-
-        Board newBoard = board.move( fromSquare, toSquare );
-
-        Piece piece = fromSquare.getPiece();
-
-        if ( piece instanceof Pawn &&
-             piece.movedTwoSquaresForward( fromSquare, toSquare ) )
-        {
-            // Allow this pawn to be captured en passant on the opponent's next turn
-            ((Pawn) piece).setCapturableEnPassant( true );
-        }
-
-        for ( Piece pc : board.getPieces() )
-        {
-            // If piece is no longer on the board, set it as captured
-            if ( !newBoard.containsPiece( pc ) )
-                pc.setCaptured( true );
-
-            // If piece is now on a different square, set it as moved
-            if ( pc.getSquare( newBoard ) != pc.getSquare( board ) )
-                pc.setMoved( true );
-        }
-
-        return newBoard;
+        return board.move( fromSquare, toSquare );
     }
 
     private Piece promote( Board newBoard, Square toSquare, Typ promType )

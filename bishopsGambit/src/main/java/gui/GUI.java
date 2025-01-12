@@ -255,8 +255,8 @@ public class GUI extends JFrame
         addComponentListener( new ComponentAdapter()
         {
             /**
-             * This method is called once when the frame is initialised (after the constructor) and each
-             * time the frame is resized thereafter.
+             * This method is called once when the frame is initialised (after the constructor call) and
+             * each time the frame is resized thereafter.
              */
             @Override
             public void componentResized( ComponentEvent e )
@@ -502,8 +502,8 @@ public class GUI extends JFrame
         updatePiecesScale();
 
         /*
-         * Necessary to prevent UI issues. The selected piece may appear on both the 'from' and 'to'
-         * square during move previews.
+         * Necessary to prevent UI issues. Without this, the selected piece may appear on both the
+         * 'from' and 'to' square during move previews.
          */
         contentPane.repaint();
     }

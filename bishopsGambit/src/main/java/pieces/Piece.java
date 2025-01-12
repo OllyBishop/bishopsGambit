@@ -16,9 +16,6 @@ public abstract class Piece
     private final char startFile;
     private final char startRank;
 
-    private boolean hasMoved;
-    private boolean isCaptured;
-
     public Player getPlayer()
     {
         return this.player;
@@ -34,35 +31,12 @@ public abstract class Piece
         return getPlayer().getSign();
     }
 
-    public boolean hasMoved()
-    {
-        return this.hasMoved;
-    }
-
-    public void setMoved( boolean hasMoved )
-    {
-        this.hasMoved = hasMoved;
-    }
-
-    public boolean isCaptured()
-    {
-        return this.isCaptured;
-    }
-
-    public void setCaptured( boolean isCaptured )
-    {
-        this.isCaptured = isCaptured;
-    }
-
     public Piece( Player player, char startFile, char startRank )
     {
         this.player = player;
 
         this.startFile = startFile;
         this.startRank = startRank;
-
-        setMoved( false );
-        setCaptured( false );
 
         getPlayer().getPieces().add( this );
     }

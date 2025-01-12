@@ -86,8 +86,8 @@ public class SquareComp extends JLayeredPane
         add( pieceComp, PALETTE_LAYER );
 
         /*
-         * Necessary to prevent UI issues. The selected piece may be positioned outside the bounds of
-         * the square it occupies when a move preview is undone.
+         * Necessary to prevent UI issues. Without this, the selected piece may be positioned outside
+         * the bounds of the square it occupies when a move preview is undone.
          */
         pieceComp.setLocation( 0, 0 );
     }

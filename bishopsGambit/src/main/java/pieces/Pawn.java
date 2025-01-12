@@ -9,18 +9,6 @@ import main.java.player.Player;
 
 public class Pawn extends Piece
 {
-    private boolean capturableEnPassant;
-
-    public void setCapturableEnPassant( boolean bool )
-    {
-        this.capturableEnPassant = bool;
-    }
-
-    public boolean isCapturableEnPassant()
-    {
-        return this.capturableEnPassant;
-    }
-
     public Pawn( Player player, char startFile, char startRank )
     {
         super( player, startFile, startRank );
@@ -49,7 +37,7 @@ public class Pawn extends Piece
         // Move forward one or two squares
         for ( int n : new int[] { 1, 2 } )
         {
-            if ( n == 1 || !hasMoved() )
+            if ( n == 1 || square == getStartSquare( board ) )
             {
                 Square s = square.travel( board, 0, n * y );
 
@@ -80,9 +68,7 @@ public class Pawn extends Piece
             // En passant capture
             else if ( s0 != null && s0.isOccupiedByOpponent( getPlayer() ) )
             {
-                Piece piece = s0.getPiece();
-
-                if ( piece instanceof Pawn && ((Pawn) piece).isCapturableEnPassant() )
+                if ( s0.getPiece() == board.getEnPassantPawn() )
                 {
                     targets.add( s1 );
                 }

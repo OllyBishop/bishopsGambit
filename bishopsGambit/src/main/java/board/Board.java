@@ -11,6 +11,39 @@ import main.java.player.Player;
 
 public class Board extends ArrayList<Square>
 {
+    // Castling rights
+    private boolean whiteQueensideCastlingAllowed = true;
+    private boolean whiteKingsideCastlingAllowed = true;
+    private boolean blackQueensideCastlingAllowed = true;
+    private boolean blackKingsideCastlingAllowed = true;
+
+    private Pawn enPassantPawn = null;
+
+    public boolean isWhiteQueensideCastlingAllowed()
+    {
+        return whiteQueensideCastlingAllowed;
+    }
+
+    public boolean isWhiteKingsideCastlingAllowed()
+    {
+        return whiteKingsideCastlingAllowed;
+    }
+
+    public boolean isBlackQueensideCastlingAllowed()
+    {
+        return blackQueensideCastlingAllowed;
+    }
+
+    public boolean isBlackKingsideCastlingAllowed()
+    {
+        return blackKingsideCastlingAllowed;
+    }
+
+    public Pawn getEnPassantPawn()
+    {
+        return enPassantPawn;
+    }
+
     /**
      * Creates an ArrayList of 64 squares, comprising the chess board.
      */
@@ -120,7 +153,49 @@ public class Board extends ArrayList<Square>
             }
         }
 
+        newBoard.updateCastlingRights( piece );
+        newBoard.updateEnPassantPawn( piece, from, to );
+
         return newBoard;
+    }
+
+    private void updateCastlingRights( Piece piece )
+    {
+        Player player = piece.getPlayer();
+
+        switch ( player.getColour() )
+        {
+            case WHITE:
+                if ( piece == player.getQueensideRook() ||
+                     piece == player.getKing() )
+                    whiteQueensideCastlingAllowed = false;
+
+                if ( piece == player.getKingsideRook() ||
+                     piece == player.getKing() )
+                    whiteKingsideCastlingAllowed = false;
+
+                break;
+
+            case BLACK:
+                if ( piece == player.getQueensideRook() ||
+                     piece == player.getKing() )
+                    blackQueensideCastlingAllowed = false;
+
+                if ( piece == player.getKingsideRook() ||
+                     piece == player.getKing() )
+                    blackKingsideCastlingAllowed = false;
+
+                break;
+        }
+    }
+
+    private void updateEnPassantPawn( Piece piece, Square from, Square to )
+    {
+        if ( piece instanceof Pawn && piece.movedTwoSquaresForward( from, to ) )
+            // Allow this pawn to be captured en passant on the next turn
+            enPassantPawn = (Pawn) piece;
+        else
+            enPassantPawn = null;
     }
 
     /**

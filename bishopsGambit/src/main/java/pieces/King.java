@@ -54,13 +54,13 @@ public class King extends Piece
     {
         List<Square> moves = new ArrayList<>( super.getMoves( board ) );
 
-        if ( !hasMoved() && !isTargeted( board ) )
+        if ( !isTargeted( board ) )
         {
             for ( int x : new int[] { -1, 1 } )
             {
                 Rook rook = getPlayer().getRook( x );
 
-                if ( !rook.hasMoved() && !rook.isCaptured() )
+                if ( isCastlingAllowed( rook, board ) )
                 {
                     Square k = getSquare( board );
                     Square r = rook.getSquare( board );
@@ -82,5 +82,31 @@ public class King extends Piece
         }
 
         return moves;
+    }
+
+    private boolean isCastlingAllowed( Rook rook, Board board )
+    {
+        switch ( getColour() )
+        {
+            case WHITE:
+                if ( rook == getPlayer().getQueensideRook() )
+                    return board.isWhiteQueensideCastlingAllowed();
+
+                if ( rook == getPlayer().getKingsideRook() )
+                    return board.isWhiteKingsideCastlingAllowed();
+
+                break;
+
+            case BLACK:
+                if ( rook == getPlayer().getQueensideRook() )
+                    return board.isBlackQueensideCastlingAllowed();
+
+                if ( rook == getPlayer().getKingsideRook() )
+                    return board.isBlackKingsideCastlingAllowed();
+
+                break;
+        }
+
+        throw new RuntimeException();
     }
 }
