@@ -42,6 +42,13 @@ public class Game
         addBoard( board );
     }
 
+    /**
+     * This method is called whenever a move is made. By storing a list of board states throughout
+     * the game, we can view how the board looked on a previous turn and (potentially) undo moves.
+     * The number of boards stored is used to determine which player's turn it is.
+     * 
+     * @param board the new {@code Board} after a move was made
+     */
     private void addBoard( Board board )
     {
         boards.add( board );
@@ -148,7 +155,7 @@ public class Game
 
     /**
      * @param uci a string representing the move in Universal Chess Interface (UCI) notation
-     * @return the promoted piece (if applicable); otherwise {@code null}
+     * @return the promoted piece (if applicable); {@code null} otherwise
      */
     public Piece makeMove( String uci )
     {
