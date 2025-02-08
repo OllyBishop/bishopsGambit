@@ -59,20 +59,15 @@ public class Pawn extends Piece
             Square s0 = square.travel( board, x, 0 );
             Square s1 = square.travel( board, x, y );
 
-            // Regular capture
-            if ( s1 != null && s1.isOccupiedByOpponent( getPlayer() ) )
-            {
-                targets.add( s1 );
-            }
+            boolean regularCapture = s1 != null &&
+                                     s1.isOccupiedByOpponent( getPlayer() );
 
-            // En passant capture
-            else if ( s0 != null && s0.isOccupiedByOpponent( getPlayer() ) )
-            {
-                if ( s0.getPiece() == board.getEnPassantPawn() )
-                {
-                    targets.add( s1 );
-                }
-            }
+            boolean enPassantCapture = s0 != null &&
+                                       s0.isOccupiedByOpponent( getPlayer() ) &&
+                                       s0.getPiece() == board.getEnPassantPawn();
+
+            if ( regularCapture || enPassantCapture )
+                targets.add( s1 );
         }
 
         return targets;

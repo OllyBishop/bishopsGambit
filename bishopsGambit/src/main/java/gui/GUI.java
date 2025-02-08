@@ -18,9 +18,11 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 
 import main.java.board.Board;
 import main.java.board.Square;
@@ -30,16 +32,36 @@ import main.java.io.Images;
 import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
 import main.java.player.Player;
+import main.java.player.Player.Colour;
 
 public class GUI extends JFrame
 {
     // ============================================================================================
-    // Instance Variables
+    // Components and Layouts
     // ============================================================================================
 
+    // Content Pane
+
     private final JPanel contentPane = new JPanel();
-    private final BorderLayout contentLayoutWhite = new BorderLayout();
-    private final BorderLayout contentLayoutBlack = new BorderLayout();
+    private final BorderLayout contentLayout = new BorderLayout();
+
+    // Menus and Menu Buttons
+
+    private final JPanel topMenuPane = new JPanel();
+    private final JPanel bottomMenuPane = new JPanel();
+
+    private final JButton newGameButton = new JButton( "New Game" );
+    private final JButton flipBoardButton = new JButton( "Flip Board" );
+    private final JToggleButton lockBoardButton = new JToggleButton( "Lock Board" );
+
+    private final JButton previousMoveButton = new JButton( "Previous Move" );
+    private final JButton nextMoveButton = new JButton( "Next Move" );
+
+    // Tabletop, Chessboard and Captured Pieces
+
+    private final JPanel tabletopPane = new JPanel();
+    private final BorderLayout tabletopLayoutWhite = new BorderLayout();
+    private final BorderLayout tabletopLayoutBlack = new BorderLayout();
 
     private final JPanel chessboardPane = new JPanel();
     private final GridBagLayout chessboardLayoutWhite = new GridBagLayout();
@@ -50,6 +72,8 @@ public class GUI extends JFrame
     private final FlowLayout capturedPiecesLayoutWhite = new FlowLayout();
     private final FlowLayout capturedPiecesLayoutBlack = new FlowLayout();
 
+    // Squares and Pieces
+
     private final List<SquareComp> squareComps = new ArrayList<>();
     private final List<PieceComp> pieceComps = new ArrayList<>();
 
@@ -57,11 +81,11 @@ public class GUI extends JFrame
     private SquareComp to;
     private SquareComp check;
 
-    private Game game;
+    // ============================================================================================
+    // Non-Component Fields
+    // ============================================================================================
 
-    // ============================================================================================
-    // Getters and Setters
-    // ============================================================================================
+    private Game game;
 
     private Game getGame()
     {
@@ -147,6 +171,7 @@ public class GUI extends JFrame
         createLayouts();
 
         addSquareClickedListeners();
+        addMenuButtonClickedListeners();
         addKeyPressedListener();
         addFrameResizedListener();
 
@@ -171,9 +196,21 @@ public class GUI extends JFrame
     private void addComponentsToFrame()
     {
         add( contentPane );
-        contentPane.add( chessboardPane );
-        contentPane.add( capturedPiecesPaneWhite );
-        contentPane.add( capturedPiecesPaneBlack );
+
+        contentPane.add( tabletopPane );
+        contentPane.add( topMenuPane );
+        contentPane.add( bottomMenuPane );
+
+        topMenuPane.add( newGameButton );
+        topMenuPane.add( flipBoardButton );
+        topMenuPane.add( lockBoardButton );
+
+        bottomMenuPane.add( previousMoveButton );
+        bottomMenuPane.add( nextMoveButton );
+
+        tabletopPane.add( chessboardPane );
+        tabletopPane.add( capturedPiecesPaneWhite );
+        tabletopPane.add( capturedPiecesPaneBlack );
 
         for ( SquareComp squareComp : squareComps )
             chessboardPane.add( squareComp );
@@ -181,13 +218,17 @@ public class GUI extends JFrame
 
     private void createLayouts()
     {
-        contentLayoutWhite.addLayoutComponent( chessboardPane, BorderLayout.CENTER );
-        contentLayoutWhite.addLayoutComponent( capturedPiecesPaneWhite, BorderLayout.NORTH );
-        contentLayoutWhite.addLayoutComponent( capturedPiecesPaneBlack, BorderLayout.SOUTH );
+        contentLayout.addLayoutComponent( tabletopPane, BorderLayout.CENTER );
+        contentLayout.addLayoutComponent( topMenuPane, BorderLayout.NORTH );
+        contentLayout.addLayoutComponent( bottomMenuPane, BorderLayout.SOUTH );
 
-        contentLayoutBlack.addLayoutComponent( chessboardPane, BorderLayout.CENTER );
-        contentLayoutBlack.addLayoutComponent( capturedPiecesPaneWhite, BorderLayout.SOUTH );
-        contentLayoutBlack.addLayoutComponent( capturedPiecesPaneBlack, BorderLayout.NORTH );
+        tabletopLayoutWhite.addLayoutComponent( chessboardPane, BorderLayout.CENTER );
+        tabletopLayoutWhite.addLayoutComponent( capturedPiecesPaneWhite, BorderLayout.NORTH );
+        tabletopLayoutWhite.addLayoutComponent( capturedPiecesPaneBlack, BorderLayout.SOUTH );
+
+        tabletopLayoutBlack.addLayoutComponent( chessboardPane, BorderLayout.CENTER );
+        tabletopLayoutBlack.addLayoutComponent( capturedPiecesPaneWhite, BorderLayout.SOUTH );
+        tabletopLayoutBlack.addLayoutComponent( capturedPiecesPaneBlack, BorderLayout.NORTH );
 
         for ( SquareComp squareComp : squareComps )
         {
@@ -207,6 +248,8 @@ public class GUI extends JFrame
             chessboardLayoutBlack.setConstraints( squareComp, chessboardConstraintsBlack );
         }
 
+        contentPane.setLayout( contentLayout );
+
         capturedPiecesPaneWhite.setLayout( capturedPiecesLayoutWhite );
         capturedPiecesPaneBlack.setLayout( capturedPiecesLayoutBlack );
     }
@@ -221,10 +264,42 @@ public class GUI extends JFrame
                 public void mouseReleased( MouseEvent e )
                 {
                     if ( squareComp.contains( e.getPoint() ) )
-                        doClickAction( squareComp );
+                        doSquareClickedAction( squareComp );
                 }
             } );
         }
+    }
+
+    private void addMenuButtonClickedListeners()
+    {
+        newGameButton.addMouseListener( new MouseAdapter()
+        {
+            @Override
+            public void mouseReleased( MouseEvent e )
+            {
+                int i = JOptionPane.showConfirmDialog( rootPane,
+                                                       "Are you sure you want to start a new game?",
+                                                       "New Game",
+                                                       JOptionPane.YES_NO_OPTION );
+
+                if ( i == JOptionPane.YES_OPTION )
+                {
+                    // TODO
+                }
+            }
+        } );
+
+        flipBoardButton.addMouseListener( new MouseAdapter()
+        {
+            @Override
+            public void mouseReleased( MouseEvent e )
+            {
+                if ( tabletopPane.getLayout() == tabletopLayoutWhite )
+                    orientBoard( Colour.BLACK, true );
+                else
+                    orientBoard( Colour.WHITE, true );
+            }
+        } );
     }
 
     private void addKeyPressedListener()
@@ -271,7 +346,7 @@ public class GUI extends JFrame
     // Methods
     // ============================================================================================
 
-    private void doClickAction( SquareComp squareComp )
+    private void doSquareClickedAction( SquareComp squareComp )
     {
         if ( from != null && to == null )
             for ( SquareComp sqComp : squareComps )
@@ -332,10 +407,18 @@ public class GUI extends JFrame
 
     private void orientBoard()
     {
-        switch ( getActivePlayer().getColour() )
+        orientBoard( getActivePlayer().getColour(), false );
+    }
+
+    private void orientBoard( Colour colour, boolean bypassLock )
+    {
+        if ( !bypassLock && lockBoardButton.isSelected() )
+            return;
+
+        switch ( colour )
         {
             case WHITE:
-                contentPane.setLayout( contentLayoutWhite );
+                tabletopPane.setLayout( tabletopLayoutWhite );
                 chessboardPane.setLayout( chessboardLayoutWhite );
 
                 for ( SquareComp squareComp : squareComps )
@@ -347,7 +430,7 @@ public class GUI extends JFrame
                 break;
 
             case BLACK:
-                contentPane.setLayout( contentLayoutBlack );
+                tabletopPane.setLayout( tabletopLayoutBlack );
                 chessboardPane.setLayout( chessboardLayoutBlack );
 
                 for ( SquareComp squareComp : squareComps )
@@ -415,10 +498,7 @@ public class GUI extends JFrame
 
     private int getScale()
     {
-        int width = contentPane.getWidth();
-        int height = contentPane.getHeight();
-        int min = Math.min( width, height );
-
+        int min = Math.min( contentPane.getWidth(), contentPane.getHeight() );
         return Math.max( 10, min / 8 );
     }
 

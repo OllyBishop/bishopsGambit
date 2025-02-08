@@ -17,20 +17,15 @@ public class OrderedJPanel extends JPanel
         if ( !(comp instanceof Orderable) )
             throw new IllegalArgumentException( "The component being added must be an instance of Orderable." );
 
-        addImpl( comp, constraints );
-    }
-
-    private void addImpl( Component comp, Object constraints )
-    {
         List<Orderable> components = Arrays.stream( getComponents() )
                                            .map( c -> (Orderable) c )
                                            .toList();
 
         // Get the index of the component before which the new component should be inserted
-        int index = IntStream.range( 0, components.size() )
-                             .filter( i -> components.get( i ).compareTo( (Orderable) comp ) >= 0 )
-                             .findFirst()
-                             .orElse( -1 );
+        index = IntStream.range( 0, components.size() )
+                         .filter( i -> components.get( i ).compareTo( (Orderable) comp ) >= 0 )
+                         .findFirst()
+                         .orElse( -1 );
 
         super.addImpl( comp, constraints, index );
     }
