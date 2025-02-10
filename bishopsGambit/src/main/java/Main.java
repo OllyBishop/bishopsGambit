@@ -2,7 +2,6 @@ package main.java;
 
 import java.awt.EventQueue;
 
-import main.java.game.Game;
 import main.java.gui.GUI;
 
 public class Main
@@ -12,23 +11,17 @@ public class Main
      */
     public static void main( String[] args )
     {
-        Game game = new Game();
-
-        EventQueue.invokeLater( new Runnable()
+        EventQueue.invokeLater( () ->
         {
-            @Override
-            public void run()
+            try
             {
-                try
-                {
-                    GUI frame = new GUI( game );
-                    frame.setTitle( "Bishop's Gambit" );
-                    frame.setVisible( true );
-                }
-                catch ( Exception e )
-                {
-                    e.printStackTrace();
-                }
+                GUI frame = new GUI();
+                frame.setTitle( "Bishop's Gambit" );
+                frame.setVisible( true );
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
             }
         } );
     }

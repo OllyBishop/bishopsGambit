@@ -36,6 +36,8 @@ public class Game
 
     public Game()
     {
+        System.out.println( "New game started." );
+
         Board board = new Board();
         board.assignPieces( white );
         board.assignPieces( black );
@@ -53,6 +55,7 @@ public class Game
     {
         boards.add( board );
         updateStatus( board );
+
         printBoardInfo( board );
     }
 

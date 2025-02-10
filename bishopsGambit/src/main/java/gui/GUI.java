@@ -2,11 +2,11 @@ package main.java.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -40,12 +41,10 @@ public class GUI extends JFrame
     // Components and Layouts
     // ============================================================================================
 
-    // Content Pane
-
     private final JPanel contentPane = new JPanel();
     private final BorderLayout contentLayout = new BorderLayout();
 
-    // Menus and Menu Buttons
+    // ============================================================================================
 
     private final JPanel topMenuPane = new JPanel();
     private final JPanel bottomMenuPane = new JPanel();
@@ -57,7 +56,7 @@ public class GUI extends JFrame
     private final JButton previousMoveButton = new JButton( "Previous Move" );
     private final JButton nextMoveButton = new JButton( "Next Move" );
 
-    // Tabletop, Chessboard and Captured Pieces
+    // ============================================================================================
 
     private final JPanel tabletopPane = new JPanel();
     private final BorderLayout tabletopLayoutWhite = new BorderLayout();
@@ -72,14 +71,26 @@ public class GUI extends JFrame
     private final FlowLayout capturedPiecesLayoutWhite = new FlowLayout();
     private final FlowLayout capturedPiecesLayoutBlack = new FlowLayout();
 
-    // Squares and Pieces
+    // ============================================================================================
 
-    private final List<SquareComp> squareComps = new ArrayList<>();
-    private final List<PieceComp> pieceComps = new ArrayList<>();
+    private final List<SquareComp> squareComps = createSquareComps();
+
+    private List<SquareComp> createSquareComps()
+    {
+        List<SquareComp> squareComps = new ArrayList<>();
+
+        for ( char file = 'a'; file <= 'h'; file++ )
+            for ( char rank = '1'; rank <= '8'; rank++ )
+                squareComps.add( new SquareComp( file, rank ) );
+
+        return Collections.unmodifiableList( squareComps );
+    }
 
     private SquareComp from;
     private SquareComp to;
     private SquareComp check;
+
+    private List<PieceComp> pieceComps;
 
     // ============================================================================================
     // Non-Component Fields
@@ -159,38 +170,20 @@ public class GUI extends JFrame
     // Constructor and Associated Methods
     // ============================================================================================
 
-    public GUI( Game game )
+    public GUI()
     {
-        setGame( game );
-
         setDefaultCloseOperation( EXIT_ON_CLOSE );
         setSize( 640, 960 );
 
-        initialiseComponents();
         addComponentsToFrame();
-        createLayouts();
+        configureLayouts();
 
         addSquareClickedListeners();
         addMenuButtonClickedListeners();
         addKeyPressedListener();
         addFrameResizedListener();
 
-        orientBoard();
-        positionPieces();
-    }
-
-    private void initialiseComponents()
-    {
-        for ( Square square : getBoard() )
-            squareComps.add( new SquareComp( square ) );
-
-        for ( Piece piece : getBoard().getPieces() )
-            createPieceComp( piece );
-    }
-
-    private void createPieceComp( Piece piece )
-    {
-        pieceComps.add( new PieceComp( piece ) );
+        newGame();
     }
 
     private void addComponentsToFrame()
@@ -216,7 +209,7 @@ public class GUI extends JFrame
             chessboardPane.add( squareComp );
     }
 
-    private void createLayouts()
+    private void configureLayouts()
     {
         contentLayout.addLayoutComponent( tabletopPane, BorderLayout.CENTER );
         contentLayout.addLayoutComponent( topMenuPane, BorderLayout.NORTH );
@@ -283,9 +276,7 @@ public class GUI extends JFrame
                                                        JOptionPane.YES_NO_OPTION );
 
                 if ( i == JOptionPane.YES_OPTION )
-                {
-                    // TODO
-                }
+                    newGame();
             }
         } );
 
@@ -304,24 +295,20 @@ public class GUI extends JFrame
 
     private void addKeyPressedListener()
     {
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher( new KeyEventDispatcher()
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher( e ->
         {
-            @Override
-            public boolean dispatchKeyEvent( KeyEvent e )
+            if ( e.getKeyCode() == KeyEvent.VK_SPACE &&
+                 e.getID() == KeyEvent.KEY_RELEASED &&
+                 from != null &&
+                 to != null )
             {
-                if ( e.getKeyCode() == KeyEvent.VK_SPACE &&
-                     e.getID() == KeyEvent.KEY_RELEASED &&
-                     from != null &&
-                     to != null )
-                {
-                    makeMove();
-                    postMove();
-                    orientBoard();
-                    updateCheckBorder();
-                }
-
-                return true;
+                makeMove();
+                postMove();
+                orientBoard();
+                updateCheckBorder();
             }
+
+            return true;
         } );
     }
 
@@ -340,6 +327,42 @@ public class GUI extends JFrame
                 updateCheckBorder();
             }
         } );
+    }
+
+    private void newGame()
+    {
+        if ( from != null )
+            doSquareClickedAction( from );
+
+        if ( check != null )
+            check = check.resetBorder();
+
+        if ( pieceComps != null )
+        {
+            // Remove all existing PieceComps from the GUI
+            for ( PieceComp pieceComp : pieceComps )
+            {
+                Container parent = pieceComp.getParent();
+
+                if ( parent != null )
+                    parent.remove( pieceComp );
+            }
+        }
+
+        pieceComps = new ArrayList<>();
+
+        setGame( new Game() );
+
+        for ( Piece piece : getBoard().getPieces() )
+            createPieceComp( piece );
+
+        orientBoard();
+        positionPieces();
+    }
+
+    private void createPieceComp( Piece piece )
+    {
+        pieceComps.add( new PieceComp( piece ) );
     }
 
     // ============================================================================================
@@ -504,11 +527,11 @@ public class GUI extends JFrame
 
     private void updateScale()
     {
-        updatePiecesScale();
-        updateContainerScale();
+        rescalePieces();
+        rescalePieceContainers();
     }
 
-    private void updatePiecesScale()
+    private void rescalePieces()
     {
         int scale = getScale();
 
@@ -521,7 +544,7 @@ public class GUI extends JFrame
         }
     }
 
-    private void updateContainerScale()
+    private void rescalePieceContainers()
     {
         int scale = getScale();
 
@@ -579,7 +602,7 @@ public class GUI extends JFrame
             }
         }
 
-        updatePiecesScale();
+        rescalePieces();
 
         /*
          * Necessary to prevent UI issues. Without this, the selected piece may appear on both the
@@ -600,7 +623,7 @@ public class GUI extends JFrame
         }
         else
         {
-            check.setBorder( BorderFactory.createEmptyBorder() );
+            check.resetBorder();
         }
     }
 }
