@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -49,13 +50,13 @@ public class SquareComp extends JLayeredPane
         return this.rank;
     }
 
-    public SquareComp( Square square )
+    public SquareComp( char file, char rank )
     {
-        this.file = square.getFile();
-        this.rank = square.getRank();
+        this.file = file;
+        this.rank = rank;
 
-        this.defaultBg = square.getParity() == 0 ? DARK : LIGHT;
-        this.defaultFg = square.getParity() == 0 ? LIGHT : DARK;
+        this.defaultBg = Square.getParity( file, rank ) == 0 ? DARK : LIGHT;
+        this.defaultFg = Square.getParity( file, rank ) == 0 ? LIGHT : DARK;
 
         this.fileLbl = new JLabel( String.valueOf( file ) );
         fileLbl.setVerticalAlignment( SwingConstants.BOTTOM );
@@ -131,6 +132,12 @@ public class SquareComp extends JLayeredPane
     public SquareComp deselect()
     {
         resetBackground();
+        return null;
+    }
+
+    public SquareComp resetBorder()
+    {
+        setBorder( BorderFactory.createEmptyBorder() );
         return null;
     }
 
