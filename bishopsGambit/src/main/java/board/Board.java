@@ -7,6 +7,7 @@ import main.java.pieces.King;
 import main.java.pieces.Pawn;
 import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
+import main.java.pieces.Rook;
 import main.java.player.Player;
 
 public class Board extends ArrayList<Square>
@@ -129,7 +130,6 @@ public class Board extends ArrayList<Square>
     public Board move( Square from, Square to )
     {
         Piece piece = from.getPiece();
-
         Board newBoard = movePiece( piece, to );
 
         int x = Integer.signum( to.fileDiff( from ) );
@@ -153,13 +153,18 @@ public class Board extends ArrayList<Square>
             }
         }
 
-        newBoard.updateCastlingRights( piece );
+        if ( piece instanceof Rook || piece instanceof King )
+            newBoard.revokeCastlingRights( piece );
+
+        if ( to.isOccupied() && to.getPiece() instanceof Rook )
+            newBoard.revokeCastlingRights( to.getPiece() );
+
         newBoard.updateEnPassantPawn( piece, from, to );
 
         return newBoard;
     }
 
-    private void updateCastlingRights( Piece piece )
+    private void revokeCastlingRights( Piece piece )
     {
         Player player = piece.getPlayer();
 
