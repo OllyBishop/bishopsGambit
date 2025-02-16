@@ -18,7 +18,9 @@ import main.java.game.Game;
 import main.java.game.IllegalMoveException;
 import main.java.game.UnoccupiedSquareException;
 import main.java.pieces.Piece;
+import main.java.pieces.Piece.Typ;
 import main.java.player.Player;
+import main.java.player.Player.Colour;
 
 class GameTest
 {
@@ -107,6 +109,7 @@ class GameTest
     void printBoard()
     {
         getBoard().print();
+        System.out.println();
     }
 
     // ============================================================================================
@@ -219,7 +222,7 @@ class GameTest
     }
 
     @Test
-    void enPassantIllegalMove()
+    void enPassant_illegalMove()
     {
         makeMove( "d2d4", "e7e6" );
         makeMove( "d4d5", "e6e5" );
@@ -239,7 +242,7 @@ class GameTest
     }
 
     @Test
-    void enPassantOnlyLegalMoveToEscapeCheck()
+    void enPassant_onlyLegalMoveToEscapeCheck()
     {
         makeMove( "e2e4", "e7e6" );
         makeMove( "e4e5", "d8h4" );
@@ -260,7 +263,7 @@ class GameTest
     }
 
     @Test
-    void enemyKnightBlocksKingsideCastling()
+    void castlingBlocked_whiteKingside_byEnemyKnight()
     {
         makeMove( "e2e4", "g8f6" );
         makeMove( "g1f3", "f6g4" );
@@ -279,10 +282,14 @@ class GameTest
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1g1" ),
                                  "The White King occupying e1 cannot legally move to g1." );
+
+        Piece piece = getPiece( "f1" );
+        assertEquals( piece.getColour(), Colour.BLACK );
+        assertEquals( piece.getType(), Typ.KNIGHT );
     }
 
     @Test
-    void enemyBishopBlocksKingsideCastling()
+    void castlingBlocked_whiteKingside_byEnemyBishop()
     {
         makeMove( "e2e4", "b7b6" );
         makeMove( "g1f3", "c8a6" );
@@ -300,6 +307,10 @@ class GameTest
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1g1" ),
                                  "The White King occupying e1 cannot legally move to g1." );
+
+        Piece piece = getPiece( "f1" );
+        assertEquals( piece.getColour(), Colour.BLACK );
+        assertEquals( piece.getType(), Typ.BISHOP );
     }
 
     @Test
@@ -327,7 +338,7 @@ class GameTest
     }
 
     @Test
-    void insufficientMaterialKingVersusKing()
+    void insufficientMaterial_king_king()
     {
         makeMove( "e2e4", "d7d5" );
         makeMove( "e4d5", "d8d5" );
@@ -358,7 +369,38 @@ class GameTest
     }
 
     @Test
-    void insufficientMaterialKingAndBishopVersusKingAndBishopWithBishopsOnSameColour()
+    void insufficientMaterial_kingAndBishop_king()
+    {
+        makeMove( "e2e4", "d7d5" );
+        makeMove( "e4d5", "d8d5" );
+        makeMove( "f1d3", "d5a2" );
+        makeMove( "d3h7", "a2b1" );
+        makeMove( "h7g8", "b1c2" );
+        makeMove( "g8f7", "e8f7" );
+        makeMove( "a1a7", "c2c1" );
+        makeMove( "a7b7", "h8h2" );
+        makeMove( "b7b8", "h2g2" );
+        makeMove( "d1c1", "g2g1" );
+        makeMove( "h1g1", "a8b8" );
+        makeMove( "c1c7", "b8b2" );
+        makeMove( "c7c8", "b2d2" );
+        makeMove( "g1g7", "f7g7" );
+        makeMove( "c8d7", "d2f2" );
+        makeMove( "d7e7", "f8e7" );
+        makeMove( "e1f2" );
+
+        assertEquals( numberOfMovesMade(), 33 );
+        assertEquals( numberOfLegalMoves(), 17 );
+        assertEquals( materialDifference(), -3 );
+
+        assertFalse( inCheck() );
+        assertFalse( inCheckmate() );
+        assertFalse( inStalemate() );
+        assertTrue( insufficientMaterial() );
+    }
+
+    @Test
+    void insufficientMaterial_kingAndBishop_kingAndBishop_bishopsOnSameColour()
     {
         makeMove( "e2e4", "d7d5" );
         makeMove( "e4d5", "d8d5" );
@@ -386,5 +428,103 @@ class GameTest
         assertFalse( inCheckmate() );
         assertFalse( inStalemate() );
         assertTrue( insufficientMaterial() );
+    }
+
+    @Test
+    void revokeCastlingRights_whiteQueenside_byMovingRook()
+    {
+        makeMove( "b1c3", "e7e5" );
+        makeMove( "a1b1" );
+
+        assertFalse( getBoard().isWhiteQueensideCastlingAllowed() );
+        assertTrue( getBoard().isWhiteKingsideCastlingAllowed() );
+        assertTrue( getBoard().isBlackQueensideCastlingAllowed() );
+        assertTrue( getBoard().isBlackKingsideCastlingAllowed() );
+    }
+
+    @Test
+    void revokeCastlingRights_whiteKingside_byMovingRook()
+    {
+        makeMove( "g1f3", "e7e5" );
+        makeMove( "h1g1" );
+
+        assertTrue( getBoard().isWhiteQueensideCastlingAllowed() );
+        assertFalse( getBoard().isWhiteKingsideCastlingAllowed() );
+        assertTrue( getBoard().isBlackQueensideCastlingAllowed() );
+        assertTrue( getBoard().isBlackKingsideCastlingAllowed() );
+    }
+
+    @Test
+    void revokeCastlingRights_whiteQueensideAndKingside_byMovingKing()
+    {
+        makeMove( "e2e4", "e7e5" );
+        makeMove( "e1e2" );
+
+        assertFalse( getBoard().isWhiteQueensideCastlingAllowed() );
+        assertFalse( getBoard().isWhiteKingsideCastlingAllowed() );
+        assertTrue( getBoard().isBlackQueensideCastlingAllowed() );
+        assertTrue( getBoard().isBlackKingsideCastlingAllowed() );
+    }
+
+    @Test
+    void revokeCastlingRights_blackQueenside_byMovingRook()
+    {
+        makeMove( "e2e4", "b8c6" );
+        makeMove( "d2d4", "a8b8" );
+
+        assertTrue( getBoard().isWhiteQueensideCastlingAllowed() );
+        assertTrue( getBoard().isWhiteKingsideCastlingAllowed() );
+        assertFalse( getBoard().isBlackQueensideCastlingAllowed() );
+        assertTrue( getBoard().isBlackKingsideCastlingAllowed() );
+    }
+
+    @Test
+    void revokeCastlingRights_blackKingside_byMovingRook()
+    {
+        makeMove( "e2e4", "g8f6" );
+        makeMove( "d2d4", "h8g8" );
+
+        assertTrue( getBoard().isWhiteQueensideCastlingAllowed() );
+        assertTrue( getBoard().isWhiteKingsideCastlingAllowed() );
+        assertTrue( getBoard().isBlackQueensideCastlingAllowed() );
+        assertFalse( getBoard().isBlackKingsideCastlingAllowed() );
+    }
+
+    @Test
+    void revokeCastlingRights_blackQueensideAndKingside_byMovingKing()
+    {
+        makeMove( "e2e4", "e7e5" );
+        makeMove( "d2d4", "e8e7" );
+
+        assertTrue( getBoard().isWhiteQueensideCastlingAllowed() );
+        assertTrue( getBoard().isWhiteKingsideCastlingAllowed() );
+        assertFalse( getBoard().isBlackQueensideCastlingAllowed() );
+        assertFalse( getBoard().isBlackKingsideCastlingAllowed() );
+    }
+
+    @Test
+    void revokeCastlingRights_blackQueenside_byCapturingRook()
+    {
+        makeMove( "g2g3", "b7b6" );
+        makeMove( "f1g2", "e7e5" );
+        makeMove( "g2a8" );
+
+        assertTrue( getBoard().isWhiteQueensideCastlingAllowed() );
+        assertTrue( getBoard().isWhiteKingsideCastlingAllowed() );
+        assertFalse( getBoard().isBlackQueensideCastlingAllowed() );
+        assertTrue( getBoard().isBlackKingsideCastlingAllowed() );
+    }
+
+    @Test
+    void revokeCastlingRights_blackKingside_byCapturingRook()
+    {
+        makeMove( "b2b3", "g7g6" );
+        makeMove( "c1b2", "d7d5" );
+        makeMove( "b2h8" );
+
+        assertTrue( getBoard().isWhiteQueensideCastlingAllowed() );
+        assertTrue( getBoard().isWhiteKingsideCastlingAllowed() );
+        assertTrue( getBoard().isBlackQueensideCastlingAllowed() );
+        assertFalse( getBoard().isBlackKingsideCastlingAllowed() );
     }
 }
