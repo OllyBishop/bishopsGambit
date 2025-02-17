@@ -8,9 +8,4 @@ public class InvalidPromotionException extends IllegalArgumentException
     {
         super( "Cannot promote to a piece of type '" + type + "'." );
     }
-
-    public InvalidPromotionException( String code )
-    {
-        super( "Unrecognised promotion piece type code '" + code + "'." );
-    }
 }

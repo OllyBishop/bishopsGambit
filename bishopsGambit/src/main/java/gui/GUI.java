@@ -98,6 +98,14 @@ public class GUI extends JFrame
 
     private Game game;
 
+    /**
+     * An integer representing the index of the board currently displayed in the GUI. For example, a
+     * value of {@code 0} represents the board state at the beginning of the game, a value of
+     * {@code 5} represents the board state after five moves have been made, etc. A special case is
+     * {@code -1}, which indicates a move preview.
+     */
+    private int boardIndex;
+
     private Game getGame()
     {
         return this.game;
@@ -141,6 +149,16 @@ public class GUI extends JFrame
         return getGame().getBoard();
     }
 
+    private Board getBoard( int index )
+    {
+        return getGame().getBoard( index );
+    }
+
+    private int getNumberOfMovesMade()
+    {
+        return getGame().getNumberOfMovesMade();
+    }
+
     /**
      * Returns the player whose turn it is.
      * 
@@ -149,16 +167,6 @@ public class GUI extends JFrame
     private Player getActivePlayer()
     {
         return getGame().getActivePlayer();
-    }
-
-    /**
-     * Returns the opponent of the player whose turn it is.
-     * 
-     * @return Black if the number of moves made is even; White if it is odd
-     */
-    private Player getInactivePlayer()
-    {
-        return getGame().getInactivePlayer();
     }
 
     private List<Square> getMoves( SquareComp squareComp )
@@ -256,8 +264,13 @@ public class GUI extends JFrame
                 @Override
                 public void mouseReleased( MouseEvent e )
                 {
-                    if ( squareComp.contains( e.getPoint() ) )
-                        doSquareClickedAction( squareComp );
+                    if ( 0 <= boardIndex && boardIndex < getNumberOfMovesMade() )
+                        return;
+
+                    if ( !squareComp.contains( e.getPoint() ) )
+                        return;
+
+                    doSquareClickedAction( squareComp );
                 }
             } );
         }
@@ -286,9 +299,36 @@ public class GUI extends JFrame
             public void mouseReleased( MouseEvent e )
             {
                 if ( tabletopPane.getLayout() == tabletopLayoutWhite )
-                    orientBoard( Colour.BLACK, true );
-                else
-                    orientBoard( Colour.WHITE, true );
+                    orientBoard( Colour.BLACK );
+                else if ( tabletopPane.getLayout() == tabletopLayoutBlack )
+                    orientBoard( Colour.WHITE );
+            }
+        } );
+
+        previousMoveButton.addMouseListener( new MouseAdapter()
+        {
+            @Override
+            public void mouseReleased( MouseEvent e )
+            {
+                if ( boardIndex == 0 || getNumberOfMovesMade() == 0 )
+                    return;
+
+                if ( from != null )
+                    doSquareClickedAction( from );
+
+                positionPieces( getBoard( --boardIndex ) );
+            }
+        } );
+
+        nextMoveButton.addMouseListener( new MouseAdapter()
+        {
+            @Override
+            public void mouseReleased( MouseEvent e )
+            {
+                if ( boardIndex == -1 || boardIndex == getNumberOfMovesMade() )
+                    return;
+
+                positionPieces( getBoard( ++boardIndex ) );
             }
         } );
     }
@@ -299,7 +339,6 @@ public class GUI extends JFrame
         {
             if ( e.getKeyCode() == KeyEvent.VK_SPACE &&
                  e.getID() == KeyEvent.KEY_RELEASED &&
-                 from != null &&
                  to != null )
             {
                 makeMove();
@@ -323,7 +362,9 @@ public class GUI extends JFrame
             @Override
             public void componentResized( ComponentEvent e )
             {
-                updateScale();
+                rescalePieces();
+                rescalePieceContainers();
+
                 updateCheckBorder();
             }
         } );
@@ -360,14 +401,14 @@ public class GUI extends JFrame
         positionPieces();
     }
 
+    // ============================================================================================
+    // Methods
+    // ============================================================================================
+
     private void createPieceComp( Piece piece )
     {
         pieceComps.add( new PieceComp( piece ) );
     }
-
-    // ============================================================================================
-    // Methods
-    // ============================================================================================
 
     private void doSquareClickedAction( SquareComp squareComp )
     {
@@ -378,7 +419,6 @@ public class GUI extends JFrame
         Square square = getSquare( squareComp );
 
         boolean deselectFrom = false;
-        boolean deselectTo = true;
         boolean selectFrom = false;
         boolean selectTo = false;
 
@@ -407,7 +447,7 @@ public class GUI extends JFrame
         if ( deselectFrom && from != null )
             from = from.deselect();
 
-        if ( deselectTo && to != null )
+        if ( to != null )
             to = to.deselect();
 
         if ( selectFrom )
@@ -428,16 +468,27 @@ public class GUI extends JFrame
                 getSquareComp( sq ).showCircle( true );
     }
 
+    /**
+     * Orients the board to the active player's perspective, provided the 'Lock Board' button is not
+     * selected.
+     */
     private void orientBoard()
     {
-        orientBoard( getActivePlayer().getColour(), false );
-    }
-
-    private void orientBoard( Colour colour, boolean bypassLock )
-    {
-        if ( !bypassLock && lockBoardButton.isSelected() )
+        if ( lockBoardButton.isSelected() )
             return;
 
+        orientBoard( getActivePlayer().getColour() );
+    }
+
+    /**
+     * Orients the board to the player with the given <b>colour</b>'s perspective. For example, if
+     * <b>colour</b> is {@code Colour.WHITE}, the board is oriented such that 'a1' is in the
+     * lower-left corner, and the captured pieces belonging to Black are displayed underneath.
+     * 
+     * @param colour the colour of the player whose perspective the board is oriented to
+     */
+    private void orientBoard( Colour colour )
+    {
         switch ( colour )
         {
             case WHITE:
@@ -480,7 +531,7 @@ public class GUI extends JFrame
                                                   "Promotion",
                                                   JOptionPane.DEFAULT_OPTION,
                                                   JOptionPane.PLAIN_MESSAGE,
-                                                  Images.getIcon( getActivePlayer(), Typ.PAWN ),
+                                                  Images.createIcon( getActivePlayer().getColour(), Typ.PAWN ),
                                                   Typ.PROMOTION_OPTIONS,
                                                   null );
 
@@ -498,7 +549,7 @@ public class GUI extends JFrame
         from = from.deselect();
         to = to.deselect();
 
-        // TODO: Can remove this once promotion previews are implemented
+        // TODO: This can be removed once promoted pieces are included in move previews
         positionPieces();
     }
 
@@ -514,7 +565,13 @@ public class GUI extends JFrame
 
         if ( getGame().isGameOver() )
         {
-            Icon icon = status == Status.CHECKMATE ? Images.getIcon( getInactivePlayer(), Typ.KING ) : null;
+            Icon icon;
+
+            if ( status == Status.CHECKMATE )
+                icon = Images.createIcon( getActivePlayer().getColour().transpose(), Typ.KING );
+            else
+                icon = null;
+
             JOptionPane.showMessageDialog( this, getGame().getGameOverMessage(), "Game Over", JOptionPane.PLAIN_MESSAGE, icon );
         }
     }
@@ -523,12 +580,6 @@ public class GUI extends JFrame
     {
         int min = Math.min( contentPane.getWidth(), contentPane.getHeight() );
         return Math.max( 10, min / 8 );
-    }
-
-    private void updateScale()
-    {
-        rescalePieces();
-        rescalePieceContainers();
     }
 
     private void rescalePieces()
@@ -575,10 +626,21 @@ public class GUI extends JFrame
         Board board;
 
         if ( to == null )
+        {
             board = getBoard();
+            boardIndex = getNumberOfMovesMade();
+        }
         else
+        {
             board = getBoard().move( getSquare( from ), getSquare( to ) );
+            boardIndex = -1;
+        }
 
+        positionPieces( board );
+    }
+
+    private void positionPieces( Board board )
+    {
         for ( PieceComp pieceComp : pieceComps )
         {
             SquareComp squareComp = getSquareComp( board, pieceComp.getPiece() );

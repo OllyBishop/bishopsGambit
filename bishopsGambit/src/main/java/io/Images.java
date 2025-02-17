@@ -7,9 +7,7 @@ import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
-import main.java.player.Player;
 import main.java.player.Player.Colour;
 
 public class Images
@@ -45,11 +43,6 @@ public class Images
         return image;
     }
 
-    public static Image getImage( Piece piece )
-    {
-        return getImage( piece.getColour(), piece.getType() );
-    }
-
     public static Image getImage( Colour colour, Typ type )
     {
         return switch ( colour )
@@ -76,8 +69,41 @@ public class Images
         };
     }
 
-    public static Icon getIcon( Player player, Typ type )
+    /**
+     * Creates an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>. The
+     * width and height of the instance returned are equal to that of the original image.
+     * 
+     * @param colour the piece colour (i.e. the colour of the player the piece belongs to)
+     * @param type   the piece type
+     * @return an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>
+     */
+    public static Icon createIcon( Colour colour, Typ type )
     {
-        return new ImageIcon( getImage( player.getColour(), type ) );
+        return createIcon( colour, type, -1 );
+    }
+
+    /**
+     * Creates an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>. If
+     * positive, the width and height of the instance returned are equal to the given <b>scale</b>.
+     * If negative, the original image dimensions are used. If zero, an
+     * {@code IllegalArgumentException} is thrown.
+     * 
+     * @param colour the piece colour (i.e. the colour of the player the piece belongs to)
+     * @param type   the piece type
+     * @param scale  the width and height of the icon
+     * @return a scaled {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>
+     * @throws IllegalArgumentException if <b>scale</b> is zero
+     */
+    public static Icon createIcon( Colour colour, Typ type, int scale )
+    {
+        if ( scale == 0 )
+            throw new IllegalArgumentException( "Scale must be non-zero." );
+
+        Image image = getImage( colour, type );
+
+        if ( scale > 0 )
+            image = image.getScaledInstance( scale, scale, Image.SCALE_SMOOTH );
+
+        return new ImageIcon( image );
     }
 }

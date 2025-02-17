@@ -192,5 +192,16 @@ public class Player
         {
             return this.str;
         }
+
+        public Colour transpose()
+        {
+            if ( this == WHITE )
+                return BLACK;
+
+            if ( this == BLACK )
+                return WHITE;
+
+            return null;
+        }
     }
 }

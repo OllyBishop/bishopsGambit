@@ -1,8 +1,5 @@
 package main.java.gui;
 
-import java.awt.Image;
-
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import main.java.Orderable;
@@ -26,10 +23,7 @@ public class PieceComp extends JLabel implements Orderable
     public void setScale( int scale )
     {
         setSize( scale, scale );
-
-        Image imageFull = Images.getImage( getPiece() );
-        Image imageScaled = imageFull.getScaledInstance( scale, scale, Image.SCALE_SMOOTH );
-        setIcon( new ImageIcon( imageScaled ) );
+        setIcon( Images.createIcon( piece.getColour(), piece.getType(), scale ) );
     }
 
     @Override
@@ -44,6 +38,6 @@ public class PieceComp extends JLabel implements Orderable
     @Override
     public int ordinal()
     {
-        return getPiece().getType().ordinal();
+        return piece.getType().ordinal();
     }
 }

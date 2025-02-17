@@ -83,7 +83,7 @@ public class Board extends ArrayList<Square>
      * given piece is currently occupying any square on this board.
      * 
      * @param piece the piece
-     * @return a boolean indicating whether this board contains the given piece
+     * @return {@code true} if this board contains the given piece; {@code false} otherwise
      */
     public boolean containsPiece( Piece piece )
     {
@@ -127,6 +127,14 @@ public class Board extends ArrayList<Square>
         return 'a' <= file && file <= 'h' && '1' <= rank && rank <= '8';
     }
 
+    /**
+     * Moves the piece occupying the given <b>from</b> square to the given <b>to</b> square. Handles
+     * special moves (castling, en passant) by moving or removing the relevant piece (rook, pawn).
+     * 
+     * @param from the square containing the piece to be moved
+     * @param to   the destination square for the piece
+     * @return the new {@code Board} object
+     */
     public Board move( Square from, Square to )
     {
         Piece piece = from.getPiece();
@@ -159,7 +167,7 @@ public class Board extends ArrayList<Square>
         if ( to.isOccupied() && to.getPiece() instanceof Rook )
             newBoard.revokeCastlingRights( to.getPiece() );
 
-        newBoard.updateEnPassantPawn( piece, from, to );
+        newBoard.updateEnPassantPawn( from, to );
 
         return newBoard;
     }
@@ -194,8 +202,10 @@ public class Board extends ArrayList<Square>
         }
     }
 
-    private void updateEnPassantPawn( Piece piece, Square from, Square to )
+    private void updateEnPassantPawn( Square from, Square to )
     {
+        Piece piece = from.getPiece();
+
         if ( piece instanceof Pawn && piece.movedTwoSquaresForward( from, to ) )
             // Allow this pawn to be captured en passant on the next turn
             enPassantPawn = (Pawn) piece;
@@ -277,8 +287,8 @@ public class Board extends ArrayList<Square>
 
     private static class Printer
     {
-        // For each box drawing char below, n is the number of "prongs" that char has
-        // To convert box drawing chars from light to heavy, add (1 << n) - 1 to each
+        // For each box-drawing char below, n is the number of "prongs" that char has.
+        // To convert box-drawing chars from light to heavy, add (1 << n) - 1 to each.
 
         // n = 1
         private static final char HORIZONTAL = '\u2500';

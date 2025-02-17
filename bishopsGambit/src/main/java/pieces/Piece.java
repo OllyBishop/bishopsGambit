@@ -155,6 +155,12 @@ public abstract class Piece
         return Math.abs( fileDiff ) == 2 && rankDiff == 0;
     }
 
+    /**
+     * Returns a boolean indicating whether this piece is one of the given <b>types</b>.
+     * 
+     * @param types the piece types to check
+     * @return {@code true} if this piece is one of the given types; {@code false} otherwise
+     */
     public boolean isType( Typ... types )
     {
         return Arrays.asList( types ).contains( getType() );
