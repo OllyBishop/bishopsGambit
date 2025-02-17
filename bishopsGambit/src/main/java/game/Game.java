@@ -104,7 +104,12 @@ public class Game
      */
     public Board getBoard()
     {
-        return boards.get( getNumberOfMovesMade() );
+        return getBoard( getNumberOfMovesMade() );
+    }
+
+    public Board getBoard( int index )
+    {
+        return boards.get( index );
     }
 
     public int getNumberOfMovesMade()
@@ -113,23 +118,13 @@ public class Game
     }
 
     /**
-     * Returns the player whose turn it is.
+     * Returns the player whose turn it currently is.
      * 
      * @return White if the number of moves made is even; Black if it is odd
      */
     public Player getActivePlayer()
     {
         return getNumberOfMovesMade() % 2 == 0 ? white : black;
-    }
-
-    /**
-     * Returns the opponent of the player whose turn it is.
-     * 
-     * @return Black if the number of moves made is even; White if it is odd
-     */
-    public Player getInactivePlayer()
-    {
-        return getNumberOfMovesMade() % 2 == 0 ? black : white;
     }
 
     private String[] parseUCI( String uci )
@@ -166,27 +161,26 @@ public class Game
 
         Board board = getBoard();
 
-        Square fromSquare = board.getSquare( values[ 0 ] );
-        Square toSquare = board.getSquare( values[ 1 ] );
+        Square from = board.getSquare( values[ 0 ] );
+        Square to = board.getSquare( values[ 1 ] );
 
         Typ promType = switch ( values[ 2 ] )
         {
-            case "" -> null;
             case "n" -> Typ.KNIGHT;
             case "b" -> Typ.BISHOP;
             case "r" -> Typ.ROOK;
             case "q" -> Typ.QUEEN;
 
-            default -> throw new InvalidPromotionException( values[ 2 ] );
+            default -> null;
         };
 
-        return makeMove( fromSquare, toSquare, promType );
+        return makeMove( from, to, promType );
     }
 
-    public Piece makeMove( Square fromSquare, Square toSquare, Typ promType )
+    public Piece makeMove( Square from, Square to, Typ promType )
     {
-        Board newBoard = move( fromSquare, toSquare );
-        Piece promPiece = promote( newBoard, toSquare, promType );
+        Board newBoard = move( from, to );
+        Piece promPiece = promote( newBoard, to, promType );
 
         addBoard( newBoard );
 
@@ -196,26 +190,37 @@ public class Game
         return promPiece;
     }
 
-    private Board move( Square fromSquare, Square toSquare )
+    /**
+     * Moves the piece occupying the given <b>from</b> square to the given <b>to</b> square. Handles
+     * special moves (castling, en passant) by moving or removing the relevant piece (rook, pawn).
+     * 
+     * @param from the square containing the piece to be moved
+     * @param to   the destination square for the piece
+     * @return the new {@code Board} object
+     * @throws UnoccupiedSquareException if the from square is unoccupied
+     * @throws IllegalMoveException      if the piece occupying the from square cannot legally move
+     *                                   to the to square
+     */
+    private Board move( Square from, Square to )
     {
-        if ( !fromSquare.isOccupied() )
-            throw new UnoccupiedSquareException( fromSquare );
+        if ( !from.isOccupied() )
+            throw new UnoccupiedSquareException( from );
 
         Board board = getBoard();
 
-        if ( !board.isLegalMove( fromSquare, toSquare ) )
-            throw new IllegalMoveException( fromSquare, toSquare );
+        if ( !board.isLegalMove( from, to ) )
+            throw new IllegalMoveException( from, to );
 
-        return board.move( fromSquare, toSquare );
+        return board.move( from, to );
     }
 
-    private Piece promote( Board newBoard, Square toSquare, Typ promType )
+    private Piece promote( Board newBoard, Square square, Typ promType )
     {
         if ( promType == null )
             return null;
 
-        char file = toSquare.getFile();
-        char rank = toSquare.getRank();
+        char file = square.getFile();
+        char rank = square.getRank();
 
         Piece promPiece = switch ( promType )
         {
@@ -243,7 +248,7 @@ public class Game
     {
         return switch ( getStatus() )
         {
-            case CHECKMATE -> getInactivePlayer() + " wins by checkmate.";
+            case CHECKMATE -> getActivePlayer().getColour().transpose() + " wins by checkmate.";
             case STALEMATE -> "Game drawn by stalemate.";
             case INSUFFICIENT_MATERIAL -> "Game drawn by insufficient material.";
 

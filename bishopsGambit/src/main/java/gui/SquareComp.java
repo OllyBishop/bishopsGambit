@@ -135,6 +135,11 @@ public class SquareComp extends JLayeredPane
         return null;
     }
 
+    /**
+     * Sets the border of this button to an empty border.
+     * 
+     * @return {@code null}
+     */
     public SquareComp resetBorder()
     {
         setBorder( BorderFactory.createEmptyBorder() );
@@ -164,7 +169,7 @@ public class SquareComp extends JLayeredPane
 
     public int getIndex()
     {
-        return Square.getIndex( getFile(), getRank() );
+        return Square.getIndex( file, rank );
     }
 
     private class CircleComp extends JComponent
