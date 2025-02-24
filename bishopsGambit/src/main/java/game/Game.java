@@ -6,12 +6,9 @@ import java.util.List;
 
 import main.java.board.Board;
 import main.java.board.Square;
-import main.java.pieces.Bishop;
-import main.java.pieces.Knight;
+import main.java.pieces.Pawn;
 import main.java.pieces.Piece;
 import main.java.pieces.Piece.Typ;
-import main.java.pieces.Queen;
-import main.java.pieces.Rook;
 import main.java.player.Player;
 import main.java.player.Player.Colour;
 
@@ -63,10 +60,10 @@ public class Game
     {
         Player activePlayer = getActivePlayer();
 
-        if ( activePlayer.isInCheckmate( board ) )
+        if ( activePlayer.isCheckmated( board ) )
             setStatus( Status.CHECKMATE );
 
-        else if ( activePlayer.isInStalemate( board ) )
+        else if ( activePlayer.isStalemated( board ) )
             setStatus( Status.STALEMATE );
 
         else if ( board.hasInsufficientMaterial() )
@@ -104,7 +101,7 @@ public class Game
      */
     public Board getBoard()
     {
-        return getBoard( getNumberOfMovesMade() );
+        return getBoard( getNumberOfTurnsTaken() );
     }
 
     public Board getBoard( int index )
@@ -112,7 +109,12 @@ public class Game
         return boards.get( index );
     }
 
-    public int getNumberOfMovesMade()
+    /**
+     * Returns the number of turns taken in this game.
+     * 
+     * @return the number of turns taken in this game
+     */
+    public int getNumberOfTurnsTaken()
     {
         return boards.size() - 1;
     }
@@ -120,14 +122,14 @@ public class Game
     /**
      * Returns the player whose turn it currently is.
      * 
-     * @return White if the number of moves made is even; Black if it is odd
+     * @return White if the number of turns taken is even; Black if it is odd
      */
     public Player getActivePlayer()
     {
-        return getNumberOfMovesMade() % 2 == 0 ? white : black;
+        return getNumberOfTurnsTaken() % 2 == 0 ? white : black;
     }
 
-    private String[] parseUCI( String uci )
+    private String[] parseUci( String uci )
     {
         if ( uci == null )
             throw new IllegalArgumentException( "String cannot be null." );
@@ -153,18 +155,18 @@ public class Game
 
     /**
      * @param uci a string representing the move in Universal Chess Interface (UCI) notation
-     * @return the promoted piece (if applicable); {@code null} otherwise
+     * @return the new piece (if promoting); {@code null} otherwise
      */
     public Piece makeMove( String uci )
     {
-        String[] values = parseUCI( uci );
+        String[] values = parseUci( uci );
 
         Board board = getBoard();
 
         Square from = board.getSquare( values[ 0 ] );
         Square to = board.getSquare( values[ 1 ] );
 
-        Typ promType = switch ( values[ 2 ] )
+        Typ newType = switch ( values[ 2 ] )
         {
             case "n" -> Typ.KNIGHT;
             case "b" -> Typ.BISHOP;
@@ -174,67 +176,84 @@ public class Game
             default -> null;
         };
 
-        return makeMove( from, to, promType );
+        return makeMove( from, to, newType );
     }
 
-    public Piece makeMove( Square from, Square to, Typ promType )
+    /**
+     * Clones the current board (returned by {@code getBoard()}) and moves the piece occupying the
+     * <b>from</b> square to the <b>to</b> square. Also handles the following special moves (if
+     * applicable):
+     * <ul>
+     * <li>Castling – Moves the corresponding rook to the square adjacent to the king.</li>
+     * <li>En passant – Removes the corresponding pawn.</li>
+     * <li>Promotion – Replaces the piece with a new piece of the given type.</li>
+     * </ul>
+     * 
+     * @param from    the square containing the piece to be moved
+     * @param to      the destination square for the piece
+     * @param newType the new piece type (if promoting)
+     * @return the new piece (if promoting); {@code null} otherwise
+     * @throws UnoccupiedSquareException if the <b>from</b> square is unoccupied
+     * @throws IllegalMoveException      if the piece cannot legally move to the <b>to</b> square
+     * @throws InvalidPromotionException if <b>newType</b> is null and promotion is mandatory, or
+     *                                   <b>newType</b> is non-null and either
+     *                                   <ul>
+     *                                   <li>the piece occupying <b>from</b> is not a pawn,</li>
+     *                                   <li><b>to</b> is not on the player's last rank, or</li>
+     *                                   <li><b>newType</b> is not a valid type</li>
+     *                                   </ul>
+     */
+    public Piece makeMove( Square from, Square to, Typ newType )
     {
-        Board newBoard = move( from, to );
-        Piece promPiece = promote( newBoard, to, promType );
+        if ( !from.isOccupied() )
+            throw new UnoccupiedSquareException( from );
+
+        if ( !getBoard().isLegalMove( from, to ) )
+            throw new IllegalMoveException( from, to );
+
+        Board newBoard = getBoard().cloneAndMove( from, to );
+
+        Piece piece = from.getPiece();
+        Piece newPiece;
+
+        Player player = piece.getPlayer();
+
+        if ( newType == null )
+        {
+            if ( piece instanceof Pawn && to.isOnLastRank( player ) )
+                throw new InvalidPromotionException( "Promotion is mandatory, but no new piece type was specified." );
+
+            newPiece = null;
+        }
+        else
+        {
+            if ( !(piece instanceof Pawn) )
+            {
+                String msg = String.format( "The promoting piece (%s) must be a Pawn.", piece );
+                throw new InvalidPromotionException( msg );
+            }
+
+            if ( !to.isOnLastRank( player ) )
+            {
+                String msg = String.format( "The promotion square (%s) must be on %s's last rank.", to, player );
+                throw new InvalidPromotionException( msg );
+            }
+
+            if ( !newType.isValidPromotionType() )
+            {
+                String msg = String.format( "The new piece type (%s) must be one of Knight, Bishop, Rook or Queen.", newType );
+                throw new InvalidPromotionException( msg );
+            }
+
+            newPiece = newBoard.promote( (Pawn) piece, newType );
+        }
 
         addBoard( newBoard );
 
         if ( isGameOver() )
             System.out.println( getGameOverMessage() );
 
-        return promPiece;
-    }
-
-    /**
-     * Moves the piece occupying the given <b>from</b> square to the given <b>to</b> square. Handles
-     * special moves (castling, en passant) by moving or removing the relevant piece (rook, pawn).
-     * 
-     * @param from the square containing the piece to be moved
-     * @param to   the destination square for the piece
-     * @return the new {@code Board} object
-     * @throws UnoccupiedSquareException if the from square is unoccupied
-     * @throws IllegalMoveException      if the piece occupying the from square cannot legally move
-     *                                   to the to square
-     */
-    private Board move( Square from, Square to )
-    {
-        if ( !from.isOccupied() )
-            throw new UnoccupiedSquareException( from );
-
-        Board board = getBoard();
-
-        if ( !board.isLegalMove( from, to ) )
-            throw new IllegalMoveException( from, to );
-
-        return board.move( from, to );
-    }
-
-    private Piece promote( Board newBoard, Square square, Typ promType )
-    {
-        if ( promType == null )
-            return null;
-
-        char file = square.getFile();
-        char rank = square.getRank();
-
-        Piece promPiece = switch ( promType )
-        {
-            case KNIGHT -> new Knight( getActivePlayer(), file, rank );
-            case BISHOP -> new Bishop( getActivePlayer(), file, rank );
-            case ROOK -> new Rook( getActivePlayer(), file, rank );
-            case QUEEN -> new Queen( getActivePlayer(), file, rank );
-
-            default -> throw new InvalidPromotionException( promType );
-        };
-
-        newBoard.getSquare( file, rank ).setPiece( promPiece );
-
-        return promPiece;
+        return newPiece;
     }
 
     public boolean isGameOver()

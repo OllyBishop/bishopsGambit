@@ -1,20 +1,31 @@
 package test.java;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.function.ThrowingRunnable;
+import org.junit.jupiter.api.function.Executable;
 
 public class Assertions
 {
-    public static void assertThrowsWithMessage( Class<? extends Throwable> expectedThrowable,
-                                                ThrowingRunnable runnable,
-                                                String expectedMessage )
+    /**
+     * Asserts that execution of the given <b>executable</b> throws an exception of the
+     * <b>expectedType</b>, and the message of the exception thrown is equal to
+     * <b>expectedMessage</b>.
+     * 
+     * @param expectedType    the type (class) of the exception we expect to be thrown
+     * @param executable      the executable that causes the exception to be thrown
+     * @param expectedMessage the message we expect the exception to have
+     * @return the exception that was thrown
+     */
+    public static Throwable assertThrowsWithMessage( Class<? extends Throwable> expectedType,
+                                                     Executable executable,
+                                                     String expectedMessage )
     {
-        Throwable e = assertThrows( expectedThrowable, runnable );
-        assertEquals( expectedMessage, e.getMessage() );
+        Throwable actual = assertThrows( expectedType, executable );
+        assertEquals( expectedMessage, actual.getMessage() );
+        return actual;
     }
 
     public static void assertSameNotNull( Object expected, Object actual )

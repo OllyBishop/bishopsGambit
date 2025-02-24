@@ -1,6 +1,5 @@
 package main.java.pieces;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,7 +10,26 @@ import main.java.player.Player.Colour;
 
 public abstract class Piece
 {
-    private final Player player; // References the player this piece belongs to
+    public static Piece newInstance( Typ type, Player player, char file, char rank )
+    {
+        return switch ( type )
+        {
+            case PAWN -> new Pawn( player, file, rank );
+            case KNIGHT -> new Knight( player, file, rank );
+            case BISHOP -> new Bishop( player, file, rank );
+            case ROOK -> new Rook( player, file, rank );
+            case QUEEN -> new Queen( player, file, rank );
+            case KING -> new King( player, file, rank );
+        };
+    }
+
+    /**
+     * The player this piece belongs to.
+     * <p>
+     * Given an arbitrary {@code Player p}, then {@code this.player == p} if and only if
+     * {@code p.getPieces().contains( this )}.
+     */
+    private final Player player;
 
     private final char startFile;
     private final char startRank;
@@ -71,19 +89,19 @@ public abstract class Piece
     public abstract List<Square> getTargets( Board board );
 
     /**
-     * Returns a list of all squares this piece can legally move to. The squares returned are a
-     * subset of the squares returned by {@code getTargets()}, with any moves that would result in
-     * check removed.
+     * Returns a list of all squares this piece can legally move to. The list returned is a filtered
+     * version of {@code getTargets()}, where any squares that (if moved to) would result in the
+     * player being in check are excluded.
      * 
      * @param board the chess board
      * @return a list of all squares this piece can legally move to
      */
     public List<Square> getMoves( Board board )
     {
-        List<Square> targets = new ArrayList<>( getTargets( board ) );
         Square from = getSquare( board );
-        targets.removeIf( to -> getPlayer().isInCheck( board.move( from, to ) ) );
-        return targets;
+        return getTargets( board ).stream()
+                                  .filter( to -> !getPlayer().isInCheck( board.cloneAndMove( from, to ) ) )
+                                  .toList();
     }
 
     public Square getStartSquare( Board board )
@@ -114,24 +132,24 @@ public abstract class Piece
      */
     public boolean isTargeted( Board board )
     {
-        return getSquare( board ).isTargeted( board, getPlayer() );
+        return getSquare( board ).isTargeted( getPlayer(), board );
     }
 
     /**
      * Returns a boolean indicating whether this piece is targeting the given square.
      * 
-     * @param board  the chess board
      * @param square the square
+     * @param board  the chess board
      * @return {@code true} if this piece is targeting the given square; {@code false} otherwise
      */
-    public boolean isTargeting( Board board, Square square )
+    public boolean isTargeting( Square square, Board board )
     {
         return getTargets( board ).contains( square );
     }
 
-    public boolean canPromote( Board board, Square square )
+    public boolean canPromote( Square square )
     {
-        return this instanceof Pawn && square.travel( board, 0, getSign() ) == null;
+        return this instanceof Pawn && square.isOnLastRank( getPlayer() );
     }
 
     public boolean movedTwoSquaresForward( Square from, Square to )
@@ -148,7 +166,7 @@ public abstract class Piece
         return Math.abs( fileDiff ) == 1 && rankDiff == getSign();
     }
 
-    public boolean movedTwoSquaresLaterally( Square from, Square to )
+    public boolean movedTwoSquaresHorizontally( Square from, Square to )
     {
         int fileDiff = to.fileDiff( from );
         int rankDiff = to.rankDiff( from );
@@ -175,7 +193,7 @@ public abstract class Piece
         KNIGHT( "Knight" ),
         PAWN( "Pawn" );
 
-        public static final Typ[] PROMOTION_OPTIONS = new Typ[] { KNIGHT, BISHOP, ROOK, QUEEN };
+        public static final Typ[] PROMOTION_TYPES = new Typ[] { KNIGHT, BISHOP, ROOK, QUEEN };
 
         private final String str;
 
@@ -188,6 +206,11 @@ public abstract class Piece
         public String toString()
         {
             return this.str;
+        }
+
+        public boolean isValidPromotionType()
+        {
+            return Arrays.asList( PROMOTION_TYPES ).contains( this );
         }
     }
 }

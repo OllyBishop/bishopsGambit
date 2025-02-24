@@ -25,19 +25,25 @@ public class Player
 
     public Player( Colour colour )
     {
+        this.colour = colour;
+
+        this.sign = switch ( colour )
+        {
+            case WHITE -> 1;
+            case BLACK -> -1;
+        };
+
         char backRank = switch ( colour )
         {
             case WHITE -> '1';
             case BLACK -> '8';
         };
+
         char pawnRank = switch ( colour )
         {
             case WHITE -> '2';
             case BLACK -> '7';
         };
-
-        this.colour = colour;
-        this.sign = Integer.signum( pawnRank - backRank );
 
         new Pawn( this, 'a', pawnRank );
         new Pawn( this, 'b', pawnRank );
@@ -118,10 +124,10 @@ public class Player
     }
 
     /**
-     * Returns a boolean indicating whether this player is currently in check.
+     * Returns a boolean indicating whether this player is in check.
      * 
      * @param board the chess board
-     * @return {@code true} if this player is currently in check; {@code false} otherwise
+     * @return {@code true} if this player is in check; {@code false} otherwise
      */
     public boolean isInCheck( Board board )
     {
@@ -129,23 +135,23 @@ public class Player
     }
 
     /**
-     * Returns a boolean indicating whether this player is currently in checkmate.
+     * Returns a boolean indicating whether this player is checkmated.
      * 
      * @param board the chess board
-     * @return {@code true} if this player is currently in checkmate; {@code false} otherwise
+     * @return {@code true} if this player is checkmated; {@code false} otherwise
      */
-    public boolean isInCheckmate( Board board )
+    public boolean isCheckmated( Board board )
     {
         return hasNoLegalMoves( board ) && isInCheck( board );
     }
 
     /**
-     * Returns a boolean indicating whether this player is currently in stalemate.
+     * Returns a boolean indicating whether this player is stalemated.
      * 
      * @param board the chess board
-     * @return {@code true} if this player is currently in stalemate; {@code false} otherwise
+     * @return {@code true} if this player is stalemated; {@code false} otherwise
      */
-    public boolean isInStalemate( Board board )
+    public boolean isStalemated( Board board )
     {
         return hasNoLegalMoves( board ) && !isInCheck( board );
     }
@@ -195,13 +201,11 @@ public class Player
 
         public Colour transpose()
         {
-            if ( this == WHITE )
-                return BLACK;
-
-            if ( this == BLACK )
-                return WHITE;
-
-            return null;
+            return switch ( this )
+            {
+                case WHITE -> BLACK;
+                case BLACK -> WHITE;
+            };
         }
     }
 }

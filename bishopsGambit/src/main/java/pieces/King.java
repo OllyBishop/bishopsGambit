@@ -72,8 +72,8 @@ public class King extends Piece
                     if ( !k1.isOccupied() &&
                          !k2.isOccupied() &&
                          !r1.isOccupied() &&
-                         !k1.isTargeted( board, getPlayer() ) &&
-                         !k2.isTargeted( board, getPlayer() ) )
+                         !k1.isTargeted( getPlayer(), board ) &&
+                         !k2.isTargeted( getPlayer(), board ) )
                     {
                         moves.add( k2 );
                     }

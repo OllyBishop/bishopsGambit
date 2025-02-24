@@ -1,11 +1,9 @@
 package main.java.game;
 
-import main.java.pieces.Piece.Typ;
-
 public class InvalidPromotionException extends IllegalArgumentException
 {
-    public InvalidPromotionException( Typ type )
+    protected InvalidPromotionException( String message )
     {
-        super( "Cannot promote to a piece of type '" + type + "'." );
+        super( message );
     }
 }

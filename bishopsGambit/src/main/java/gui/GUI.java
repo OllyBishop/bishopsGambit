@@ -24,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.border.Border;
 
 import main.java.board.Board;
 import main.java.board.Square;
@@ -101,7 +102,7 @@ public class GUI extends JFrame
     /**
      * An integer representing the index of the board currently displayed in the GUI. For example, a
      * value of {@code 0} represents the board state at the beginning of the game, a value of
-     * {@code 5} represents the board state after five moves have been made, etc. A special case is
+     * {@code 10} represents the board state after ten turns have been taken, etc. A special case is
      * {@code -1}, which indicates a move preview.
      */
     private int boardIndex;
@@ -154,16 +155,11 @@ public class GUI extends JFrame
         return getGame().getBoard( index );
     }
 
-    private int getNumberOfMovesMade()
+    private int getNumberOfTurnsTaken()
     {
-        return getGame().getNumberOfMovesMade();
+        return getGame().getNumberOfTurnsTaken();
     }
 
-    /**
-     * Returns the player whose turn it is.
-     * 
-     * @return White if the number of moves made is even; Black if it is odd
-     */
     private Player getActivePlayer()
     {
         return getGame().getActivePlayer();
@@ -264,7 +260,7 @@ public class GUI extends JFrame
                 @Override
                 public void mouseReleased( MouseEvent e )
                 {
-                    if ( 0 <= boardIndex && boardIndex < getNumberOfMovesMade() )
+                    if ( 0 <= boardIndex && boardIndex < getNumberOfTurnsTaken() )
                         return;
 
                     if ( !squareComp.contains( e.getPoint() ) )
@@ -310,7 +306,7 @@ public class GUI extends JFrame
             @Override
             public void mouseReleased( MouseEvent e )
             {
-                if ( boardIndex == 0 || getNumberOfMovesMade() == 0 )
+                if ( boardIndex == 0 || getNumberOfTurnsTaken() == 0 )
                     return;
 
                 if ( from != null )
@@ -325,7 +321,7 @@ public class GUI extends JFrame
             @Override
             public void mouseReleased( MouseEvent e )
             {
-                if ( boardIndex == -1 || boardIndex == getNumberOfMovesMade() )
+                if ( boardIndex == -1 || boardIndex == getNumberOfTurnsTaken() )
                     return;
 
                 positionPieces( getBoard( ++boardIndex ) );
@@ -364,7 +360,6 @@ public class GUI extends JFrame
             {
                 rescalePieces();
                 rescalePieceContainers();
-
                 updateCheckBorder();
             }
         } );
@@ -522,9 +517,9 @@ public class GUI extends JFrame
         Square fromSquare = getSquare( from );
         Square toSquare = getSquare( to );
 
-        Typ promType = null;
+        Typ newType = null;
 
-        if ( fromSquare.getPiece().canPromote( getBoard(), toSquare ) )
+        if ( fromSquare.getPiece().canPromote( toSquare ) )
         {
             int i = JOptionPane.showOptionDialog( rootPane,
                                                   "Select a piece to promote to.",
@@ -532,19 +527,19 @@ public class GUI extends JFrame
                                                   JOptionPane.DEFAULT_OPTION,
                                                   JOptionPane.PLAIN_MESSAGE,
                                                   Images.createIcon( getActivePlayer().getColour(), Typ.PAWN ),
-                                                  Typ.PROMOTION_OPTIONS,
+                                                  Typ.PROMOTION_TYPES,
                                                   null );
 
             if ( i == JOptionPane.CLOSED_OPTION )
-                promType = Typ.QUEEN;
+                newType = Typ.QUEEN;
             else
-                promType = Typ.PROMOTION_OPTIONS[ i ];
+                newType = Typ.PROMOTION_TYPES[ i ];
         }
 
-        Piece promPiece = getGame().makeMove( fromSquare, toSquare, promType );
+        Piece newPiece = getGame().makeMove( fromSquare, toSquare, newType );
 
-        if ( promPiece != null )
-            createPieceComp( promPiece );
+        if ( newPiece != null )
+            createPieceComp( newPiece );
 
         from = from.deselect();
         to = to.deselect();
@@ -628,11 +623,11 @@ public class GUI extends JFrame
         if ( to == null )
         {
             board = getBoard();
-            boardIndex = getNumberOfMovesMade();
+            boardIndex = getNumberOfTurnsTaken();
         }
         else
         {
-            board = getBoard().move( getSquare( from ), getSquare( to ) );
+            board = getBoard().cloneAndMove( getSquare( from ), getSquare( to ) );
             boardIndex = -1;
         }
 
@@ -681,7 +676,8 @@ public class GUI extends JFrame
         if ( to == null )
         {
             int thickness = Math.max( 1, check.getWidth() / 20 );
-            check.setBorder( BorderFactory.createLineBorder( Color.RED, thickness ) );
+            Border border = BorderFactory.createLineBorder( Color.RED, thickness );
+            check.setBorder( border );
         }
         else
         {

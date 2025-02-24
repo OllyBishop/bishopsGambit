@@ -109,17 +109,26 @@ public class Square
      * Returns a boolean indicating whether or not this square is being targeted by a piece
      * <i>not</i> belonging to the given player.
      * 
-     * @param board  the chess board
      * @param player the player
+     * @param board  the chess board
      * @return {@code true} if this square is being targeted by a piece <i>not</i> belonging to the
      *         given player; {@code false} otherwise
      */
-    public boolean isTargeted( Board board, Player player )
+    public boolean isTargeted( Player player, Board board )
     {
         return board.getPieces()
                     .stream()
                     .filter( pc -> pc.getPlayer() != player )
-                    .anyMatch( pc -> pc.isTargeting( board, this ) );
+                    .anyMatch( pc -> pc.isTargeting( this, board ) );
+    }
+
+    public boolean isOnLastRank( Player player )
+    {
+        return switch ( player.getColour() )
+        {
+            case WHITE -> getRank() == '8';
+            case BLACK -> getRank() == '1';
+        };
     }
 
     public Square travel( Board board, int x, int y )

@@ -95,7 +95,8 @@ public class Board extends ArrayList<Square>
      * finds the square with file 'a' and rank '1'.
      * 
      * @param coords the coordinates of the desired square as a string
-     * @return the square whose coordinates match the given string
+     * @return the square whose coordinates match the given string (if it exists); {@code null}
+     *         otherwise
      */
     public Square getSquare( String coords )
     {
@@ -128,48 +129,94 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Moves the piece occupying the given <b>from</b> square to the given <b>to</b> square. Handles
-     * special moves (castling, en passant) by moving or removing the relevant piece (rook, pawn).
+     * Clones this board and moves the piece occupying the <b>from</b> square to the <b>to</b>
+     * square. Also handles the following special moves (if applicable):
+     * <ul>
+     * <li>Castling – Moves the corresponding rook to the square adjacent to the king.</li>
+     * <li>En passant – Removes the corresponding pawn.</li>
+     * </ul>
      * 
      * @param from the square containing the piece to be moved
      * @param to   the destination square for the piece
      * @return the new {@code Board} object
      */
-    public Board move( Square from, Square to )
+    public Board cloneAndMove( Square from, Square to )
     {
+        Board newBoard = (Board) clone();
+        newBoard.move( from, to );
+        return newBoard;
+    }
+
+    private void move( Square from, Square to )
+    {
+        movePiece( from, to );
+
         Piece piece = from.getPiece();
-        Board newBoard = movePiece( piece, to );
 
-        int x = Integer.signum( to.fileDiff( from ) );
-        Square s1 = from.travel( this, x, 0 );
+        boolean enPassant = piece instanceof Pawn && piece.movedOneSquareDiagonallyForward( from, to ) && !to.isOccupied();
+        boolean castling = piece instanceof King && piece.movedTwoSquaresHorizontally( from, to );
 
-        if ( piece instanceof Pawn )
+        if ( enPassant || castling )
         {
-            // En passant
-            if ( piece.movedOneSquareDiagonallyForward( from, to ) && !to.isOccupied() )
+            int x = Integer.signum( to.fileDiff( from ) );
+            Square s1 = from.travel( this, x, 0 );
+
+            if ( enPassant )
+                replace( s1, s1.clone() );
+
+            if ( castling )
             {
-                newBoard.replace( s1, s1.clone() );
-            }
-        }
-        else if ( piece instanceof King )
-        {
-            // Castling
-            if ( piece.movedTwoSquaresLaterally( from, to ) )
-            {
-                Piece rook = piece.getPlayer().getRook( x );
-                newBoard = newBoard.movePiece( rook, s1 );
+                Rook rook = piece.getPlayer().getRook( x );
+                Square r = rook.getSquare( this );
+                movePiece( r, s1 );
             }
         }
 
         if ( piece instanceof Rook || piece instanceof King )
-            newBoard.revokeCastlingRights( piece );
+            revokeCastlingRights( piece );
 
         if ( to.isOccupied() && to.getPiece() instanceof Rook )
-            newBoard.revokeCastlingRights( to.getPiece() );
+            revokeCastlingRights( to.getPiece() );
 
-        newBoard.updateEnPassantPawn( from, to );
+        updateEnPassantPawn( from, to );
+    }
 
-        return newBoard;
+    /**
+     * Moves the piece occupying the <b>from</b> square to the <b>to</b> square. The from and to
+     * squares are cloned, then the piece is unassigned from the new from square and assigned to the
+     * new to square.
+     * 
+     * @param from the square containing the piece to be moved
+     * @param to   the destination square for the piece
+     */
+    private void movePiece( Square from, Square to )
+    {
+        replace( from, from.clone() );
+        replace( to, to.clone( from.getPiece() ) );
+    }
+
+    /**
+     * Replaces the square <b>s1</b> on this board with the square <b>s2</b>.
+     * 
+     * @param s1 the old square
+     * @param s2 the new square
+     */
+    private void replace( Square s1, Square s2 )
+    {
+        int index = indexOf( s1 );
+        remove( index );
+        add( index, s2 );
+    }
+
+    public Piece promote( Pawn pawn, Typ promType )
+    {
+        Square square = pawn.getSquare( this );
+        Piece promPiece = Piece.newInstance( promType,
+                                             pawn.getPlayer(),
+                                             square.getFile(),
+                                             square.getRank() );
+        square.setPiece( promPiece );
+        return promPiece;
     }
 
     private void revokeCastlingRights( Piece piece )
@@ -211,39 +258,6 @@ public class Board extends ArrayList<Square>
             enPassantPawn = (Pawn) piece;
         else
             enPassantPawn = null;
-    }
-
-    /**
-     * Clones this board and moves the given piece to the given square. The piece's <i>from</i> and
-     * <i>to</i> squares are cloned, then the piece is unassigned from the new <i>from</i> square
-     * and assigned to the new <i>to</i> square.
-     * 
-     * @param piece the piece to be moved
-     * @param to    the destination square for the piece
-     * @return a clone of this board where the given piece has been moved to the given square
-     */
-    private Board movePiece( Piece piece, Square to )
-    {
-        Square from = piece.getSquare( this );
-
-        Board newBoard = (Board) clone();
-        newBoard.replace( from, from.clone() );
-        newBoard.replace( to, to.clone( piece ) );
-
-        return newBoard;
-    }
-
-    /**
-     * Replaces the square <b>s1</b> on this board with the square <b>s2</b>.
-     * 
-     * @param s1 the old square
-     * @param s2 the new square
-     */
-    private void replace( Square s1, Square s2 )
-    {
-        int index = indexOf( s1 );
-        remove( index );
-        add( index, s2 );
     }
 
     public boolean isLegalMove( Square from, Square to )
