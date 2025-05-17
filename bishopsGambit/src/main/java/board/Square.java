@@ -10,7 +10,7 @@ public class Square
 
     private Piece piece;
 
-    public Square( char file, char rank )
+    protected Square( char file, char rank )
     {
         this.file = file;
         this.rank = rank;
@@ -31,7 +31,7 @@ public class Square
         return this.piece;
     }
 
-    public void setPiece( Piece piece )
+    protected void setPiece( Piece piece )
     {
         this.piece = piece;
     }
@@ -42,14 +42,6 @@ public class Square
         return String.format( "%s%s", getFile(), getRank() );
     }
 
-    public char toChar()
-    {
-        if ( isOccupied() )
-            return getPiece().toChar();
-
-        return ' ';
-    }
-
     /**
      * Creates a new square that has the same file and rank as {@code this}. No piece is assigned to
      * the new square; that is, the new square is unoccupied.
@@ -57,16 +49,9 @@ public class Square
      * @return a new square that has the same file and rank as {@code this}
      */
     @Override
-    public Square clone()
+    protected Square clone()
     {
         return new Square( getFile(), getRank() );
-    }
-
-    public Square clone( Piece piece )
-    {
-        Square clone = clone();
-        clone.setPiece( piece );
-        return clone;
     }
 
     /**
@@ -163,16 +148,6 @@ public class Square
 
     public static int getIndex( char file, char rank )
     {
-        return 8 * getFileIndex( file ) + getRankIndex( rank );
-    }
-
-    public static int getFileIndex( char file )
-    {
-        return file - 'a';
-    }
-
-    public static int getRankIndex( char rank )
-    {
-        return rank - '1';
+        return 8 * (file - 'a') + (rank - '1');
     }
 }

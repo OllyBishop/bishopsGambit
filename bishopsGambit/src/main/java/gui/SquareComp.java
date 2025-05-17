@@ -40,17 +40,17 @@ public class SquareComp extends JLayeredPane
     private final JLabel rankLbl;
     private final CircleComp circleComp;
 
-    public char getFile()
+    protected char getFile()
     {
         return this.file;
     }
 
-    public char getRank()
+    protected char getRank()
     {
         return this.rank;
     }
 
-    public SquareComp( char file, char rank )
+    protected SquareComp( char file, char rank )
     {
         this.file = file;
         this.rank = rank;
@@ -82,7 +82,7 @@ public class SquareComp extends JLayeredPane
         setOpaque( true );
     }
 
-    public void addPieceComp( PieceComp pieceComp )
+    protected void addPieceComp( PieceComp pieceComp )
     {
         add( pieceComp, PALETTE_LAYER );
 
@@ -98,17 +98,17 @@ public class SquareComp extends JLayeredPane
         setBackground( defaultBg );
     }
 
-    public void showFile( char rank )
+    protected void showFile( char rank )
     {
         fileLbl.setVisible( this.rank == rank );
     }
 
-    public void showRank( char file )
+    protected void showRank( char file )
     {
         rankLbl.setVisible( this.file == file );
     }
 
-    public void showCircle( boolean b )
+    protected void showCircle( boolean b )
     {
         circleComp.setVisible( b );
     }
@@ -118,7 +118,7 @@ public class SquareComp extends JLayeredPane
      * 
      * @return {@code this}
      */
-    public SquareComp select()
+    protected SquareComp select()
     {
         setBackground( ColorUtils.blend( defaultBg, HIGHLIGHT, 1, 3 ) );
         return this;
@@ -129,7 +129,7 @@ public class SquareComp extends JLayeredPane
      * 
      * @return {@code null}
      */
-    public SquareComp deselect()
+    protected SquareComp deselect()
     {
         resetBackground();
         return null;
@@ -140,13 +140,13 @@ public class SquareComp extends JLayeredPane
      * 
      * @return {@code null}
      */
-    public SquareComp resetBorder()
+    protected SquareComp resetBorder()
     {
         setBorder( BorderFactory.createEmptyBorder() );
         return null;
     }
 
-    public void setScale( int scale )
+    protected void setScale( int scale )
     {
         Dimension dimension = new Dimension( scale, scale );
 
@@ -167,7 +167,7 @@ public class SquareComp extends JLayeredPane
         ComponentUtils.resizeFont( rankLbl, scale / 5 );
     }
 
-    public int getIndex()
+    protected int getIndex()
     {
         return Square.getIndex( file, rank );
     }
@@ -176,7 +176,7 @@ public class SquareComp extends JLayeredPane
     {
         private static final Color BLACK_TRANSLUCENT = ColorUtils.changeAlpha( Color.black, 63 );
 
-        public CircleComp()
+        private CircleComp()
         {
             setBackground( null );
         }

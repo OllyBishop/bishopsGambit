@@ -81,10 +81,7 @@ public class Game
         Player activePlayer = getActivePlayer();
         int n = activePlayer.getNumberOfLegalMoves( board );
 
-        if ( n == 1 )
-            System.out.printf( "%s has 1 legal move.", activePlayer );
-        else
-            System.out.printf( "%s has %d legal moves.", activePlayer, n );
+        System.out.printf( "%s has %d legal move%s.", activePlayer, n, n == 1 ? "" : "s" );
 
         int diff = board.getMaterialDifference();
 
@@ -166,17 +163,20 @@ public class Game
         Square from = board.getSquare( values[ 0 ] );
         Square to = board.getSquare( values[ 1 ] );
 
-        Typ newType = switch ( values[ 2 ] )
+        return switch ( values[ 2 ] )
         {
-            case "n" -> Typ.KNIGHT;
-            case "b" -> Typ.BISHOP;
-            case "r" -> Typ.ROOK;
-            case "q" -> Typ.QUEEN;
+            case "n" -> makeMove( from, to, Typ.KNIGHT );
+            case "b" -> makeMove( from, to, Typ.BISHOP );
+            case "r" -> makeMove( from, to, Typ.ROOK );
+            case "q" -> makeMove( from, to, Typ.QUEEN );
 
-            default -> null;
+            default -> makeMove( from, to );
         };
+    }
 
-        return makeMove( from, to, newType );
+    public Piece makeMove( Square from, Square to )
+    {
+        return makeMove( from, to, null );
     }
 
     /**
@@ -200,7 +200,7 @@ public class Game
      *                                   <ul>
      *                                   <li>the piece occupying <b>from</b> is not a pawn,</li>
      *                                   <li><b>to</b> is not on the player's last rank, or</li>
-     *                                   <li><b>newType</b> is not a valid type</li>
+     *                                   <li><b>newType</b> is not a valid promotion type</li>
      *                                   </ul>
      */
     public Piece makeMove( Square from, Square to, Typ newType )
@@ -216,11 +216,9 @@ public class Game
         Piece piece = from.getPiece();
         Piece newPiece;
 
-        Player player = piece.getPlayer();
-
         if ( newType == null )
         {
-            if ( piece instanceof Pawn && to.isOnLastRank( player ) )
+            if ( piece.canPromote( to ) )
                 throw new InvalidPromotionException( "Promotion is mandatory, but no new piece type was specified." );
 
             newPiece = null;
@@ -233,9 +231,9 @@ public class Game
                 throw new InvalidPromotionException( msg );
             }
 
-            if ( !to.isOnLastRank( player ) )
+            if ( !to.isOnLastRank( piece.getPlayer() ) )
             {
-                String msg = String.format( "The promotion square (%s) must be on %s's last rank.", to, player );
+                String msg = String.format( "The promotion square (%s) must be on %s's last rank.", to, piece.getPlayer() );
                 throw new InvalidPromotionException( msg );
             }
 

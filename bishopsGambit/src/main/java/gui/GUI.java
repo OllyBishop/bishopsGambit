@@ -517,8 +517,6 @@ public class GUI extends JFrame
         Square fromSquare = getSquare( from );
         Square toSquare = getSquare( to );
 
-        Typ newType = null;
-
         if ( fromSquare.getPiece().canPromote( toSquare ) )
         {
             int i = JOptionPane.showOptionDialog( rootPane,
@@ -530,16 +528,21 @@ public class GUI extends JFrame
                                                   Typ.PROMOTION_TYPES,
                                                   null );
 
+            Typ newType;
+
             if ( i == JOptionPane.CLOSED_OPTION )
                 newType = Typ.QUEEN;
             else
                 newType = Typ.PROMOTION_TYPES[ i ];
-        }
 
-        Piece newPiece = getGame().makeMove( fromSquare, toSquare, newType );
+            Piece newPiece = getGame().makeMove( fromSquare, toSquare, newType );
 
-        if ( newPiece != null )
             createPieceComp( newPiece );
+        }
+        else
+        {
+            getGame().makeMove( fromSquare, toSquare );
+        }
 
         from = from.deselect();
         to = to.deselect();

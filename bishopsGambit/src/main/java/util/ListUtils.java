@@ -30,9 +30,10 @@ public class ListUtils
     public static <T, U> T get( List<T> list1, List<U> list2, U object )
     {
         int index = list2.indexOf( object );
+
         if ( hasIndex( list1, index ) )
             return list1.get( index );
-        else
-            return null;
+
+        return null;
     }
 }

@@ -188,7 +188,7 @@ public class Player
 
         private final String str;
 
-        Colour( String str )
+        private Colour( String str )
         {
             this.str = str;
         }

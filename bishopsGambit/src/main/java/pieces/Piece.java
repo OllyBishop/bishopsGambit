@@ -49,7 +49,7 @@ public abstract class Piece
         return getPlayer().getSign();
     }
 
-    public Piece( Player player, char startFile, char startRank )
+    protected Piece( Player player, char startFile, char startRank )
     {
         this.player = player;
 
@@ -81,17 +81,16 @@ public abstract class Piece
 
     /**
      * Returns a list of all squares this piece is currently targeting; i.e., all squares this piece
-     * could move to (assuming checks are ignored).
+     * could move to if checks are ignored.
      * 
      * @param board the chess board
-     * @return a list of all squares this piece is currently targeting
+     * @return a list of all squares this piece could move to if checks are ignored
      */
-    public abstract List<Square> getTargets( Board board );
+    protected abstract List<Square> getTargets( Board board );
 
     /**
      * Returns a list of all squares this piece can legally move to. The list returned is a filtered
-     * version of {@code getTargets()}, where any squares that (if moved to) would result in the
-     * player being in check are excluded.
+     * version of {@code getTargets(Board)}.
      * 
      * @param board the chess board
      * @return a list of all squares this piece can legally move to
@@ -154,23 +153,20 @@ public abstract class Piece
 
     public boolean movedTwoSquaresForward( Square from, Square to )
     {
-        int fileDiff = to.fileDiff( from );
-        int rankDiff = to.rankDiff( from );
-        return fileDiff == 0 && rankDiff == 2 * getSign();
+        return to.fileDiff( from ) == 0 &&
+               to.rankDiff( from ) == 2 * getSign();
     }
 
     public boolean movedOneSquareDiagonallyForward( Square from, Square to )
     {
-        int fileDiff = to.fileDiff( from );
-        int rankDiff = to.rankDiff( from );
-        return Math.abs( fileDiff ) == 1 && rankDiff == getSign();
+        return Math.abs( to.fileDiff( from ) ) == 1 &&
+               to.rankDiff( from ) == getSign();
     }
 
     public boolean movedTwoSquaresHorizontally( Square from, Square to )
     {
-        int fileDiff = to.fileDiff( from );
-        int rankDiff = to.rankDiff( from );
-        return Math.abs( fileDiff ) == 2 && rankDiff == 0;
+        return Math.abs( to.fileDiff( from ) ) == 2 &&
+               to.rankDiff( from ) == 0;
     }
 
     /**
@@ -197,7 +193,7 @@ public abstract class Piece
 
         private final String str;
 
-        Typ( String str )
+        private Typ( String str )
         {
             this.str = str;
         }

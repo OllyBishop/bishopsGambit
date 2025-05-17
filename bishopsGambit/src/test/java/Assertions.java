@@ -11,7 +11,7 @@ public class Assertions
 {
     /**
      * Asserts that execution of the given <b>executable</b> throws an exception of the
-     * <b>expectedType</b>, and the message of the exception thrown is equal to
+     * <b>expectedType</b>, and the message of the exception thrown is equal to the
      * <b>expectedMessage</b>.
      * 
      * @param expectedType    the type (class) of the exception we expect to be thrown
@@ -19,11 +19,11 @@ public class Assertions
      * @param expectedMessage the message we expect the exception to have
      * @return the exception that was thrown
      */
-    public static Throwable assertThrowsWithMessage( Class<? extends Throwable> expectedType,
+    public static Exception assertThrowsWithMessage( Class<? extends Exception> expectedType,
                                                      Executable executable,
                                                      String expectedMessage )
     {
-        Throwable actual = assertThrows( expectedType, executable );
+        Exception actual = assertThrows( expectedType, executable );
         assertEquals( expectedMessage, actual.getMessage() );
         return actual;
     }

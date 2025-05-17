@@ -128,7 +128,7 @@ class GameTest
     @BeforeEach
     void printName( TestInfo testInfo )
     {
-        System.out.println( "Running " + testInfo.getDisplayName() );
+        System.out.println( "Running test " + testInfo.getDisplayName() + "..." );
     }
 
     @BeforeEach

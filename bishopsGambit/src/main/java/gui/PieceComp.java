@@ -10,17 +10,17 @@ public class PieceComp extends JLabel implements Orderable
 {
     private final Piece piece;
 
-    public Piece getPiece()
+    protected Piece getPiece()
     {
         return this.piece;
     }
 
-    public PieceComp( Piece piece )
+    protected PieceComp( Piece piece )
     {
         this.piece = piece;
     }
 
-    public void setScale( int scale )
+    protected void setScale( int scale )
     {
         setSize( scale, scale );
         setIcon( Images.createIcon( piece.getColour(), piece.getType(), scale ) );

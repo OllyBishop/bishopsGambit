@@ -91,8 +91,8 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Finds the square whose coordinates match the given string. For example, an input of "a1"
-     * finds the square with file 'a' and rank '1'.
+     * Finds and returns the square whose coordinates match the given string. For example, an input
+     * of "a1" would return the square with file 'a' and rank '1'.
      * 
      * @param coords the coordinates of the desired square as a string
      * @return the square whose coordinates match the given string (if it exists); {@code null}
@@ -153,46 +153,48 @@ public class Board extends ArrayList<Square>
 
         Piece piece = from.getPiece();
 
-        boolean enPassant = piece instanceof Pawn && piece.movedOneSquareDiagonallyForward( from, to ) && !to.isOccupied();
-        boolean castling = piece instanceof King && piece.movedTwoSquaresHorizontally( from, to );
+        int x = Integer.signum( to.fileDiff( from ) );
+        Square s1 = from.travel( this, x, 0 );
 
-        if ( enPassant || castling )
+        if ( piece instanceof Pawn && piece.movedOneSquareDiagonallyForward( from, to ) && !to.isOccupied() )
         {
-            int x = Integer.signum( to.fileDiff( from ) );
-            Square s1 = from.travel( this, x, 0 );
-
-            if ( enPassant )
-                replace( s1, s1.clone() );
-
-            if ( castling )
-            {
-                Rook rook = piece.getPlayer().getRook( x );
-                Square r = rook.getSquare( this );
-                movePiece( r, s1 );
-            }
+            // En passant
+            replace( s1, s1.clone() );
+        }
+        else if ( piece instanceof King && piece.movedTwoSquaresHorizontally( from, to ) )
+        {
+            // Castling
+            Rook rook = piece.getPlayer().getRook( x );
+            Square r = rook.getSquare( this );
+            movePiece( r, s1 );
         }
 
         if ( piece instanceof Rook || piece instanceof King )
             revokeCastlingRights( piece );
 
-        if ( to.isOccupied() && to.getPiece() instanceof Rook )
+        if ( to.getPiece() instanceof Rook )
             revokeCastlingRights( to.getPiece() );
 
         updateEnPassantPawn( from, to );
     }
 
     /**
-     * Moves the piece occupying the <b>from</b> square to the <b>to</b> square. The from and to
-     * squares are cloned, then the piece is unassigned from the new from square and assigned to the
-     * new to square.
+     * Moves the piece occupying the <b>from</b> square to the <b>to</b> square.
+     * <p>
+     * To preserve board states, the given squares are cloned and the piece occupying the original
+     * <b>from</b> square is assigned to the new <i>to</i> square. The new <i>from</i> square is
+     * left unoccupied.
      * 
      * @param from the square containing the piece to be moved
      * @param to   the destination square for the piece
      */
     private void movePiece( Square from, Square to )
     {
-        replace( from, from.clone() );
-        replace( to, to.clone( from.getPiece() ) );
+        Square newFrom = from.clone();
+        Square newTo = to.clone();
+        newTo.setPiece( from.getPiece() );
+        replace( from, newFrom );
+        replace( to, newTo );
     }
 
     /**
@@ -358,10 +360,14 @@ public class Board extends ArrayList<Square>
                 pieceRow.append( VERTICAL );
 
                 for ( char file = 'a'; file <= 'h'; file++ )
+                {
+                    Square square = board.getSquare( file, rank );
+
                     pieceRow.append( ' ' )
-                            .append( board.getSquare( file, rank ).toChar() )
+                            .append( square.isOccupied() ? square.getPiece().toChar() : ' ' )
                             .append( ' ' )
                             .append( VERTICAL );
+                }
 
                 System.out.println( pieceRow );
 
