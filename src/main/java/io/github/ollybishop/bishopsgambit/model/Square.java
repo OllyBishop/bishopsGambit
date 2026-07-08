@@ -42,13 +42,11 @@ public class Square
     }
 
     /**
-     * Creates a new square that has the same file and rank as {@code this}. No piece is assigned to
-     * the new square; that is, the new square is unoccupied.
-     * 
-     * @return a new square that has the same file and rank as {@code this}
+     * Returns a new, unoccupied square with the same file and rank as this square.
+     *
+     * @return a new, unoccupied square with the same file and rank as this square
      */
-    @Override
-    protected Square clone()
+    Square copyWithoutPiece()
     {
         return new Square( getFile(), getRank() );
     }

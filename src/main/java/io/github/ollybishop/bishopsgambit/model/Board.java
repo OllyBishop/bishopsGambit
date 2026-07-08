@@ -148,7 +148,7 @@ public class Board extends ArrayList<Square>
         // En passant
         if ( piece instanceof Pawn && piece.movedOneSquareDiagonallyForward( from, to ) && to.isEmpty() )
         {
-            replace( adjacent, adjacent.clone() );
+            replace( adjacent, adjacent.copyWithoutPiece() );
         }
         // Castling
         else if ( piece instanceof King && piece.movedTwoSquaresHorizontally( from, to ) )
@@ -179,8 +179,8 @@ public class Board extends ArrayList<Square>
      */
     private void movePiece( Square from, Square to )
     {
-        Square newFrom = from.clone();
-        Square newTo = to.clone();
+        Square newFrom = from.copyWithoutPiece();
+        Square newTo = to.copyWithoutPiece();
         newTo.setPiece( from.getPiece() );
         replace( from, newFrom );
         replace( to, newTo );
