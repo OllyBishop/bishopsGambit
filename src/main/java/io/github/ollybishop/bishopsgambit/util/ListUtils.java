@@ -16,16 +16,15 @@ public class ListUtils
     }
 
     /**
-     * Returns the element in {@code list1} at the same index as the first occurrence of
-     * {@code element} in {@code list2}.
+     * Returns the element in {@code list1} at the same index as the first occurrence of {@code element} in {@code list2}.
      * 
      * @param <T>     the type of elements in {@code list1}
      * @param <U>     the type of elements in {@code list2}
      * @param list1   the list containing the element to return
      * @param list2   the list to search for {@code element}
      * @param element the element to search for in {@code list2}
-     * @return the element in {@code list1} at the same index as the first occurrence of
-     *         {@code element} in {@code list2}, if such an element exists; {@code null} otherwise
+     * @return the element in {@code list1} at the same index as the first occurrence of {@code element} in {@code list2}, if
+     *         such an element exists; {@code null} otherwise
      */
     public static <T, U> T getCorrespondingElement( List<T> list1, List<U> list2, U element )
     {

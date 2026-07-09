@@ -75,8 +75,7 @@ public class Square
      * Returns whether this square is occupied by a piece belonging to the given player.
      * 
      * @param player the player to check
-     * @return {@code true} if this square is occupied by a piece belonging to the given player;
-     *         {@code false} otherwise
+     * @return {@code true} if this square is occupied by a piece belonging to the given player; {@code false} otherwise
      */
     public boolean isOccupiedBy( Player player )
     {
@@ -87,8 +86,8 @@ public class Square
      * Returns whether this square is occupied by a piece belonging to the given player's opponent.
      * 
      * @param player the player to check against
-     * @return {@code true} if this square is occupied by a piece belonging to the given player's
-     *         opponent; {@code false} otherwise
+     * @return {@code true} if this square is occupied by a piece belonging to the given player's opponent; {@code false}
+     *         otherwise
      */
     public boolean isOccupiedByOpponentOf( Player player )
     {
@@ -96,13 +95,12 @@ public class Square
     }
 
     /**
-     * Returns whether this square is controlled by a piece belonging to the given player's
-     * opponent.
+     * Returns whether this square is controlled by a piece belonging to the given player's opponent.
      * 
      * @param player the player whose opponent's pieces are checked
      * @param board  the chessboard
-     * @return {@code true} if this square is controlled by a piece belonging to the given player's
-     *         opponent; {@code false} otherwise
+     * @return {@code true} if this square is controlled by a piece belonging to the given player's opponent; {@code false}
+     *         otherwise
      */
     public boolean isControlledByOpponentOf( Player player, Board board )
     {

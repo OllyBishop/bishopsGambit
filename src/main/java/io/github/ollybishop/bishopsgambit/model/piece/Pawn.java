@@ -60,14 +60,13 @@ public class Pawn extends Piece
     /**
      * Returns whether the given controlled square is a valid capture destination for this pawn.
      * <p>
-     * A controlled square is a valid capture destination if it is occupied by an opposing piece, or
-     * if moving there would capture the board's en passant pawn. This method does not check whether
-     * making the move would leave the moving player in check.
+     * A controlled square is a valid capture destination if it is occupied by an opposing piece, or if moving there would
+     * capture the board's en passant pawn. This method does not check whether making the move would leave the moving player in
+     * check.
      * 
      * @param controlledSquare the controlled destination square
      * @param board            the chessboard
-     * @return {@code true} if the given controlled square is a valid capture destination;
-     *         {@code false} otherwise
+     * @return {@code true} if the given controlled square is a valid capture destination; {@code false} otherwise
      */
     private boolean isValidCaptureDestination( Square controlledSquare, Board board )
     {
@@ -86,9 +85,8 @@ public class Pawn extends Piece
     }
 
     /**
-     * For pawns, controlled squares are not simply candidate squares with friendly-occupied squares
-     * included. A pawn controls its forward diagonals: two for non-edge pawns, or one for a-pawns
-     * and h-pawns.
+     * For pawns, controlled squares are not simply candidate squares with friendly-occupied squares included. A pawn controls
+     * its forward diagonals: two for non-edge pawns, or one for a-pawns and h-pawns.
      */
     @Override
     public List<Square> getControlledSquares( Board board )

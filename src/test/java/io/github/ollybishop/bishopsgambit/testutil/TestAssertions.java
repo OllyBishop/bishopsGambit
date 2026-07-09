@@ -10,18 +10,18 @@ import org.junit.jupiter.api.function.Executable;
 public class TestAssertions
 {
     /**
-     * Asserts that execution of the given <b>executable</b> throws an exception of the
-     * <b>expectedType</b>, and the message of the exception thrown is equal to the
-     * <b>expectedMessage</b>.
+     * Asserts that execution of the given <b>executable</b> throws an exception of the <b>expectedType</b>, and the message of
+     * the exception thrown is equal to the <b>expectedMessage</b>.
      * 
      * @param expectedType    the type (class) of the exception we expect to be thrown
      * @param executable      the executable that causes the exception to be thrown
      * @param expectedMessage the message we expect the exception to have
      * @return the exception that was thrown
      */
-    public static Exception assertThrowsWithMessage( Class<? extends Exception> expectedType,
-                                                     Executable executable,
-                                                     String expectedMessage )
+    public static Exception assertThrowsWithMessage(
+        Class<? extends Exception> expectedType,
+        Executable executable,
+        String expectedMessage )
     {
         Exception actual = assertThrows( expectedType, executable );
         assertEquals( expectedMessage, actual.getMessage() );

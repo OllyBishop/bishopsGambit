@@ -58,8 +58,7 @@ public class ApplicationFrame extends JFrame
     /**
      * The frame's main content panel.
      * <p>
-     * This is the topmost layout container within the frame and acts as the root container for the
-     * application's UI components.
+     * This is the topmost layout container within the frame and acts as the root container for the application's UI components.
      */
     private final JPanel contentPane = new JPanel();
     private final BorderLayout contentLayout = new BorderLayout();
@@ -67,8 +66,7 @@ public class ApplicationFrame extends JFrame
     /**
      * The menu panel displayed above the tabletop.
      * <p>
-     * This panel uses a simple flow layout and contains the 'New Game', 'Flip View' and 'Lock View'
-     * buttons.
+     * This panel uses a simple flow layout and contains the 'New Game', 'Flip View' and 'Lock View' buttons.
      */
     private final JPanel topMenuPane = new JPanel();
 
@@ -79,8 +77,7 @@ public class ApplicationFrame extends JFrame
     /**
      * The menu panel displayed below the tabletop.
      * <p>
-     * This panel uses a simple flow layout and contains the 'Previous Move' and 'Next Move'
-     * buttons.
+     * This panel uses a simple flow layout and contains the 'Previous Move' and 'Next Move' buttons.
      */
     private final JPanel bottomMenuPane = new JPanel();
 
@@ -133,8 +130,8 @@ public class ApplicationFrame extends JFrame
     /**
      * The index of the board state currently displayed in the UI.
      * <p>
-     * A value of {@code 0} represents the initial board setup; subsequent values represent the
-     * board state after each successive ply (half-move) has been played.
+     * A value of {@code 0} represents the initial board setup; subsequent values represent the board state after each
+     * successive ply (half-move) has been played.
      */
     private int boardIndex;
 
@@ -328,9 +325,8 @@ public class ApplicationFrame extends JFrame
             /**
              * Indicates whether the most recently pressed square was already selected before the press.
              * <p>
-             * Used to support click-to-toggle selection without interfering with drag-and-drop behaviour.
-             * Also used to deselect the {@code from} square when a move preview is cancelled by dragging
-             * the piece back onto its original square.
+             * Used to support click-to-toggle selection without interfering with drag-and-drop behaviour. Also used to deselect
+             * the {@code from} square when a move preview is cancelled by dragging the piece back onto its original square.
              */
             boolean pressedSquareWasPreselected;
 
@@ -496,10 +492,11 @@ public class ApplicationFrame extends JFrame
     {
         newGameButton.addActionListener( e ->
         {
-            int option = JOptionPane.showConfirmDialog( rootPane,
-                                                        "Are you sure you want to start a new game?",
-                                                        "New Game",
-                                                        JOptionPane.YES_NO_OPTION );
+            int option = JOptionPane.showConfirmDialog(
+                rootPane,
+                "Are you sure you want to start a new game?",
+                "New Game",
+                JOptionPane.YES_NO_OPTION );
 
             if ( option == JOptionPane.YES_OPTION )
                 newGame();
@@ -561,8 +558,8 @@ public class ApplicationFrame extends JFrame
         addComponentListener( new ComponentAdapter()
         {
             /**
-             * This method is called once when the frame is initialised (after the constructor call) and
-             * each time the frame is resized thereafter.
+             * This method is called once when the frame is initialised (after the constructor call) and each time the frame is
+             * resized thereafter.
              */
             @Override
             public void componentResized( ComponentEvent e )
@@ -624,17 +621,19 @@ public class ApplicationFrame extends JFrame
 
         if ( from.getPiece().canPromote( to ) )
         {
-            int i = JOptionPane.showOptionDialog( rootPane,
-                                                  "Select a piece to promote to.",
-                                                  "Promotion",
-                                                  JOptionPane.DEFAULT_OPTION,
-                                                  JOptionPane.PLAIN_MESSAGE,
-                                                  Images.createIcon( getActivePlayer().getColour(), Piece.Type.PAWN ),
-                                                  Piece.Type.PROMOTION_TYPES,
-                                                  null );
+            int i = JOptionPane.showOptionDialog(
+                rootPane,
+                "Select a piece to promote to.",
+                "Promotion",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                Images.createIcon( getActivePlayer().getColour(), Piece.Type.PAWN ),
+                Piece.Type.PROMOTION_TYPES,
+                null );
 
-            Piece.Type newType = i == JOptionPane.CLOSED_OPTION ? Piece.Type.QUEEN
-                                                                : Piece.Type.PROMOTION_TYPES[ i ];
+            Piece.Type newType = i == JOptionPane.CLOSED_OPTION
+                ? Piece.Type.QUEEN
+                : Piece.Type.PROMOTION_TYPES[ i ];
 
             Piece newPiece = game.makeMove( from, to, newType );
 
@@ -814,8 +813,7 @@ public class ApplicationFrame extends JFrame
     }
 
     /**
-     * Orients the tabletop to the active player's perspective, provided the 'Lock View' button is
-     * not selected.
+     * Orients the tabletop to the active player's perspective, provided the 'Lock View' button is not selected.
      */
     private void orientTabletop()
     {
@@ -825,8 +823,8 @@ public class ApplicationFrame extends JFrame
 
     /**
      * Orients the tabletop to the perspective of the player with the given colour. For example, if
-     * {@code colour == Colour.WHITE}, the board is oriented with 'a1' in the lower-left corner and
-     * Black's captured pieces displayed below.
+     * {@code colour == Colour.WHITE}, the board is oriented with 'a1' in the lower-left corner and Black's captured pieces
+     * displayed below.
      * 
      * @param colour the colour of the player whose perspective the tabletop is oriented to
      */

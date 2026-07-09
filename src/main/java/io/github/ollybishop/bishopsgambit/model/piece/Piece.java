@@ -26,8 +26,7 @@ public abstract class Piece
     /**
      * The player that owns this piece.
      * <p>
-     * This is the same player whose piece list, returned by {@link Player#getPieces()}, contains
-     * this piece.
+     * This is the same player whose piece list, returned by {@link Player#getPieces()}, contains this piece.
      */
     private final Player player;
 
@@ -98,8 +97,8 @@ public abstract class Piece
     /**
      * Returns this piece's candidate squares on the given board.
      * <p>
-     * Candidate squares follow this piece's movement rules and are used as the basis for both
-     * controlled squares and pseudo-legal destination squares.
+     * Candidate squares follow this piece's movement rules and are used as the basis for both controlled squares and
+     * pseudo-legal destination squares.
      * 
      * @param board                  the chessboard
      * @param includeFriendlySquares whether to include squares occupied by friendly pieces
@@ -110,8 +109,8 @@ public abstract class Piece
     /**
      * Returns the squares controlled by this piece on the given board.
      * <p>
-     * A square is controlled by this piece if this piece attacks or defends that square according
-     * to its movement rules, regardless of whether this piece could legally move there.
+     * A square is controlled by this piece if this piece attacks or defends that square according to its movement rules,
+     * regardless of whether this piece could legally move there.
      * 
      * @param board the chessboard
      * @return the squares controlled by this piece
@@ -124,9 +123,8 @@ public abstract class Piece
     /**
      * Returns the pseudo-legal destination squares available to this piece on the given board.
      * <p>
-     * Pseudo-legal destination squares follow this piece's movement rules and exclude squares
-     * occupied by friendly pieces. They are not filtered to exclude moves that would leave the
-     * moving player in check.
+     * Pseudo-legal destination squares follow this piece's movement rules and exclude squares occupied by friendly pieces. They
+     * are not filtered to exclude moves that would leave the moving player in check.
      * 
      * @param board the chessboard
      * @return the squares this piece can pseudo-legally move to
@@ -139,8 +137,8 @@ public abstract class Piece
     /**
      * Returns the legal destination squares available to this piece on the given board.
      * <p>
-     * Legal destination squares are obtained by filtering this piece's pseudo-legal destination
-     * squares to exclude any move that would leave the moving player in check.
+     * Legal destination squares are obtained by filtering this piece's pseudo-legal destination squares to exclude any move
+     * that would leave the moving player in check.
      * 
      * @param board the chessboard
      * @return the squares this piece can legally move to

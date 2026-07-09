@@ -79,8 +79,8 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Returns a boolean indicating whether this board contains the given piece; i.e., whether the
-     * given piece is currently occupying any square on this board.
+     * Returns a boolean indicating whether this board contains the given piece; i.e., whether the given piece is currently
+     * occupying any square on this board.
      * 
      * @param piece the piece
      * @return {@code true} if this board contains the given piece; {@code false} otherwise
@@ -118,8 +118,8 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Clones this board and moves the piece occupying the <b>from</b> square to the <b>to</b>
-     * square. Also handles the following special moves (if applicable):
+     * Clones this board and moves the piece occupying the <b>from</b> square to the <b>to</b> square. Also handles the
+     * following special moves (if applicable):
      * <ul>
      * <li>Castling: Moves the corresponding rook to the square adjacent to the king.</li>
      * <li>En passant: Removes the corresponding pawn.</li>
@@ -170,9 +170,8 @@ public class Board extends ArrayList<Square>
     /**
      * Moves the piece occupying the <b>from</b> square to the <b>to</b> square.
      * <p>
-     * To preserve board states, the given squares are cloned and the piece occupying the original
-     * <b>from</b> square is assigned to the new <i>to</i> square. The new <i>from</i> square is
-     * left unoccupied.
+     * To preserve board states, the given squares are cloned and the piece occupying the original <b>from</b> square is
+     * assigned to the new <i>to</i> square. The new <i>from</i> square is left unoccupied.
      * 
      * @param from the square containing the piece to be moved
      * @param to   the destination square for the piece
@@ -202,10 +201,11 @@ public class Board extends ArrayList<Square>
     public Piece promote( Pawn pawn, Piece.Type newType )
     {
         Square square = pawn.getSquare( this );
-        Piece newPiece = Piece.newInstance( newType,
-                                            pawn.getPlayer(),
-                                            square.getFile(),
-                                            square.getRank() );
+        Piece newPiece = Piece.newInstance(
+            newType,
+            pawn.getPlayer(),
+            square.getFile(),
+            square.getRank() );
         square.setPiece( newPiece );
         return newPiece;
     }
@@ -345,11 +345,11 @@ public class Board extends ArrayList<Square>
     private static class Printer
     {
         /*
-         * For each box-drawing character below, n is the number of line segments obtained by splitting
-         * the character at its endpoints and junctions.
+         * For each box-drawing character below, n is the number of line segments obtained by splitting the character at its
+         * endpoints and junctions.
          * 
-         * To convert a light box-drawing character to its heavy equivalent, add (1 << n) - 1, i.e. one
-         * less than two to the power of n.
+         * To convert a light box-drawing character to its heavy equivalent, add (1 << n) - 1, i.e. one less than two to the
+         * power of n.
          */
 
         // n = 1

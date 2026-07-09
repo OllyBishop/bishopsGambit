@@ -41,8 +41,8 @@ public class Game
     /**
      * Adds the given <b>board</b> to the board state history after a ply has been played.
      * <p>
-     * The board state history allows previous positions to be viewed and may be used to support
-     * undoing moves. The number of stored board states also determines which player's turn it is.
+     * The board state history allows previous positions to be viewed and may be used to support undoing moves. The number of
+     * stored board states also determines which player's turn it is.
      * 
      * @param board the new board state after the ply
      */
@@ -92,8 +92,8 @@ public class Game
     /**
      * Returns the number of plies played in this game.
      * <p>
-     * A ply is a single move made by one player. The number of plies played is derived from the
-     * size of the board state history, excluding the initial board state.
+     * A ply is a single move made by one player. The number of plies played is derived from the size of the board state
+     * history, excluding the initial board state.
      * 
      * @return the number of plies played in this game
      */
@@ -178,9 +178,8 @@ public class Game
     }
 
     /**
-     * Validates the requested move, then clones the board returned by {@link Game#getActiveBoard()}
-     * and moves the piece occupying {@code from} to {@code to}. Also handles the following special
-     * moves, if applicable:
+     * Validates the requested move, then clones the board returned by {@link Game#getActiveBoard()} and moves the piece
+     * occupying {@code from} to {@code to}. Also handles the following special moves, if applicable:
      * <ul>
      * <li>Castling: Moves the corresponding rook to the square adjacent to the king.</li>
      * <li>En passant: Removes the captured pawn.</li>
@@ -192,14 +191,12 @@ public class Game
      * @param newType the new piece type when promoting; {@code null} otherwise
      * @return the promoted piece, or {@code null} if no promotion occurs
      * @throws NoPieceOnSquareException  if {@code from} is unoccupied
-     * @throws IllegalMoveException      if the piece does not belong to the active player, or
-     *                                   cannot legally move to {@code to}
-     * @throws InvalidPromotionException if {@code newType} is {@code null} when promotion is
-     *                                   mandatory, or is non-null and any of the following apply:
+     * @throws IllegalMoveException      if the piece does not belong to the active player, or cannot legally move to {@code to}
+     * @throws InvalidPromotionException if {@code newType} is {@code null} when promotion is mandatory, or is non-null and any
+     *                                   of the following apply:
      *                                   <ul>
      *                                   <li>the piece occupying {@code from} is not a pawn,</li>
-     *                                   <li>{@code to} is not on the active player's last rank,
-     *                                   or</li>
+     *                                   <li>{@code to} is not on the active player's last rank, or</li>
      *                                   <li>{@code newType} is not a valid promotion type</li>
      *                                   </ul>
      */

@@ -41,15 +41,16 @@ class ApplicationFrameTest
         {
             SwingUtilities.invokeAndWait( () ->
             {
-                MouseEvent event = new MouseEvent( frame.getChessboardPane(),
-                                                   eventType,
-                                                   System.currentTimeMillis(),
-                                                   modifiers,
-                                                   squareComponent.getX(),
-                                                   squareComponent.getY(),
-                                                   1,
-                                                   false,
-                                                   MouseEvent.BUTTON1 );
+                MouseEvent event = new MouseEvent(
+                    frame.getChessboardPane(),
+                    eventType,
+                    System.currentTimeMillis(),
+                    modifiers,
+                    squareComponent.getX(),
+                    squareComponent.getY(),
+                    1,
+                    false,
+                    MouseEvent.BUTTON1 );
 
                 frame.getChessboardPane().dispatchEvent( event );
             } );
@@ -107,10 +108,11 @@ class ApplicationFrameTest
     @AfterAll
     void afterAll()
     {
-        JOptionPane.showMessageDialog( frame,
-                                       "All automated tests complete. The application will now close.",
-                                       ApplicationFrameTest.class.getSimpleName(),
-                                       JOptionPane.INFORMATION_MESSAGE );
+        JOptionPane.showMessageDialog(
+            frame,
+            "All automated tests complete. The application will now close.",
+            ApplicationFrameTest.class.getSimpleName(),
+            JOptionPane.INFORMATION_MESSAGE );
     }
 
     @Test

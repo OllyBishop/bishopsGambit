@@ -69,8 +69,8 @@ public class Player
     /**
      * Returns this player's sign for player-relative calculations.
      * <p>
-     * The sign is {@code 1} for White and {@code -1} for Black. It also matches the y-direction in
-     * which this player's pawns move.
+     * The sign is {@code 1} for White and {@code -1} for Black. It also matches the y-direction in which this player's pawns
+     * move.
      *
      * @return {@code 1} for White; {@code -1} for Black
      */
@@ -99,15 +99,13 @@ public class Player
     }
 
     /**
-     * Returns this player's original queenside or kingside rook, as indicated by the given castling
-     * direction.
+     * Returns this player's original queenside or kingside rook, as indicated by the given castling direction.
      * <p>
-     * The castling direction is the horizontal direction from the king's starting square towards
-     * the rook's starting square.
+     * The castling direction is the horizontal direction from the king's starting square towards the rook's starting square.
      * 
      * @param castlingDirection the castling direction
-     * @return the queenside rook if {@code castlingDirection} is negative; the kingside rook if
-     *         {@code castlingDirection} is positive
+     * @return the queenside rook if {@code castlingDirection} is negative; the kingside rook if {@code castlingDirection} is
+     *         positive
      * @throws IllegalArgumentException if {@code castlingDirection} is zero
      */
     public Rook getRook( int castlingDirection )

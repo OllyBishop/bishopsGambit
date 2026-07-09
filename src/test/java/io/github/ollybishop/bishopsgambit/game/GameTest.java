@@ -218,17 +218,19 @@ class GameTest
     @Test
     void movingFromEmptySquare_throwsNoPieceOnSquareException()
     {
-        assertThrowsWithMessage( NoPieceOnSquareException.class,
-                                 () -> makeMove( "e3e4" ),
-                                 "Cannot move a piece from empty square e3." );
+        assertThrowsWithMessage(
+            NoPieceOnSquareException.class,
+            () -> makeMove( "e3e4" ),
+            "Cannot move a piece from empty square e3." );
     }
 
     @Test
     void whiteToMove_movingBlackPiece_throwsIllegalMoveException()
     {
-        assertThrowsWithMessage( IllegalMoveException.class,
-                                 () -> makeMove( "e7e5" ),
-                                 "Black Pawn cannot be moved because it is White's turn." );
+        assertThrowsWithMessage(
+            IllegalMoveException.class,
+            () -> makeMove( "e7e5" ),
+            "Black Pawn cannot be moved because it is White's turn." );
     }
 
     @Test
@@ -236,17 +238,19 @@ class GameTest
     {
         makeMove( "e2e4" );
 
-        assertThrowsWithMessage( IllegalMoveException.class,
-                                 () -> makeMove( "d2d4" ),
-                                 "White Pawn cannot be moved because it is Black's turn." );
+        assertThrowsWithMessage(
+            IllegalMoveException.class,
+            () -> makeMove( "d2d4" ),
+            "White Pawn cannot be moved because it is Black's turn." );
     }
 
     @Test
     void movingToSquareOccupiedByFriendlyPiece_throwsIllegalMoveException()
     {
-        assertThrowsWithMessage( IllegalMoveException.class,
-                                 () -> makeMove( "e1e2" ),
-                                 "White King cannot legally move from e1 to e2." );
+        assertThrowsWithMessage(
+            IllegalMoveException.class,
+            () -> makeMove( "e1e2" ),
+            "White King cannot legally move from e1 to e2." );
     }
 
     // ============================================================================================
@@ -372,9 +376,10 @@ class GameTest
         assertEquals( blackKingsideKnight.getColour(), Player.Colour.BLACK );
         assertEquals( blackKingsideKnight.getType(), Piece.Type.KNIGHT );
 
-        assertThrowsWithMessage( IllegalMoveException.class,
-                                 () -> makeMove( "e1g1" ),
-                                 "White King cannot legally move from e1 to g1." );
+        assertThrowsWithMessage(
+            IllegalMoveException.class,
+            () -> makeMove( "e1g1" ),
+            "White King cannot legally move from e1 to g1." );
 
         assertEquals( 8, getNumberOfPliesPlayed() );
         assertEquals( 37, getNumberOfLegalMoves() );
@@ -400,9 +405,10 @@ class GameTest
         assertEquals( blackQueensideBishop.getColour(), Player.Colour.BLACK );
         assertEquals( blackQueensideBishop.getType(), Piece.Type.BISHOP );
 
-        assertThrowsWithMessage( IllegalMoveException.class,
-                                 () -> makeMove( "e1g1" ),
-                                 "White King cannot legally move from e1 to g1." );
+        assertThrowsWithMessage(
+            IllegalMoveException.class,
+            () -> makeMove( "e1g1" ),
+            "White King cannot legally move from e1 to g1." );
 
         assertEquals( 6, getNumberOfPliesPlayed() );
         assertEquals( 32, getNumberOfLegalMoves() );
@@ -429,9 +435,10 @@ class GameTest
         assertEquals( whiteDPawn.getColour(), Player.Colour.WHITE );
         assertEquals( whiteDPawn.getType(), Piece.Type.PAWN );
 
-        assertThrowsWithMessage( IllegalMoveException.class,
-                                 () -> makeMove( "e8g8" ),
-                                 "Black King cannot legally move from e8 to g8." );
+        assertThrowsWithMessage(
+            IllegalMoveException.class,
+            () -> makeMove( "e8g8" ),
+            "Black King cannot legally move from e8 to g8." );
 
         assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { d4, e5 } );
     }
@@ -448,9 +455,10 @@ class GameTest
         assertEquals( whiteGPawn.getColour(), Player.Colour.WHITE );
         assertEquals( whiteGPawn.getType(), Piece.Type.PAWN );
 
-        assertThrowsWithMessage( IllegalMoveException.class,
-                                 () -> makeMove( "e8g8" ),
-                                 "Black King cannot legally move from e8 to g8." );
+        assertThrowsWithMessage(
+            IllegalMoveException.class,
+            () -> makeMove( "e8g8" ),
+            "Black King cannot legally move from e8 to g8." );
 
         assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { g4, e5 } );
     }
@@ -465,9 +473,10 @@ class GameTest
         makeMove( "d2d4", "e7e6" );
         makeMove( "d4d5", "e6e5" );
 
-        assertThrowsWithMessage( IllegalMoveException.class,
-                                 () -> makeMove( "d5e6" ),
-                                 "White Pawn cannot legally move from d5 to e6." );
+        assertThrowsWithMessage(
+            IllegalMoveException.class,
+            () -> makeMove( "d5e6" ),
+            "White Pawn cannot legally move from d5 to e6." );
 
         assertEquals( 4, getNumberOfPliesPlayed() );
         assertEquals( 29, getNumberOfLegalMoves() );
@@ -860,9 +869,10 @@ class GameTest
         makeMove( "c6b7", "f3g2" );
 
         // Attempt to promote a pawn to a pawn
-        assertThrowsWithMessage( InvalidPromotionException.class,
-                                 () -> makeMove( b7, a8, Piece.Type.PAWN ),
-                                 "The new piece type (Pawn) must be one of Knight, Bishop, Rook or Queen." );
+        assertThrowsWithMessage(
+            InvalidPromotionException.class,
+            () -> makeMove( b7, a8, Piece.Type.PAWN ),
+            "The new piece type (Pawn) must be one of Knight, Bishop, Rook or Queen." );
     }
 
     @Test
@@ -874,9 +884,10 @@ class GameTest
         makeMove( "c6b7", "f3g2" );
 
         // Attempt to promote a pawn to a king
-        assertThrowsWithMessage( InvalidPromotionException.class,
-                                 () -> makeMove( b7, a8, Piece.Type.KING ),
-                                 "The new piece type (King) must be one of Knight, Bishop, Rook or Queen." );
+        assertThrowsWithMessage(
+            InvalidPromotionException.class,
+            () -> makeMove( b7, a8, Piece.Type.KING ),
+            "The new piece type (King) must be one of Knight, Bishop, Rook or Queen." );
     }
 
     @Test
@@ -888,9 +899,10 @@ class GameTest
         makeMove( "c6b7", "f3g2" );
 
         // Attempt to move a pawn to the last rank without promoting
-        assertThrowsWithMessage( InvalidPromotionException.class,
-                                 () -> makeMove( "b7a8" ),
-                                 "Promotion is mandatory, but no new piece type was specified." );
+        assertThrowsWithMessage(
+            InvalidPromotionException.class,
+            () -> makeMove( "b7a8" ),
+            "Promotion is mandatory, but no new piece type was specified." );
     }
 
     @Test
@@ -900,17 +912,19 @@ class GameTest
         makeMove( "f1g2", "b7b6" );
 
         // Attempt to promote a bishop by moving it to the last rank
-        assertThrowsWithMessage( InvalidPromotionException.class,
-                                 () -> makeMove( "g2a8q" ),
-                                 "The promoting piece (White Bishop) must be a Pawn." );
+        assertThrowsWithMessage(
+            InvalidPromotionException.class,
+            () -> makeMove( "g2a8q" ),
+            "The promoting piece (White Bishop) must be a Pawn." );
     }
 
     @Test
     void pawnPromotion_promotionSquareNotOnLastRank_throwsInvalidPromotionException()
     {
         // Attempt to promote a pawn without moving it to the last rank
-        assertThrowsWithMessage( InvalidPromotionException.class,
-                                 () -> makeMove( "c2c4q" ),
-                                 "The promotion square (c4) must be on White's last rank." );
+        assertThrowsWithMessage(
+            InvalidPromotionException.class,
+            () -> makeMove( "c2c4q" ),
+            "The promotion square (c4) must be on White's last rank." );
     }
 }

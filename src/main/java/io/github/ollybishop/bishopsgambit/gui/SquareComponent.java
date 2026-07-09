@@ -27,12 +27,11 @@ class SquareComponent extends JLayeredPane
     private static final Font ROBOTO_MEDIUM = Fonts.importFont( "Roboto", FontFace.MEDIUM );
 
     /*
-     * Square instances are cloned throughout the game so that each board state can be stored
-     * independently. The number of SquareComponent instances, however, remains fixed at 64.
+     * Square instances are cloned throughout the game so that each board state can be stored independently. The number of
+     * SquareComponent instances, however, remains fixed at 64.
      * 
-     * The file and rank identify the board coordinate represented by this component. Because these
-     * fields are shared by Square and SquareComponent, instances of the two classes can be mapped
-     * to one another for any given board state.
+     * The file and rank identify the board coordinate represented by this component. Because these fields are shared by Square
+     * and SquareComponent, instances of the two classes can be mapped to one another for any given board state.
      */
     private final char file;
     private final char rank;
@@ -180,13 +179,14 @@ class SquareComponent extends JLayeredPane
         int modalCount = getComponentCountInLayer( MODAL_LAYER );
 
         if ( defaultCount + paletteCount + modalCount < totalCount )
-            System.err.println( String.format( "Total number of components (%d) does not equal the sum of the number of components in each layer (%d default, %d palette, %d modal) for square '%s%s'",
-                                               totalCount,
-                                               defaultCount,
-                                               paletteCount,
-                                               modalCount,
-                                               getFile(),
-                                               getRank() ) );
+            System.err.println( String.format(
+                "Total number of components (%d) does not equal the sum of the number of components in each layer (%d default, %d palette, %d modal) for square '%s%s'",
+                totalCount,
+                defaultCount,
+                paletteCount,
+                modalCount,
+                getFile(),
+                getRank() ) );
     }
 
     private class MoveMarker extends JComponent
