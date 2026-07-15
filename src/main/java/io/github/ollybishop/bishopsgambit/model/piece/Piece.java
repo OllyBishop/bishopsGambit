@@ -45,7 +45,7 @@ public abstract class Piece
 
     /**
      * Returns the sign of the player that owns this piece.
-     *
+     * 
      * @return {@code 1} for a white piece; {@code -1} for a black piece
      */
     public int getPlayerSign()
@@ -77,7 +77,7 @@ public abstract class Piece
     @Override
     public String toString()
     {
-        return String.format( "%s %s", getColour(), getType() );
+        return "%s %s".formatted( getColour(), getType() );
     }
 
     public char toChar()

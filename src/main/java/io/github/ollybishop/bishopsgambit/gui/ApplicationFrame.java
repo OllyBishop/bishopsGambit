@@ -44,16 +44,16 @@ import io.github.ollybishop.bishopsgambit.model.piece.Piece;
 
 public class ApplicationFrame extends JFrame
 {
-    // ============================================================================================
+    // =========================================================================================
     // Cursors
-    // ============================================================================================
+    // =========================================================================================
 
     private static final Cursor DEFAULT_CURSOR = Cursor.getDefaultCursor();
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor( Cursor.HAND_CURSOR );
 
-    // ============================================================================================
+    // =========================================================================================
     // Components and Layouts
-    // ============================================================================================
+    // =========================================================================================
 
     /**
      * The frame's main content panel.
@@ -112,18 +112,18 @@ public class ApplicationFrame extends JFrame
      */
     private final List<PieceComponent> pieceComponents = new ArrayList<>();
 
-    // ============================================================================================
+    // =========================================================================================
     // Component State
-    // ============================================================================================
+    // =========================================================================================
 
     private SquareComponent fromSquare;
     private SquareComponent toSquare;
 
     private SquareComponent checkSquare;
 
-    // ============================================================================================
+    // =========================================================================================
     // Game Context
-    // ============================================================================================
+    // =========================================================================================
 
     private Game game;
 
@@ -135,9 +135,9 @@ public class ApplicationFrame extends JFrame
      */
     private int boardIndex;
 
-    // ============================================================================================
+    // =========================================================================================
     // Factory Methods
-    // ============================================================================================
+    // =========================================================================================
 
     private static List<SquareComponent> createSquareComponents()
     {
@@ -150,9 +150,9 @@ public class ApplicationFrame extends JFrame
         return Collections.unmodifiableList( squareComponents );
     }
 
-    // ============================================================================================
+    // =========================================================================================
     // Package-Private Accessors
-    // ============================================================================================
+    // =========================================================================================
 
     JPanel getChessboardPane()
     {
@@ -174,9 +174,9 @@ public class ApplicationFrame extends JFrame
         return toSquare;
     }
 
-    // ============================================================================================
+    // =========================================================================================
     // Model/UI Lookup Methods
-    // ============================================================================================
+    // =========================================================================================
 
     private Square getSquare( SquareComponent squareComponent )
     {
@@ -198,9 +198,9 @@ public class ApplicationFrame extends JFrame
         return getSquareComponent( square );
     }
 
-    // ============================================================================================
+    // =========================================================================================
     // Game Delegates
-    // ============================================================================================
+    // =========================================================================================
 
     private int getLatestBoardIndex()
     {
@@ -222,9 +222,9 @@ public class ApplicationFrame extends JFrame
         return game.getActivePlayer();
     }
 
-    // ============================================================================================
+    // =========================================================================================
     // Frame Setup
-    // ============================================================================================
+    // =========================================================================================
 
     public ApplicationFrame()
     {
@@ -346,13 +346,13 @@ public class ApplicationFrame extends JFrame
 
                     boolean ownPieceWasSelected = getSquare( pressedSquare ).isOccupiedBy( getActivePlayer() );
 
-                    // If no squares were preselected
+                    // No squares were preselected
                     if ( fromSquare == null )
                     {
                         if ( ownPieceWasSelected )
                             selectFromSquare( pressedSquare );
                     }
-                    // If only a 'from' square was preselected
+                    // Only a 'from' square was preselected
                     else if ( toSquare == null )
                     {
                         if ( pressedSquare != fromSquare )
@@ -366,7 +366,7 @@ public class ApplicationFrame extends JFrame
                                     selectFromSquare( pressedSquare );
                             }
                     }
-                    // If both 'from' and 'to' squares were preselected
+                    // Both 'from' and 'to' squares were preselected
                     else
                     {
                         if ( pressedSquare != toSquare )
@@ -391,7 +391,7 @@ public class ApplicationFrame extends JFrame
                 if ( boardIndex < getLatestBoardIndex() )
                     return;
 
-                // If no squares were preselected
+                // No squares were preselected
                 if ( fromSquare == null )
                     return;
 
@@ -401,7 +401,7 @@ public class ApplicationFrame extends JFrame
                 {
                     SquareComponent releasedSquare = (SquareComponent) comp;
 
-                    // If only a 'from' square was preselected
+                    // Only a 'from' square was preselected
                     if ( toSquare == null )
                     {
                         if ( releasedSquare == fromSquare )
@@ -415,14 +415,14 @@ public class ApplicationFrame extends JFrame
                             else
                                 deselectFromSquare();
                     }
-                    // If both 'from' and 'to' squares were preselected
+                    // Both 'from' and 'to' squares were preselected
                     else
                     {
                         if ( releasedSquare != toSquare )
                             deselectFromAndToSquares();
                     }
                 }
-                // If the mouse was released somewhere not on the board
+                // The mouse was released outside the board
                 else
                 {
                     deselectFromAndToSquares();
@@ -558,8 +558,7 @@ public class ApplicationFrame extends JFrame
         addComponentListener( new ComponentAdapter()
         {
             /**
-             * This method is called once when the frame is initialised (after the constructor call) and each time the frame is
-             * resized thereafter.
+             * Called once after the frame is initialised, and again whenever the frame is resized.
              */
             @Override
             public void componentResized( ComponentEvent e )
@@ -608,9 +607,9 @@ public class ApplicationFrame extends JFrame
         pieceComponents.add( new PieceComponent( piece ) );
     }
 
-    // ============================================================================================
+    // =========================================================================================
     // Methods for handling changes to the underlying game state
-    // ============================================================================================
+    // =========================================================================================
 
     private void makeMove()
     {
@@ -657,7 +656,7 @@ public class ApplicationFrame extends JFrame
             Icon icon;
 
             if ( game.getStatus() == Game.Status.CHECKMATE )
-                icon = Images.createIcon( getActivePlayer().getColour().transpose(), Piece.Type.KING );
+                icon = Images.createIcon( getActivePlayer().getColour().opposite(), Piece.Type.KING );
             else
                 icon = null;
 
@@ -665,9 +664,9 @@ public class ApplicationFrame extends JFrame
         }
     }
 
-    // ============================================================================================
+    // =========================================================================================
     // Methods for managing the position, size and visibility of UI components
-    // ============================================================================================
+    // =========================================================================================
 
     private void updateBoardState()
     {
@@ -682,7 +681,7 @@ public class ApplicationFrame extends JFrame
         {
             SquareComponent squareComponent = getSquareComponent( board, pieceComponent.getPiece() );
 
-            // If the piece is no longer on the board (i.e. it has been captured)
+            // The piece is no longer on the board, so ensure it is in the appropriate captured pieces pane
             if ( squareComponent == null )
             {
                 switch ( pieceComponent.getPiece().getColour() )
@@ -704,15 +703,15 @@ public class ApplicationFrame extends JFrame
 
         rescalePieces();
 
-        // Repaint the tabletop pane to clear visual artifacts left behind by relocated pieces
+        // Repaint the tabletop pane to clear artifacts left by relocated pieces
         tabletopPane.repaint();
 
         previousMoveButton.setEnabled( boardIndex > 0 );
         nextMoveButton.setEnabled( boardIndex < getLatestBoardIndex() );
 
-        // Debug SquareComponent layering issues caused by incorrect indexing
+        // Check for layering issues caused by incorrect component indexing
         for ( SquareComponent squareComponent : squareComponents )
-            squareComponent.debugLayeringIssues();
+            squareComponent.checkForLayeringIssues();
     }
 
     private void rescalePieceContainers()
@@ -728,9 +727,10 @@ public class ApplicationFrame extends JFrame
         capturedPiecesPaneBlack.setPreferredSize( dimension );
 
         /*
-         * The FlowLayout class does not have an option to set the vertical alignment of its components.
-         * To achieve this, we set the vertical gap to half of the remaining vertical space in the pane.
-         * vgap = (paneHeight - componentHeight) / 2 = (scale - scale * 3 / 5) / 2 = scale / 5
+         * FlowLayout does not support vertical alignment of its components. To centre them vertically, set the vertical gap to
+         * half the unused vertical space in the pane:
+         * 
+         * vgap = (pane height - piece height) / 2 = (scale - scale * 3 / 5) / 2 = scale / 5
          */
         int gap = scale / 5;
 
@@ -792,12 +792,12 @@ public class ApplicationFrame extends JFrame
     }
 
     /**
-     * This method should be called each time any of the following happens:
+     * Should be called whenever any of the following occurs:
      * <ul>
-     * <li>A new game is started</li>
-     * <li>The active player changes (i.e. due to a move being made)</li>
-     * <li>The 'Previous Move' button is clicked</li>
-     * <li>The 'Next Move' button is clicked</li>
+     * <li>a new game is started,</li>
+     * <li>the active player changes after a move is made,</li>
+     * <li>the 'Previous Move' button is clicked, or</li>
+     * <li>the 'Next Move' button is clicked.</li>
      * </ul>
      */
     private void updatePieceCursors()
@@ -813,7 +813,7 @@ public class ApplicationFrame extends JFrame
     }
 
     /**
-     * Orients the tabletop to the active player's perspective, provided the 'Lock View' button is not selected.
+     * Orients the tabletop from the active player's perspective, provided the 'Lock View' button is not selected.
      */
     private void orientTabletop()
     {
@@ -822,11 +822,11 @@ public class ApplicationFrame extends JFrame
     }
 
     /**
-     * Orients the tabletop to the perspective of the player with the given colour. For example, if
-     * {@code colour == Colour.WHITE}, the board is oriented with 'a1' in the lower-left corner and Black's captured pieces
+     * Orients the tabletop from the perspective of the player with the given colour. For example, if {@code colour} is
+     * {@link Player.Colour#WHITE}, the board is oriented with 'a1' in the lower-left corner and Black's captured pieces
      * displayed below.
      * 
-     * @param colour the colour of the player whose perspective the tabletop is oriented to
+     * @param colour the colour of the player whose perspective is used
      */
     private void orientTabletop( Player.Colour colour )
     {

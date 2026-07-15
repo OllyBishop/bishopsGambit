@@ -118,16 +118,16 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Clones this board and moves the piece occupying the <b>from</b> square to the <b>to</b> square. Also handles the
-     * following special moves (if applicable):
+     * Clones this board and moves the piece occupying {@code from} to {@code to}. Also handles the following special moves, if
+     * applicable:
      * <ul>
      * <li>Castling: Moves the corresponding rook to the square adjacent to the king.</li>
-     * <li>En passant: Removes the corresponding pawn.</li>
+     * <li>En passant: Removes the captured pawn.</li>
      * </ul>
      * 
      * @param from the square containing the piece to be moved
-     * @param to   the destination square for the piece
-     * @return the new {@code Board} object
+     * @param to   the destination square
+     * @return a clone of this board with the move applied
      */
     public Board cloneAndMove( Square from, Square to )
     {
@@ -283,7 +283,7 @@ public class Board extends ArrayList<Square>
      * Returns the material difference on this board from White's perspective.
      * <p>
      * A positive value means White is ahead, while a negative value means Black is ahead.
-     *
+     * 
      * @return the total white material value minus the total black material value
      */
     public int getMaterialDifference()

@@ -130,8 +130,8 @@ public class Game
     }
 
     /**
-     * @param uci a string representing the move in Universal Chess Interface (UCI) notation
-     * @return the new piece (if promoting); {@code null} otherwise
+     * @param uci the move in Universal Chess Interface (UCI) notation
+     * @return the promoted piece, or {@code null} if the move does not result in promotion
      */
     Piece makeMove( String uci )
     {
@@ -231,20 +231,20 @@ public class Game
         {
             if ( !( piece instanceof Pawn ) )
             {
-                String msg = String.format( "The promoting piece (%s) must be a Pawn.", piece );
-                throw new InvalidPromotionException( msg );
+                String message = "The promoting piece (%s) must be a Pawn.".formatted( piece );
+                throw new InvalidPromotionException( message );
             }
 
             if ( !to.isOnLastRank( activePlayer ) )
             {
-                String msg = String.format( "The promotion square (%s) must be on %s's last rank.", to, activePlayer );
-                throw new InvalidPromotionException( msg );
+                String message = "The promotion square (%s) must be on %s's last rank.".formatted( to, activePlayer );
+                throw new InvalidPromotionException( message );
             }
 
             if ( !newType.isValidPromotionType() )
             {
-                String msg = String.format( "The new piece type (%s) must be one of Knight, Bishop, Rook or Queen.", newType );
-                throw new InvalidPromotionException( msg );
+                String message = "The new piece type (%s) must be one of Knight, Bishop, Rook or Queen.".formatted( newType );
+                throw new InvalidPromotionException( message );
             }
 
             newPiece = newBoard.promote( (Pawn) piece, newType );
@@ -269,7 +269,7 @@ public class Game
     {
         return switch ( getStatus() )
         {
-            case CHECKMATE -> getActivePlayer().getColour().transpose() + " wins by checkmate.";
+            case CHECKMATE -> getActivePlayer().getColour().opposite() + " wins by checkmate.";
             case STALEMATE -> "Game drawn by stalemate.";
             case INSUFFICIENT_MATERIAL -> "Game drawn by insufficient material.";
 

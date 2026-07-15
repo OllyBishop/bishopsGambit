@@ -170,7 +170,7 @@ class SquareComponent extends JLayeredPane
         return Square.getIndex( file, rank );
     }
 
-    void debugLayeringIssues()
+    void checkForLayeringIssues()
     {
         int totalCount = getComponentCount();
 
@@ -180,13 +180,14 @@ class SquareComponent extends JLayeredPane
 
         if ( defaultCount + paletteCount + modalCount < totalCount )
             System.err.println( String.format(
-                "Total number of components (%d) does not equal the sum of the number of components in each layer (%d default, %d palette, %d modal) for square '%s%s'",
+                "Square '%s%s' contains %d components, but its expected layers contain only %d (%d default, %d palette, %d modal)",
+                getFile(),
+                getRank(),
                 totalCount,
+                defaultCount + paletteCount + modalCount,
                 defaultCount,
                 paletteCount,
-                modalCount,
-                getFile(),
-                getRank() ) );
+                modalCount ) );
     }
 
     private class MoveMarker extends JComponent

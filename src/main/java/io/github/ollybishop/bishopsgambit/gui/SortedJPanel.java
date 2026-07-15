@@ -24,7 +24,7 @@ class SortedJPanel extends JPanel
 
         Component[] components = getComponents();
 
-        // Determine where to insert the new component to preserve sort order
+        // Find the index at which to insert the new component to maintain sort order
         index = IntStream.range( 0, components.length )
                          .filter( i -> ( (Sortable) components[ i ] ).compareTo( (Sortable) comp ) > 0 )
                          .findFirst()

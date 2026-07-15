@@ -32,7 +32,7 @@ public class Images
 
         try
         {
-            String imagePath = String.format( "/images/%s-%s.png", colour, type );
+            String imagePath = "/images/%s-%s.png".formatted( colour, type );
             image = ImageIO.read( Images.class.getResource( imagePath ) );
         }
         catch ( IOException e )
@@ -70,12 +70,11 @@ public class Images
     }
 
     /**
-     * Creates an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>. The width and height of the new
-     * icon are equal to that of the original image.
+     * Creates an {@link ImageIcon} for a piece of the given colour and type, using the original image dimensions.
      * 
-     * @param colour the piece colour (i.e. the colour of the player who owns the piece)
+     * @param colour the colour of the player who owns the piece
      * @param type   the piece type
-     * @return an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>
+     * @return an icon for the piece with the given colour and type
      */
     public static Icon createIcon( Player.Colour colour, Piece.Type type )
     {
@@ -83,15 +82,18 @@ public class Images
     }
 
     /**
-     * Creates an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>. If <b>scale</b> is positive, the
-     * width and height of the new icon are equal to this value. If <b>scale</b> is negative, the original image dimensions are
-     * used. If <b>scale</b> is zero, an {@code IllegalArgumentException} is thrown.
+     * Creates an {@link ImageIcon} for a piece of the given colour and type.
+     * <ul>
+     * <li>If {@code scale} is positive, the icon's width and height are set to {@code scale}.</li>
+     * <li>If {@code scale} is negative, the original image dimensions are used.</li>
+     * <li>If {@code scale} is zero, an {@link IllegalArgumentException} is thrown.</li>
+     * </ul>
      * 
-     * @param colour the piece colour (i.e. the colour of the player who owns the piece)
+     * @param colour the colour of the player who owns the piece
      * @param type   the piece type
-     * @param scale  the width and height of the icon
-     * @return a scaled {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>
-     * @throws IllegalArgumentException if <b>scale</b> is zero
+     * @param scale  the width and height of the icon, or a negative value to use the original image dimensions
+     * @return an icon for the piece with the given colour, type and dimensions
+     * @throws IllegalArgumentException if {@code scale} is zero
      */
     public static Icon createIcon( Player.Colour colour, Piece.Type type, int scale )
     {

@@ -38,12 +38,12 @@ public class Square
     @Override
     public String toString()
     {
-        return String.format( "%s%s", getFile(), getRank() );
+        return "%s%s".formatted( getFile(), getRank() );
     }
 
     /**
      * Returns a new, unoccupied square with the same file and rank as this square.
-     *
+     * 
      * @return a new, unoccupied square with the same file and rank as this square
      */
     Square copyWithoutPiece()

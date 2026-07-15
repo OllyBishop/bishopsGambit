@@ -18,7 +18,7 @@ public class Fonts
 
         try
         {
-            String fontPath = String.format( "/fonts/%s/%s-%s.ttf", fontName.toLowerCase(), fontName, fontFace );
+            String fontPath = "/fonts/%s/%s-%s.ttf".formatted( fontName.toLowerCase(), fontName, fontFace );
             font = Font.createFont( Font.TRUETYPE_FONT, Fonts.class.getResourceAsStream( fontPath ) );
 
             if ( !fontFamilyNames.contains( font.getFontName() ) )
