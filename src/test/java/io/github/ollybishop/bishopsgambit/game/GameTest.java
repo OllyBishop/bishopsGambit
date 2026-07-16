@@ -216,7 +216,7 @@ class GameTest
     // ============================================================================================
 
     @Test
-    void moveFromEmptySquare_throwsNoPieceOnSquareException()
+    void movingFromEmptySquare_throwsNoPieceOnSquareException()
     {
         assertThrowsWithMessage( NoPieceOnSquareException.class,
                                  () -> makeMove( "e3e4" ),
@@ -224,11 +224,29 @@ class GameTest
     }
 
     @Test
-    void moveToSquareOccupiedByFriendlyPiece_throwsIllegalMoveException()
+    void whiteToMove_movingBlackPiece_throwsIllegalMoveException()
+    {
+        assertThrowsWithMessage( IllegalMoveException.class,
+                                 () -> makeMove( "e7e5" ),
+                                 "Black Pawn cannot be moved because it is White's turn." );
+    }
+
+    @Test
+    void blackToMove_movingWhitePiece_throwsIllegalMoveException()
+    {
+        makeMove( "e2e4" );
+
+        assertThrowsWithMessage( IllegalMoveException.class,
+                                 () -> makeMove( "d2d4" ),
+                                 "White Pawn cannot be moved because it is Black's turn." );
+    }
+
+    @Test
+    void movingToSquareOccupiedByFriendlyPiece_throwsIllegalMoveException()
     {
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1e2" ),
-                                 "The White King on e1 cannot legally move to e2." );
+                                 "White King cannot legally move from e1 to e2." );
     }
 
     // ============================================================================================
@@ -356,7 +374,7 @@ class GameTest
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1g1" ),
-                                 "The White King on e1 cannot legally move to g1." );
+                                 "White King cannot legally move from e1 to g1." );
 
         assertEquals( 8, getNumberOfPliesPlayed() );
         assertEquals( 37, getNumberOfLegalMoves() );
@@ -384,7 +402,7 @@ class GameTest
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1g1" ),
-                                 "The White King on e1 cannot legally move to g1." );
+                                 "White King cannot legally move from e1 to g1." );
 
         assertEquals( 6, getNumberOfPliesPlayed() );
         assertEquals( 32, getNumberOfLegalMoves() );
@@ -413,7 +431,7 @@ class GameTest
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e8g8" ),
-                                 "The Black King on e8 cannot legally move to g8." );
+                                 "Black King cannot legally move from e8 to g8." );
 
         assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { d4, e5 } );
     }
@@ -432,7 +450,7 @@ class GameTest
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e8g8" ),
-                                 "The Black King on e8 cannot legally move to g8." );
+                                 "Black King cannot legally move from e8 to g8." );
 
         assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { g4, e5 } );
     }
@@ -449,7 +467,7 @@ class GameTest
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "d5e6" ),
-                                 "The White Pawn on d5 cannot legally move to e6." );
+                                 "White Pawn cannot legally move from d5 to e6." );
 
         assertEquals( 4, getNumberOfPliesPlayed() );
         assertEquals( 29, getNumberOfLegalMoves() );

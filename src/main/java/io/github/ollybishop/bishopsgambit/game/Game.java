@@ -178,27 +178,29 @@ public class Game
     }
 
     /**
-     * Clones the board returned by {@link Game#getActiveBoard()} and moves the piece occupying the
-     * <b>from</b> square to the <b>to</b> square. Also handles the following special moves (if
-     * applicable):
+     * Validates the requested move, then clones the board returned by {@link Game#getActiveBoard()}
+     * and moves the piece occupying {@code from} to {@code to}. Also handles the following special
+     * moves, if applicable:
      * <ul>
      * <li>Castling: Moves the corresponding rook to the square adjacent to the king.</li>
      * <li>En passant: Removes the captured pawn.</li>
-     * <li>Promotion: Replaces the piece with a new piece of the given type.</li>
+     * <li>Promotion: Replaces the pawn with a new piece of the given type.</li>
      * </ul>
      * 
      * @param from    the square containing the piece to be moved
-     * @param to      the destination square for the piece
-     * @param newType the new piece type (if promoting)
-     * @return the new piece (if promoting); {@code null} otherwise
-     * @throws NoPieceOnSquareException  if the <b>from</b> square is unoccupied
-     * @throws IllegalMoveException      if the piece cannot legally move to the <b>to</b> square
-     * @throws InvalidPromotionException if <b>newType</b> is null and promotion is mandatory, or
-     *                                   <b>newType</b> is non-null and either:
+     * @param to      the destination square
+     * @param newType the new piece type when promoting; {@code null} otherwise
+     * @return the promoted piece, or {@code null} if no promotion occurs
+     * @throws NoPieceOnSquareException  if {@code from} is unoccupied
+     * @throws IllegalMoveException      if the piece does not belong to the active player, or
+     *                                   cannot legally move to {@code to}
+     * @throws InvalidPromotionException if {@code newType} is {@code null} when promotion is
+     *                                   mandatory, or is non-null and any of the following apply:
      *                                   <ul>
-     *                                   <li>the piece occupying <b>from</b> is not a pawn,</li>
-     *                                   <li><b>to</b> is not on the player's last rank, or</li>
-     *                                   <li><b>newType</b> is not a valid promotion type</li>
+     *                                   <li>the piece occupying {@code from} is not a pawn,</li>
+     *                                   <li>{@code to} is not on the active player's last rank,
+     *                                   or</li>
+     *                                   <li>{@code newType} is not a valid promotion type</li>
      *                                   </ul>
      */
     public Piece makeMove( Square from, Square to, Piece.Type newType )
@@ -206,12 +208,19 @@ public class Game
         if ( !from.isOccupied() )
             throw new NoPieceOnSquareException( from );
 
-        if ( !getActiveBoard().isLegalMove( from, to ) )
-            throw new IllegalMoveException( from, to );
-
-        Board newBoard = getActiveBoard().cloneAndMove( from, to );
-
         Piece piece = from.getPiece();
+        Player activePlayer = getActivePlayer();
+
+        if ( piece.getPlayer() != activePlayer )
+            throw IllegalMoveException.wrongPlayer( piece, activePlayer );
+
+        Board activeBoard = getActiveBoard();
+
+        if ( !activeBoard.isLegalMove( from, to ) )
+            throw IllegalMoveException.illegalPieceMove( from, to );
+
+        Board newBoard = activeBoard.cloneAndMove( from, to );
+
         Piece newPiece;
 
         if ( newType == null )
@@ -229,9 +238,9 @@ public class Game
                 throw new InvalidPromotionException( msg );
             }
 
-            if ( !to.isOnLastRank( piece.getPlayer() ) )
+            if ( !to.isOnLastRank( activePlayer ) )
             {
-                String msg = String.format( "The promotion square (%s) must be on %s's last rank.", to, piece.getPlayer() );
+                String msg = String.format( "The promotion square (%s) must be on %s's last rank.", to, activePlayer );
                 throw new InvalidPromotionException( msg );
             }
 
